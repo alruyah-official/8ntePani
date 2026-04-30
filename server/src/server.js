@@ -16,8 +16,8 @@ const io = new Server(server, {
 // Socket.io handlers
 require('./sockets')(io);
 
-const PORT = process.env.PORT;
-console.log(PORT)
+const PORT = process.env.PORT || 3000;
+console.log(`Server starting on port ${PORT}`);
 
 server.listen(PORT, () => {
   console.log(`SkillHive server running on http://localhost:${PORT}`);
