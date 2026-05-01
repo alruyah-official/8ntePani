@@ -17,7 +17,7 @@ const io = new Server(server, {
 // Socket.io handlers
 require('./sockets')(io);
 
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT;
 console.log(`Server starting on port ${PORT}`);
 
 server.listen(PORT, () => {
