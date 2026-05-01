@@ -1,0 +1,158 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+  output = "../node_modules/.prisma/client"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum UserRole {
+  buyer
+  seller
+  both
+}
+
+enum SellerLevel {
+  new
+  level1
+  level2
+  top
+}
+
+enum PackageType {
+  basic
+  standard
+  premium
+}
+
+enum OrderStatus {
+  pending
+  in_progress
+  delivered
+  revision
+  completed
+  cancelled
+}
+
+model User {
+  id        String      @id @default(cuid())
+  name      String
+  email     String      @unique
+  password  String
+  role      UserRole
+  avatar    String?
+  bio       String?
+  username  String      @unique
+  country   String?
+  languages String[]
+  skills    String[]
+  sellerLevel SellerLevel @default(new)
+  isVerified Boolean    @default(false)
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+
+  // Relations
+  gigs           Gig[]     @relation("GigSeller")
+  ordersAsBuyer  Order[]   @relation("OrderBuyer")
+  ordersAsSeller Order[]   @relation("OrderSeller")
+  reviews        Review[]  @relation("ReviewReviewer")
+  sentMessages   Message[] @relation("MessageSender")
+  conversations  Conversation[] @relation("ConversationParticipants")
+}
+
+model Gig {
+  id          String   @id @default(cuid())
+  sellerId    String
+  title       String   @db.VarChar(80)
+  slug        String   @unique
+  category    String
+  subcategory String
+  description String   @db.VarChar(1200)
+  tags        String[]
+  images      String[]
+  packages    Json
+  avgRating   Float    @default(0)
+  reviewCount Int      @default(0)
+  orderCount  Int      @default(0)
+  isFeatured  Boolean  @default(false)
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  seller       User           @relation("GigSeller", fields: [sellerId], references: [id], onDelete: Cascade)
+  orders       Order[]        @relation("OrderGig")
+  reviews      Review[]       @relation("ReviewGig")
+  conversations Conversation[] @relation("ConversationGig")
+}
+
+model Order {
+  id          String      @id @default(cuid())
+  gigId       String
+  buyerId     String
+  sellerId    String
+  packageType PackageType
+  requirements String?
+  price       Float
+  deliveryDays Int
+  status      OrderStatus @default(pending)
+  deliveryNote String?
+  attachments String[]
+  dueDate     DateTime?
+  completedAt DateTime?
+  createdAt   DateTime    @default(now())
+
+  // Relations
+  gig     Gig      @relation("OrderGig", fields: [gigId], references: [id], onDelete: Cascade)
+  buyer   User     @relation("OrderBuyer", fields: [buyerId], references: [id], onDelete: Cascade)
+  seller  User     @relation("OrderSeller", fields: [sellerId], references: [id], onDelete: Cascade)
+  reviews Review[] @relation("ReviewOrder")
+}
+
+model Review {
+  id         String   @id @default(cuid())
+  gigId      String
+  orderId    String   @unique
+  reviewerId String
+  rating     Int
+  comment    String
+  createdAt  DateTime @default(now())
+
+  // Relations
+  gig   Gig   @relation("ReviewGig", fields: [gigId], references: [id], onDelete: Cascade)
+  order Order @relation("ReviewOrder", fields: [orderId], references: [id], onDelete: Cascade)
+  reviewer User @relation("ReviewReviewer", fields: [reviewerId], references: [id], onDelete: Cascade)
+}
+
+model Conversation {
+  id             String   @id @default(cuid())
+  participantIds String[]
+  gigId          String
+  lastMessage    String?
+  lastMessageAt  DateTime?
+  unreadCount    Json
+  createdAt      DateTime @default(now())
+
+  // Relations
+  gig       Gig       @relation("ConversationGig", fields: [gigId], references: [id], onDelete: Cascade)
+  messages  Message[] @relation("MessageConversation")
+  participants User[] @relation("ConversationParticipants")
+}
+
+model Message {
+  id             String   @id @default(cuid())
+  conversationId String
+  senderId       String
+  text           String
+  attachments    String[]
+  isRead         Boolean  @default(false)
+  createdAt      DateTime @default(now())
+
+  // Relations
+  conversation Conversation @relation("MessageConversation", fields: [conversationId], references: [id], onDelete: Cascade)
+  sender       User         @relation("MessageSender", fields: [senderId], references: [id], onDelete: Cascade)
+}
