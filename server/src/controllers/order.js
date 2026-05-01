@@ -1,5 +1,5 @@
 const orderService = require('../services/order');
-const prisma = require('../config/database');
+const Gig = require('../models/gig');
 
 const getOrders = async (req, res) => {
   try {
@@ -17,7 +17,7 @@ const getOrderById = async (req, res) => {
     if (!order) {
       return res.status(404).json({ message: 'Order not found' });
     }
-    if (order.buyerId !== req.user.id && order.sellerId !== req.user.id) {
+    if (order.buyerId.toString() !== req.user.id && order.sellerId.toString() !== req.user.id) {
       return res.status(403).json({ message: 'Unauthorized' });
     }
     res.json({ data: order, message: 'Success' });
@@ -29,7 +29,7 @@ const getOrderById = async (req, res) => {
 const createOrder = async (req, res) => {
   try {
     const { gigId, packageType, requirements } = req.body;
-    const gig = await prisma.gig.findUnique({ where: { id: gigId } });
+    const gig = await Gig.findById(gigId).exec();
     if (!gig) {
       return res.status(404).json({ message: 'Gig not found' });
     }
@@ -61,7 +61,7 @@ const updateOrderStatus = async (req, res) => {
     if (!order) {
       return res.status(404).json({ message: 'Order not found' });
     }
-    if (order.sellerId !== req.user.id) {
+    if (order.sellerId.toString() !== req.user.id) {
       return res.status(403).json({ message: 'Only seller can update status' });
     }
     if (!orderService.canTransition(order.status, status)) {
@@ -69,10 +69,7 @@ const updateOrderStatus = async (req, res) => {
     }
     const updatedOrder = await orderService.updateOrder(req.params.id, { status });
     if (status === 'completed') {
-      await prisma.gig.update({
-        where: { id: order.gigId },
-        data: { orderCount: { increment: 1 } }
-      });
+      await Gig.findByIdAndUpdate(order.gigId, { $inc: { orderCount: 1 } });
     }
     res.json({ data: updatedOrder, message: 'Order status updated' });
   } catch (error) {
@@ -87,7 +84,7 @@ const deliverOrder = async (req, res) => {
     if (!order) {
       return res.status(404).json({ message: 'Order not found' });
     }
-    if (order.sellerId !== req.user.id) {
+    if (order.sellerId.toString() !== req.user.id) {
       return res.status(403).json({ message: 'Unauthorized' });
     }
     if (order.status !== 'in_progress') {
@@ -110,7 +107,7 @@ const requestRevision = async (req, res) => {
     if (!order) {
       return res.status(404).json({ message: 'Order not found' });
     }
-    if (order.buyerId !== req.user.id) {
+    if (order.buyerId.toString() !== req.user.id) {
       return res.status(403).json({ message: 'Unauthorized' });
     }
     if (order.status !== 'delivered') {
@@ -129,7 +126,7 @@ const completeOrder = async (req, res) => {
     if (!order) {
       return res.status(404).json({ message: 'Order not found' });
     }
-    if (order.buyerId !== req.user.id) {
+    if (order.buyerId.toString() !== req.user.id) {
       return res.status(403).json({ message: 'Unauthorized' });
     }
     if (order.status !== 'delivered') {
@@ -139,10 +136,7 @@ const completeOrder = async (req, res) => {
       status: 'completed',
       completedAt: new Date()
     });
-    await prisma.gig.update({
-      where: { id: order.gigId },
-      data: { orderCount: { increment: 1 } }
-    });
+    await Gig.findByIdAndUpdate(order.gigId, { $inc: { orderCount: 1 } });
     res.json({ data: updatedOrder, message: 'Order completed' });
   } catch (error) {
     res.status(400).json({ message: error.message });

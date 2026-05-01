@@ -1,44 +1,38 @@
-const prisma = require('../config/database');
+const Order = require('../models/order');
 
 const createOrder = async (data) => {
-  return await prisma.order.create({ data });
+  return await Order.create(data);
 };
 
 const updateOrder = async (id, data) => {
-  return await prisma.order.update({ where: { id }, data });
+  return await Order.findByIdAndUpdate(id, data, { new: true });
 };
 
 const findOrderById = async (id) => {
-  return await prisma.order.findUnique({
-    where: { id },
-    include: {
-      gig: { select: { title: true, images: true } },
-      buyer: { select: { name: true, avatar: true } },
-      seller: { select: { name: true, avatar: true } },
-      reviews: true
-    }
-  });
+  return await Order.findById(id)
+    .populate('gig', 'title images')
+    .populate('buyer', 'name avatar')
+    .populate('seller', 'name avatar')
+    .populate('reviews')
+    .exec();
 };
 
 const findOrders = async (userId, page = 1, limit = 10) => {
-  const where = {
-    OR: [
+  const query = {
+    $or: [
       { buyerId: userId },
       { sellerId: userId }
     ]
   };
-  const total = await prisma.order.count({ where });
-  const orders = await prisma.order.findMany({
-    where,
-    include: {
-      gig: { select: { title: true, images: true } },
-      buyer: { select: { name: true } },
-      seller: { select: { name: true } }
-    },
-    skip: (page - 1) * limit,
-    take: limit,
-    orderBy: { createdAt: 'desc' }
-  });
+  const total = await Order.countDocuments(query);
+  const orders = await Order.find(query)
+    .populate('gig', 'title images')
+    .populate('buyer', 'name')
+    .populate('seller', 'name')
+    .sort({ createdAt: -1 })
+    .skip((page - 1) * limit)
+    .limit(limit)
+    .exec();
   return { orders, total, page, limit };
 };
 

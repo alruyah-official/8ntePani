@@ -4,8 +4,9 @@ export const authApi = {
   login: async ({ email, password }) => {
     return await apiClient.post('/auth/login', { email, password });
   },
-  signup: async ({ name, email, password, role }) => {
-    return await apiClient.post('/auth/signup', { name, email, password, role });
+  signup: async ({ name, email, password, role, username }) => {
+    const normalizedUsername = username || email.split('@')[0].replace(/[^\w-]/g, '');
+    return await apiClient.post('/auth/signup', { name, email, password, role, username: normalizedUsername });
   },
   logout: async () => {
     return await apiClient.post('/auth/logout');

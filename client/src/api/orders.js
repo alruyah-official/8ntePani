@@ -18,7 +18,7 @@ export const ordersApi = {
   },
   
   deliverOrder: async (id, { message, attachments }) => {
-    return await apiClient.post(`/orders/${id}/deliver`, { message, attachments });
+    return await apiClient.post(`/orders/${id}/deliver`, { deliveryNote: message, attachments });
   },
   
   requestRevision: async (id, { message }) => {

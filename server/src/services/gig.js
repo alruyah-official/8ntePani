@@ -1,75 +1,70 @@
-const prisma = require('../config/database');
+const Gig = require('../models/gig');
+const Review = require('../models/review');
 
 const createGig = async (data) => {
-  return await prisma.gig.create({ data });
+  return await Gig.create(data);
 };
 
 const updateGig = async (id, data) => {
-  return await prisma.gig.update({ where: { id }, data });
+  return await Gig.findByIdAndUpdate(id, data, { new: true });
 };
 
 const deleteGig = async (id) => {
-  return await prisma.gig.delete({ where: { id } });
+  return await Gig.findByIdAndDelete(id);
 };
 
 const findGigById = async (id) => {
-  return await prisma.gig.findUnique({
-    where: { id },
-    include: {
-      seller: {
-        select: { id: true, name: true, username: true, avatar: true }
-      },
-      reviews: {
-        include: { reviewer: { select: { name: true, avatar: true } } }
-      }
-    }
-  });
+  return await Gig.findById(id)
+    .populate('seller', 'name username avatar')
+    .populate({
+      path: 'reviews',
+      populate: { path: 'reviewer', select: 'name avatar' },
+      options: { sort: { createdAt: -1 } }
+    })
+    .exec();
 };
 
 const findGigs = async (filters, page = 1, limit = 10) => {
-  const where = {};
-  if (filters.category) where.category = filters.category;
-  if (filters.subcategory) where.subcategory = filters.subcategory;
+  const query = {};
+  if (filters.category) query.category = filters.category;
+  if (filters.subcategory) query.subcategory = filters.subcategory;
   if (filters.search) {
-    where.OR = [
-      { title: { contains: filters.search, mode: 'insensitive' } },
-      { description: { contains: filters.search, mode: 'insensitive' } },
-      { tags: { hasSome: [filters.search] } }
+    query.$or = [
+      { title: new RegExp(filters.search, 'i') },
+      { description: new RegExp(filters.search, 'i') },
+      { tags: { $in: [filters.search] } }
     ];
   }
-  const total = await prisma.gig.count({ where });
-  const gigs = await prisma.gig.findMany({
-    where,
-    include: {
-      seller: { select: { name: true, username: true, avatar: true } }
-    },
-    skip: (page - 1) * limit,
-    take: limit,
-    orderBy: { createdAt: 'desc' }
-  });
+  const total = await Gig.countDocuments(query);
+  const gigs = await Gig.find(query)
+    .populate('seller', 'name username avatar')
+    .sort({ createdAt: -1 })
+    .skip((page - 1) * limit)
+    .limit(limit)
+    .exec();
   return { gigs, total, page, limit };
 };
 
 const findMyGigs = async (sellerId, page = 1, limit = 10) => {
-  const total = await prisma.gig.count({ where: { sellerId } });
-  const gigs = await prisma.gig.findMany({
-    where: { sellerId },
-    skip: (page - 1) * limit,
-    take: limit,
-    orderBy: { createdAt: 'desc' }
-  });
+  const query = { sellerId };
+  const total = await Gig.countDocuments(query);
+  const gigs = await Gig.find(query)
+    .sort({ createdAt: -1 })
+    .skip((page - 1) * limit)
+    .limit(limit)
+    .exec();
   return { gigs, total, page, limit };
 };
 
 const findGigReviews = async (gigId, page = 1, limit = 10) => {
-  const total = await prisma.review.count({ where: { gigId } });
-  const reviews = await prisma.review.findMany({
-    where: { gigId },
-    include: { reviewer: { select: { name: true, avatar: true } } },
-    skip: (page - 1) * limit,
-    take: limit,
-    orderBy: { createdAt: 'desc' }
-  });
+  const query = { gigId };
+  const total = await Review.countDocuments(query);
+  const reviews = await Review.find(query)
+    .populate('reviewer', 'name avatar')
+    .sort({ createdAt: -1 })
+    .skip((page - 1) * limit)
+    .limit(limit)
+    .exec();
   return { reviews, total, page, limit };
 };
 
