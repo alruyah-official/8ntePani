@@ -14,7 +14,7 @@ export const messagesApi = {
   },
   
   startConversation: async ({ recipientId, gigId, text }) => {
-    return await apiClient.post('/messages/conversations', { recipientId, gigId, text });
+    return await apiClient.post('/messages/conversations', { participantId: recipientId, gigId, text });
   },
   
   markAsRead: async (conversationId) => {

@@ -2,7 +2,6 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Star, Filter } from 'lucide-react';
 import GigCard from '../components/shared/GigCard';
-import { mockGigs } from '../utils/mockData';
 import { useGigs } from '../hooks/useGigs';
 import { useDebounce } from '../hooks/useDebounce';
 import { useSearchParams } from 'react-router-dom';
@@ -35,16 +34,9 @@ export default function Explore() {
 
   const { data, isLoading, isError } = useGigs(apiParams);
 
-  const filteredMock = mockGigs.filter(g => {
-    if (category !== 'All' && g.category !== category.toLowerCase()) return false;
-    if (minPrice && g.price < Number(minPrice)) return false;
-    if (maxPrice && g.price > Number(maxPrice)) return false;
-    if (debouncedSearch && !g.title.toLowerCase().includes(debouncedSearch.toLowerCase())) return false;
-    return true;
-  });
-
-  const gigs  = data?.data  || filteredMock;
-  const total = data?.total || filteredMock.length;
+  // Only use real API data
+  const gigs = data?.data || [];
+  const total = data?.total ?? 0;
 
   function updateFilter(key, value) {
     const next = new URLSearchParams(searchParams);
@@ -174,18 +166,23 @@ export default function Explore() {
 
           {/* Error notice — shows but doesn't block gigs */}
           {isError && (
-            <div style={{ fontSize:12, color:'#f87171', marginBottom:12, padding:'8px 12px', background:'rgba(248,113,113,0.06)', borderRadius:8 }}>
-              ⚠ Backend offline — showing local results
+            <div style={{ textAlign: 'center', padding: '60px 20px', color: '#f87171' }}>
+              <p style={{ fontSize: 18, fontWeight: 700, marginBottom: 8 }}>Could not connect to server</p>
+              <p style={{ fontSize: 14, color: '#888' }}>Make sure the backend is running on port 3030.</p>
             </div>
           )}
 
           {/* Gig grid — inline style guarantees columns */}
           {!isLoading && (
-            gigs.length === 0
-              ? <div style={{ textAlign:'center', padding:'60px 20px', color:'#444' }}>No gigs found. Try adjusting your filters.</div>
-              : <div style={gigGridStyle}>
-                  {gigs.map(gig => <GigCard key={gig.id} gig={gig} />)}
-                </div>
+            gigs.length === 0 ? (
+              <div style={{ textAlign: 'center', padding: '60px 20px', color: '#444' }}>
+                No gigs found. Try adjusting your filters.
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
+                {gigs.map(gig => <GigCard key={gig._id || gig.id} gig={gig} />)}
+              </div>
+            )
           )}
 
           {/* Load more */}

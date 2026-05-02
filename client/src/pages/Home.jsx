@@ -5,7 +5,6 @@ import {
   PenTool, Music, Briefcase, Cpu, ArrowRight
 } from 'lucide-react';
 import GigCard from '../components/shared/GigCard';
-import { mockGigs } from '../utils/mockData';
 import { useGigs } from '../hooks/useGigs';
 
 const categories = [
@@ -27,8 +26,8 @@ const steps = [
 
 // ── Featured Gigs ─────────────────────────────────────────
 function FeaturedGigs() {
-  const { data, isLoading } = useGigs({ featured: true, limit: 4 });
-  const gigs = data?.data || mockGigs.filter(g => g.isFeatured).slice(0, 4);
+  const { data, isLoading, isError } = useGigs({ featured: true, limit: 4 });
+  const gigs = data?.data || [];
 
   return (
     <section style={{ maxWidth: 1280, margin: '0 auto', padding: '0 24px 60px' }}>
@@ -47,9 +46,17 @@ function FeaturedGigs() {
             <div key={i} style={{ background:'#111', borderRadius:16, height:280, border:'1px solid #1e1e1e', animation:'shimmer 1.5s infinite' }} />
           ))}
         </div>
+      ) : isError ? (
+        <p style={{ color: '#f87171', fontFamily: 'DM Sans,sans-serif', textAlign: 'center', padding: '40px 0' }}>
+          Could not load featured gigs. Make sure the server is running.
+        </p>
+      ) : gigs.length === 0 ? (
+        <p style={{ color: '#555', fontFamily: 'DM Sans,sans-serif', textAlign: 'center', padding: '40px 0' }}>
+          No featured gigs yet.
+        </p>
       ) : (
-        <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fill, minmax(260px, 1fr))', gap:20 }}>
-          {gigs.map(gig => <GigCard key={gig.id} gig={gig} />)}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', gap: 20 }}>
+          {gigs.map(gig => <GigCard key={gig._id || gig.id} gig={gig} />)}
         </div>
       )}
 
@@ -76,23 +83,9 @@ export default function Home() {
       {/* 1. HERO */}
       <section className="relative w-full overflow-hidden pt-16 pb-24 px-6">
 
-        {/* Decorative bg cards — fixed width so they don't affect layout */}
-        <div style={{
-          position:'absolute', top:40, right:-80,
-          transform:'rotate(-8deg)', opacity:0.08,
-          pointerEvents:'none', filter:'blur(2px)',
-          width:280, zIndex:0,
-        }}>
-          <GigCard gig={mockGigs[0]} />
-        </div>
-        <div style={{
-          position:'absolute', top:160, left:-80,
-          transform:'rotate(12deg)', opacity:0.08,
-          pointerEvents:'none', filter:'blur(3px)',
-          width:280, zIndex:0,
-        }} className="hidden md:block">
-          <GigCard gig={mockGigs[1]} />
-        </div>
+        {/* Decorative background blobs — no mock data needed */}
+        <div className="absolute top-10 right-10 w-64 h-64 rounded-3xl opacity-5 pointer-events-none bg-accent rotate-12 blur-2xl z-0" />
+        <div className="absolute top-40 -left-10 w-48 h-48 rounded-3xl opacity-5 pointer-events-none bg-accent -rotate-12 blur-2xl z-0 hidden md:block" />
 
         <div className="max-w-4xl mx-auto relative z-10 flex flex-col items-center text-center">
           <h1 className="text-5xl md:text-7xl font-display font-bold text-text-primary leading-tight mb-8">

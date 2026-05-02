@@ -1,5 +1,6 @@
 const reviewService = require('../services/review');
-const prisma = require('../config/database');
+const Order = require('../models/order');
+const Review = require('../models/review');
 
 const getReviewsByGig = async (req, res) => {
   try {
@@ -14,20 +15,17 @@ const getReviewsByGig = async (req, res) => {
 const createReview = async (req, res) => {
   try {
     const { orderId, rating, comment } = req.body;
-    const order = await prisma.order.findUnique({
-      where: { id: orderId },
-      include: { reviews: true }
-    });
+    const order = await Order.findById(orderId).populate('reviews').exec();
     if (!order) {
       return res.status(404).json({ message: 'Order not found' });
     }
-    if (order.buyerId !== req.user.id) {
+    if (order.buyerId.toString() !== req.user.id) {
       return res.status(403).json({ message: 'Unauthorized' });
     }
     if (order.status !== 'completed') {
       return res.status(400).json({ message: 'Order must be completed' });
     }
-    if (order.reviews.length > 0) {
+    if (order.reviews && order.reviews.length > 0) {
       return res.status(400).json({ message: 'Review already exists for this order' });
     }
     const data = {
@@ -47,11 +45,11 @@ const createReview = async (req, res) => {
 
 const deleteReview = async (req, res) => {
   try {
-    const review = await prisma.review.findUnique({ where: { id: req.params.id } });
+    const review = await Review.findById(req.params.id).exec();
     if (!review) {
       return res.status(404).json({ message: 'Review not found' });
     }
-    if (review.reviewerId !== req.user.id) {
+    if (review.reviewerId.toString() !== req.user.id) {
       return res.status(403).json({ message: 'Unauthorized' });
     }
     await reviewService.deleteReview(req.params.id);

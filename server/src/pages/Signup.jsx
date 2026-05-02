@@ -54,16 +54,16 @@ export default function Signup() {
     setIsSubmitting(true);
     
     try {
-      const data = await authApi.signup({
+      // Response shape: { token, refreshToken, user, message }
+      const { token, refreshToken, user } = await authApi.signup({
         name: formData.name,
         email: formData.email,
         password: formData.password,
         role: formData.role
       });
-      
-      // The API interceptor returns the data object directly, so data has token and user
-      login(data.token, data.user);
-      
+
+      login(token, user, refreshToken);
+
       if (formData.role === 'seller') {
         navigate('/dashboard');
       } else {

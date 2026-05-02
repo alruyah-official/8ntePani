@@ -1,5 +1,5 @@
 const messageService = require('../services/message');
-const prisma = require('../config/database');
+const Conversation = require('../models/conversation');
 
 const getConversations = async (req, res) => {
   try {
@@ -14,12 +14,10 @@ const getConversations = async (req, res) => {
 const createConversation = async (req, res) => {
   try {
     const { gigId, participantId } = req.body;
-    const existing = await prisma.conversation.findFirst({
-      where: {
-        gigId,
-        participantIds: { hasEvery: [req.user.id, participantId] }
-      }
-    });
+    const existing = await Conversation.findOne({
+      gigId,
+      participantIds: { $all: [req.user.id, participantId] }
+    }).exec();
     if (existing) {
       return res.json({ data: existing, message: 'Conversation already exists' });
     }
@@ -40,7 +38,7 @@ const getMessages = async (req, res) => {
     if (!conversation) {
       return res.status(404).json({ message: 'Conversation not found' });
     }
-    if (!conversation.participantIds.includes(req.user.id)) {
+    if (!conversation.participantIds.some((id) => id.toString() === req.user.id)) {
       return res.status(403).json({ message: 'Unauthorized' });
     }
     res.json({ data: conversation.messages, message: 'Success' });
@@ -52,11 +50,11 @@ const getMessages = async (req, res) => {
 const sendMessage = async (req, res) => {
   try {
     const { conversationId, text, attachments } = req.body;
-    const conversation = await prisma.conversation.findUnique({ where: { id: conversationId } });
+    const conversation = await Conversation.findById(conversationId).exec();
     if (!conversation) {
       return res.status(404).json({ message: 'Conversation not found' });
     }
-    if (!conversation.participantIds.includes(req.user.id)) {
+    if (!conversation.participantIds.some((id) => id.toString() === req.user.id)) {
       return res.status(403).json({ message: 'Unauthorized' });
     }
     const data = {
@@ -74,11 +72,11 @@ const sendMessage = async (req, res) => {
 
 const markRead = async (req, res) => {
   try {
-    const conversation = await prisma.conversation.findUnique({ where: { id: req.params.conversationId } });
+    const conversation = await Conversation.findById(req.params.conversationId).exec();
     if (!conversation) {
       return res.status(404).json({ message: 'Conversation not found' });
     }
-    if (!conversation.participantIds.includes(req.user.id)) {
+    if (!conversation.participantIds.some((id) => id.toString() === req.user.id)) {
       return res.status(403).json({ message: 'Unauthorized' });
     }
     await messageService.markAsRead(req.params.conversationId, req.user.id);

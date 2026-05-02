@@ -1,10 +1,11 @@
 const jwt = require('jsonwebtoken');
-const prisma = require('../config/database');
+const Conversation = require('../models/conversation');
+const Message = require('../models/message');
 const messageService = require('../services/message');
 
 module.exports = (io) => {
   io.use((socket, next) => {
-    const token = socket.handshake.query.token;
+    const token = socket.handshake.auth?.token || socket.handshake.query?.token;
     if (!token) {
       return next(new Error('Authentication error'));
     }
@@ -26,7 +27,7 @@ module.exports = (io) => {
 
     socket.on('send_message', async (data) => {
       const { conversationId, text, attachments } = data;
-      const conversation = await prisma.conversation.findUnique({ where: { id: conversationId } });
+      const conversation = await Conversation.findById(conversationId).exec();
       if (!conversation || !conversation.participantIds.includes(socket.userId)) {
         return;
       }
@@ -37,15 +38,14 @@ module.exports = (io) => {
         attachments: attachments || []
       };
       const message = await messageService.createMessage(messageData);
-      const messageWithSender = await prisma.message.findUnique({
-        where: { id: message.id },
-        include: { sender: { select: { id: true, name: true } } }
-      });
+      const messageWithSender = await Message.findById(message._id)
+        .populate('senderId', 'id name')
+        .exec();
       io.to(conversationId).emit('new_message', {
         type: 'message',
         conversationId,
         text,
-        sender: messageWithSender.sender
+        sender: messageWithSender.senderId
       });
     });
 

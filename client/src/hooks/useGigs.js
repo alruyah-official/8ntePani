@@ -24,10 +24,11 @@ export const useGigById = (id) => {
   });
 };
 
-export const useMyGigs = () => {
+export const useMyGigs = (enabled = true) => {
   return useQuery({
     queryKey: ['myGigs'],
     queryFn: () => gigsApi.fetchMyGigs(),
+    enabled,
   });
 };
 

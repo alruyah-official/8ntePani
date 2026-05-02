@@ -25,9 +25,9 @@ export default function Login() {
     setError('');
     
     try {
-      const data = await authApi.login({ email, password });
-      // The API interceptor returns the data object directly, so data has token and user
-      login(data.token, data.user);
+      // Response shape: { token, refreshToken, user, message }
+      const { token, refreshToken, user } = await authApi.login({ email, password });
+      login(token, user, refreshToken);
       navigate('/dashboard');
     } catch (err) {
       setError(err.message || 'Failed to login. Please check your credentials.');

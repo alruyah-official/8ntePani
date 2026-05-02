@@ -13,7 +13,7 @@ export function useSocket() {
 
         // Create socket connection once
         if (!socketInstance) {
-            socketInstance = io(import.meta.env.VITE_WS_URL || 'http://localhost:8000', {
+            socketInstance = io(import.meta.env.VITE_WS_URL || 'http://localhost:3030', {
                 auth: { token },
                 transports: ['websocket'],
                 reconnection: true,
