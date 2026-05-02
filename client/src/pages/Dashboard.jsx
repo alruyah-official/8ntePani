@@ -109,7 +109,7 @@ export default function Dashboard() {
 
           {/* ── Recent orders ── */}
           <div className="mb-12">
-            <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center   justify-between mb-6">
               <h2 className="text-2xl font-bold font-display">Recent Orders</h2>
               <Link to="/orders" className="text-sm font-bold text-accent hover:underline">View all</Link>
             </div>

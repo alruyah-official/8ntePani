@@ -176,7 +176,7 @@ export default function Explore() {
               </div>
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
-                {gigs.map(gig => <GigCard key={gig.id} gig={gig} />)}
+                {gigs.map(gig => <GigCard key={gig._id || gig.id} gig={gig} />)}
               </div>
             )
           )}

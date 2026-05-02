@@ -56,7 +56,7 @@ function FeaturedGigs() {
         </p>
       ) : (
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', gap: 20 }}>
-          {gigs.map(gig => <GigCard key={gig.id} gig={gig} />)}
+          {gigs.map(gig => <GigCard key={gig._id || gig.id} gig={gig} />)}
         </div>
       )}
 

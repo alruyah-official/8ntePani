@@ -2,6 +2,53 @@ import { useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Star } from 'lucide-react';
 
+/**
+ * Normalize a gig object coming from the backend (DB shape) into the flat
+ * shape the card UI expects. Falls back gracefully for any missing field.
+ *
+ * DB shape:
+ *   { _id, id, images[], avgRating, reviewCount, packages{basic{price}},
+ *     sellerId: { name, avatar } | ObjectId }
+ *
+ * Legacy mock shape (still accepted):
+ *   { id, thumbnail, rating, price, sellerName, sellerAvatar }
+ */
+function normalizeGig(gig) {
+  if (!gig) return {};
+
+  // Resolve ID — lean() virtuals give `id`, populate gives `_id` stringified
+  const id = gig.id || gig._id;
+
+  // Thumbnail — DB uses `images[]`, mocks used `thumbnail`
+  const thumbnail = gig.thumbnail || (Array.isArray(gig.images) ? gig.images[0] : null);
+
+  // Rating — DB uses `avgRating`, mocks used `rating`
+  const rating = gig.avgRating ?? gig.rating ?? 0;
+
+  // Price — DB stores in packages.basic.price, mocks used a flat `price`
+  const price = gig.price
+    ?? gig.packages?.basic?.price
+    ?? gig.packages?.standard?.price
+    ?? 0;
+
+  // Seller — DB has sellerId populated as { name, avatar }, mocks had flat fields
+  const seller = gig.seller || (gig.sellerId && typeof gig.sellerId === 'object' ? gig.sellerId : null);
+  const sellerName   = gig.sellerName   || seller?.name   || seller?.username || 'Seller';
+  const sellerAvatar = gig.sellerAvatar || seller?.avatar || null;
+
+  return {
+    id,
+    thumbnail,
+    category: gig.category,
+    title: gig.title,
+    rating,
+    reviewCount: gig.reviewCount ?? 0,
+    price,
+    sellerName,
+    sellerAvatar,
+  };
+}
+
 export default function GigCard({ gig }) {
   const navigate = useNavigate();
   const cardRef = useRef(null);
@@ -25,7 +72,7 @@ export default function GigCard({ gig }) {
     setGlare(g => ({ ...g, opacity: 0 }));
   }
 
-  const { id, thumbnail, category, title, rating, reviewCount, price, sellerName, sellerAvatar } = gig || {};
+  const { id, thumbnail, category, title, rating, reviewCount, price, sellerName, sellerAvatar } = normalizeGig(gig);
 
   return (
     <div
@@ -84,7 +131,7 @@ export default function GigCard({ gig }) {
         {/* Seller row */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
           <img
-            src={sellerAvatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(sellerName || 'S')}&background=111&color=C8F135&size=24`}
+            src={sellerAvatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(sellerName)}&background=111111&color=C8F135&size=24`}
             style={{ width: 22, height: 22, borderRadius: '50%', objectFit: 'cover' }}
             alt={sellerName}
           />
@@ -95,8 +142,8 @@ export default function GigCard({ gig }) {
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
             <Star size={12} fill="#F5A623" color="#F5A623" />
-            <span style={{ fontSize: 12, color: '#fafafa', fontWeight: 600 }}>{Number(rating || 0).toFixed(1)}</span>
-            <span style={{ fontSize: 11, color: '#555' }}>({reviewCount || 0}){' '}</span>
+            <span style={{ fontSize: 12, color: '#fafafa', fontWeight: 600 }}>{Number(rating).toFixed(1)}</span>
+            <span style={{ fontSize: 11, color: '#555' }}>({reviewCount}){' '}</span>
           </div>
           <div>
             <span style={{ fontSize: 11, color: '#555', marginRight: 2 }}>From</span>
@@ -106,4 +153,4 @@ export default function GigCard({ gig }) {
       </div>
     </div>
   );
-}
+}
