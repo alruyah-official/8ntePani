@@ -9,61 +9,58 @@ import { mockGigs } from '../utils/mockData';
 import { useGigs } from '../hooks/useGigs';
 
 const categories = [
-  { name: 'Design', icon: Palette, value: 'design' },
-  { name: 'Development', icon: Code, value: 'development' },
-  { name: 'Marketing', icon: Megaphone, value: 'marketing' },
-  { name: 'Video', icon: Video, value: 'video' },
-  { name: 'Writing', icon: PenTool, value: 'writing' },
-  { name: 'Music', icon: Music, value: 'music' },
-  { name: 'Business', icon: Briefcase, value: 'business' },
-  { name: 'AI', icon: Cpu, value: 'ai' },
+  { name: 'Design',      icon: Palette,  value: 'design'      },
+  { name: 'Development', icon: Code,     value: 'development' },
+  { name: 'Marketing',   icon: Megaphone,value: 'marketing'   },
+  { name: 'Video',       icon: Video,    value: 'video'       },
+  { name: 'Writing',     icon: PenTool,  value: 'writing'     },
+  { name: 'Music',       icon: Music,    value: 'music'       },
+  { name: 'Business',    icon: Briefcase,value: 'business'    },
+  { name: 'AI',          icon: Cpu,      value: 'ai'          },
 ];
 
 const steps = [
-  { title: 'Post a job', desc: 'Tell us what you need done in seconds.' },
-  { title: 'Browse gigs', desc: 'Find the perfect freelancer for your project.' },
-  { title: 'Get it done', desc: 'Collaborate securely and pay only when satisfied.' },
+  { title: 'Post a job',  desc: 'Tell us what you need done in seconds.'                    },
+  { title: 'Browse gigs', desc: 'Find the perfect freelancer for your project.'              },
+  { title: 'Get it done', desc: 'Collaborate securely and pay only when satisfied.'          },
 ];
 
-// ── Featured Gigs section ─────────────────────────────────
+// ── Featured Gigs ─────────────────────────────────────────
 function FeaturedGigs() {
   const { data, isLoading } = useGigs({ featured: true, limit: 4 });
   const gigs = data?.data || mockGigs.filter(g => g.isFeatured).slice(0, 4);
 
   return (
     <section style={{ maxWidth: 1280, margin: '0 auto', padding: '0 24px 60px' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 28 }}>
-        <h2 style={{ fontFamily: 'Syne,sans-serif', fontWeight: 800, fontSize: 26, color: '#fafafa' }}>
+      <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:28 }}>
+        <h2 style={{ fontFamily:'Syne,sans-serif', fontWeight:800, fontSize:26, color:'#fafafa' }}>
           Featured gigs
         </h2>
-        <Link to="/explore" style={{ color: '#C8F135', fontSize: 14, textDecoration: 'none', fontFamily: 'DM Sans,sans-serif', display: 'flex', alignItems: 'center', gap: 4 }}>
+        <Link to="/explore" style={{ color:'#C8F135', fontSize:14, textDecoration:'none', fontFamily:'DM Sans,sans-serif', display:'flex', alignItems:'center', gap:4 }}>
           View all <ArrowRight size={14} />
         </Link>
       </div>
 
       {isLoading ? (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', gap: 20 }}>
+        <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fill, minmax(260px, 1fr))', gap:20 }}>
           {Array.from({ length: 4 }).map((_, i) => (
-            <div key={i} style={{ background: '#111', borderRadius: 16, height: 280, border: '1px solid #1e1e1e', animation: 'shimmer 1.5s infinite' }} />
+            <div key={i} style={{ background:'#111', borderRadius:16, height:280, border:'1px solid #1e1e1e', animation:'shimmer 1.5s infinite' }} />
           ))}
         </div>
       ) : (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', gap: 20 }}>
+        <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fill, minmax(260px, 1fr))', gap:20 }}>
           {gigs.map(gig => <GigCard key={gig.id} gig={gig} />)}
         </div>
       )}
 
       <style>{`
-        @keyframes shimmer {
-          0%, 100% { opacity:0.4; }
-          50%       { opacity:0.8; }
-        }
+        @keyframes shimmer { 0%,100%{opacity:.4} 50%{opacity:.8} }
       `}</style>
     </section>
   );
 }
 
-// ── Main Home page ────────────────────────────────────────
+// ── Home page ─────────────────────────────────────────────
 export default function Home() {
   const [search, setSearch] = useState('');
   const navigate = useNavigate();
@@ -76,14 +73,24 @@ export default function Home() {
   return (
     <div className="flex flex-col w-full pb-20">
 
-      {/* 1. HERO SECTION */}
+      {/* 1. HERO */}
       <section className="relative w-full overflow-hidden pt-16 pb-24 px-6">
 
-        {/* Decorative background cards */}
-        <div className="absolute top-10 -right-20 md:right-10 rotate-[-8deg] opacity-10 pointer-events-none blur-sm scale-75 z-0">
+        {/* Decorative bg cards — fixed width so they don't affect layout */}
+        <div style={{
+          position:'absolute', top:40, right:-80,
+          transform:'rotate(-8deg)', opacity:0.08,
+          pointerEvents:'none', filter:'blur(2px)',
+          width:280, zIndex:0,
+        }}>
           <GigCard gig={mockGigs[0]} />
         </div>
-        <div className="absolute top-40 -left-20 rotate-[12deg] opacity-10 pointer-events-none blur-sm scale-75 z-0 hidden md:block">
+        <div style={{
+          position:'absolute', top:160, left:-80,
+          transform:'rotate(12deg)', opacity:0.08,
+          pointerEvents:'none', filter:'blur(3px)',
+          width:280, zIndex:0,
+        }} className="hidden md:block">
           <GigCard gig={mockGigs[1]} />
         </div>
 
@@ -93,14 +100,13 @@ export default function Home() {
             <span className="text-accent italic">idea.</span>
           </h1>
 
-          {/* Search bar */}
+          {/* Search */}
           <form onSubmit={handleSearch} className="w-full max-w-2xl relative flex items-center mb-6">
             <div className="absolute left-6 text-muted pointer-events-none">
               <Search className="w-5 h-5" />
             </div>
             <input
-              type="text"
-              value={search}
+              type="text" value={search}
               onChange={e => setSearch(e.target.value)}
               placeholder="Try 'build a website' or 'logo design'"
               className="w-full bg-surface border-2 border-border rounded-full py-5 pl-16 pr-32 text-lg outline-none focus:border-accent transition-colors shadow-2xl"
@@ -117,15 +123,13 @@ export default function Home() {
               <span key={tag}
                 onClick={() => navigate(`/explore?search=${encodeURIComponent(tag)}`)}
                 className="border border-border rounded-full px-4 py-1.5 hover:border-accent hover:text-accent cursor-pointer transition-colors bg-surface/50 backdrop-blur-sm"
-              >
-                {tag}
-              </span>
+              >{tag}</span>
             ))}
           </div>
         </div>
       </section>
 
-      {/* 2. CATEGORY GRID */}
+      {/* 2. CATEGORIES */}
       <section className="max-w-7xl mx-auto px-6 py-16 w-full">
         <h2 className="text-3xl font-display font-bold mb-10">Browse by category</h2>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-6">

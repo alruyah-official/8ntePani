@@ -67,13 +67,46 @@ export default function Navbar() {
       }}>
 
         {/* Logo */}
-        <Link to="/" style={{
-          fontFamily: 'Syne, sans-serif', fontWeight: 800,
-          fontSize: 22, color: '#C8F135', textDecoration: 'none',
-          letterSpacing: '-0.5px', flexShrink: 0,
+
+
+          {/* Logo */}
+          <Link to="/" style={{ display:'flex', alignItems:'center', gap:8, textDecoration:'none', flexShrink:0 }}>
+            <img
+              src="/8ntepani.logowhite.png"
+              alt="8ntepani"
+              style={{
+                height: 120,
+                width: 140,
+                /* Makes black logo show as lime green on dark bg */
+                // filter: 'invert(1) sepia(1) saturate(5) hue-rotate(30deg)',
+              }}
+            />
+          </Link>
+
+
+
+
+
+
+        {/* <Link to="/" style={{ display:'flex', alignItems:'center', gap:8, textDecoration:'none', flexShrink:0 }}>
+        <svg width="30" height="30" viewBox="0 0 30 30" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <polygon points="15,2 27,8.5 27,21.5 15,28 3,21.5 3,8.5"
+            fill="rgba(200,241,53,0.12)" stroke="#C8F135" strokeWidth="1.5"/>
+          <polygon points="15,7 23,11.5 23,18.5 15,23 7,18.5 7,11.5"
+            fill="rgba(200,241,53,0.25)"/>
+          <polygon points="15,11.5 19,13.8 19,17.2 15,19.5 11,17.2 11,13.8"
+            fill="#C8F135"/>
+        </svg>
+        <span style={{
+          fontFamily: 'Syne, sans-serif',
+          fontWeight: 800,
+          fontSize: 22,
+          color: '#C8F135',
+          letterSpacing: '-0.5px',
         }}>
-          SkillHive
-        </Link>
+          8ntepani
+          </span>
+      </Link> */}
 
         {/* Search bar */}
         <form onSubmit={handleSearch} style={{ flex: 1, maxWidth: 480, position: 'relative' }}>

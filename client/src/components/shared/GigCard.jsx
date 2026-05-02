@@ -34,6 +34,11 @@ export default function GigCard({ gig }) {
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
       style={{
+        /* ← FIXED: these 3 lines make the card respect grid column width */
+        width: '100%',
+        minWidth: 0,
+        display: 'block',
+        /* existing styles below unchanged */
         background: '#111',
         border: '1px solid #1e1e1e',
         borderRadius: 16,
@@ -96,7 +101,7 @@ export default function GigCard({ gig }) {
           <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
             <Star size={12} fill="#F5A623" color="#F5A623" />
             <span style={{ fontSize: 12, color: '#fafafa', fontWeight: 600 }}>{Number(rating || 0).toFixed(1)}</span>
-            <span style={{ fontSize: 11, color: '#555' }}>({reviewCount || 0}){' '}</span>
+            <span style={{ fontSize: 11, color: '#555' }}>({reviewCount || 0})</span>
           </div>
           <div>
             <span style={{ fontSize: 11, color: '#555', marginRight: 2 }}>From</span>

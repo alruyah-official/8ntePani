@@ -9,7 +9,7 @@ export const Footer = () => {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-12">
 
           <div className="flex flex-col gap-4">
-            <h2 className="font-display font-bold text-2xl text-accent">SkillHive</h2>
+            <h2 className="font-display font-bold text-2xl text-accent">8ntepani</h2>
             <p className="text-muted text-sm max-w-xs">
               The premier marketplace connecting top-tier freelance talent with forward-thinking businesses.
             </p>
@@ -32,8 +32,8 @@ export const Footer = () => {
             <ul className="flex flex-col gap-2 text-sm text-muted">
               <li><Link to="/" className="hover:text-accent transition-colors">Help & Support</Link></li>
               <li><Link to="/" className="hover:text-accent transition-colors">Trust & Safety</Link></li>
-              <li><Link to="/" className="hover:text-accent transition-colors">Selling on SkillHive</Link></li>
-              <li><Link to="/" className="hover:text-accent transition-colors">Buying on SkillHive</Link></li>
+              <li><Link to="/" className="hover:text-accent transition-colors">Selling on 8ntepani</Link></li>
+              <li><Link to="/" className="hover:text-accent transition-colors">Buying on 8ntepani</Link></li>
             </ul>
           </div>
 
@@ -50,7 +50,7 @@ export const Footer = () => {
         </div>
 
         <div className="pt-8 border-t border-border flex flex-col md:flex-row items-center justify-between gap-4 text-sm text-muted">
-          <p>© {new Date().getFullYear()} SkillHive International Ltd.</p>
+          <p>© {new Date().getFullYear()} 8ntepani International Ltd.</p>
           <div className="flex gap-4">
             <Link to="/" className="hover:text-text-primary transition-colors">Terms of Service</Link>
             <Link to="/" className="hover:text-text-primary transition-colors">Privacy Policy</Link>
