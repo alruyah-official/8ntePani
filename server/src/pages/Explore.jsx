@@ -2,7 +2,6 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Star, Filter } from 'lucide-react';
 import GigCard from '../components/shared/GigCard';
-import { mockGigs } from '../utils/mockData';
 import { useGigs } from '../hooks/useGigs';
 import { useDebounce } from '../hooks/useDebounce';
 import { useSearchParams } from 'react-router-dom';
@@ -38,18 +37,9 @@ export default function Explore() {
 
   const { data, isLoading, isError } = useGigs(apiParams);
 
-  // Filter mockGigs locally when backend is offline
-  const filteredMock = mockGigs.filter(g => {
-    if (category !== 'All' && g.category !== category.toLowerCase()) return false;
-    if (minPrice && g.price < Number(minPrice)) return false;
-    if (maxPrice && g.price > Number(maxPrice)) return false;
-    if (debouncedSearch && !g.title.toLowerCase().includes(debouncedSearch.toLowerCase())) return false;
-    return true;
-  });
-
-  // Use real data if available, otherwise fall back to filtered mock
-  const gigs = data?.data || filteredMock;
-  const total = data?.total || filteredMock.length;
+  // Only use real API data
+  const gigs = data?.data || [];
+  const total = data?.total ?? 0;
 
   function updateFilter(key, value) {
     const next = new URLSearchParams(searchParams);
@@ -172,8 +162,9 @@ export default function Explore() {
 
           {/* Error state */}
           {isError && (
-            <div style={{ textAlign: 'center', padding: '40px 20px', color: '#f87171' }}>
-              Failed to connect to server — showing local results below.
+            <div style={{ textAlign: 'center', padding: '60px 20px', color: '#f87171' }}>
+              <p style={{ fontSize: 18, fontWeight: 700, marginBottom: 8 }}>Could not connect to server</p>
+              <p style={{ fontSize: 14, color: '#888' }}>Make sure the backend is running on port 3030.</p>
             </div>
           )}
 

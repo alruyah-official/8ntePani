@@ -1,22 +1,9 @@
 import { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import authStore from '../utils/authStore';
+import { TOKEN_KEY, REFRESH_TOKEN_KEY, USER_KEY } from '../api/client';
 
 const AuthContext = createContext(null);
-
-const TOKEN_KEY = 'skillhive_token';
-const USER_KEY = 'skillhive_user';
-
-// ── Dev mock user ────────────────────────────────────────
-const DEV_USER = {
-  id: 'dev-user-1',
-  name: 'Arjun Kumar',
-  email: 'arjun@dev.com',
-  username: 'arjunkumar',
-  role: 'seller',
-  avatar: 'https://ui-avatars.com/api/?name=Arjun+Kumar&background=111111&color=C8F135&size=64',
-  sellerLevel: 'top',
-};
 
 export function AuthProvider({ children }) {
   const navigate = useNavigate();
@@ -25,7 +12,7 @@ export function AuthProvider({ children }) {
   const [token, setToken] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  // ── Restore session on app load ──────────────────────
+  // ── Restore session on app load ───────────────────────────────────────────
   useEffect(() => {
     try {
       const storedToken = localStorage.getItem(TOKEN_KEY);
@@ -34,23 +21,19 @@ export function AuthProvider({ children }) {
       if (storedToken && storedUser) {
         setToken(storedToken);
         setUser(JSON.parse(storedUser));
-      } else if (import.meta.env.DEV) {
-        // Dev bypass — auto login in development only
-        localStorage.setItem(TOKEN_KEY, 'dev-token');
-        localStorage.setItem(USER_KEY, JSON.stringify(DEV_USER));
-        setToken('dev-token');
-        setUser(DEV_USER);
       }
+      // Dev bypass removed — users must log in through the real API
     } catch (err) {
       // Corrupted localStorage — clear it
       localStorage.removeItem(TOKEN_KEY);
+      localStorage.removeItem(REFRESH_TOKEN_KEY);
       localStorage.removeItem(USER_KEY);
     } finally {
       setIsLoading(false);
     }
   }, []);
 
-  // ── Sync logout across browser tabs ─────────────────
+  // ── Sync logout across browser tabs ──────────────────────────────────────
   useEffect(() => {
     function handleStorageChange(e) {
       if (e.key === TOKEN_KEY && !e.newValue) {
@@ -63,40 +46,53 @@ export function AuthProvider({ children }) {
         // Logged in from another tab → restore session
         try {
           const u = localStorage.getItem(USER_KEY);
-          if (u) { setUser(JSON.parse(u)); setToken(e.newValue); }
-        } catch { }
+          if (u) {
+            setUser(JSON.parse(u));
+            setToken(e.newValue);
+          }
+        } catch { /* ignore */ }
       }
     }
     window.addEventListener('storage', handleStorageChange);
     return () => window.removeEventListener('storage', handleStorageChange);
   }, [navigate, token]);
 
-  // ── Register functions in authStore for Axios ────────
+  // ── Register logout in authStore so Axios interceptors can call it ────────
   useEffect(() => {
     authStore.logout = logout;
     authStore.navigate = navigate;
   });
 
-  // ── login ────────────────────────────────────────────
-  const login = useCallback((newToken, newUser) => {
+  // ── login ─────────────────────────────────────────────────────────────────
+  /**
+   * Called after a successful /auth/login or /auth/signup response.
+   * @param {string}  newToken         - JWT access token
+   * @param {object}  newUser          - Safe user object (no password)
+   * @param {string} [newRefreshToken] - JWT refresh token (optional for backward compat)
+   */
+  const login = useCallback((newToken, newUser, newRefreshToken) => {
     localStorage.setItem(TOKEN_KEY, newToken);
     localStorage.setItem(USER_KEY, JSON.stringify(newUser));
+    if (newRefreshToken) {
+      localStorage.setItem(REFRESH_TOKEN_KEY, newRefreshToken);
+    }
     setToken(newToken);
     setUser(newUser);
   }, []);
 
-  // ── logout ───────────────────────────────────────────
+  // ── logout ────────────────────────────────────────────────────────────────
   const logout = useCallback(() => {
     localStorage.removeItem(TOKEN_KEY);
+    localStorage.removeItem(REFRESH_TOKEN_KEY);
     localStorage.removeItem(USER_KEY);
     setToken(null);
     setUser(null);
     navigate('/login');
   }, [navigate]);
 
-  // ── updateUser (for profile edits) ───────────────────
+  // ── updateUser (for profile edits) ───────────────────────────────────────
   const updateUser = useCallback((updatedFields) => {
-    setUser(prev => {
+    setUser((prev) => {
       const merged = { ...prev, ...updatedFields };
       localStorage.setItem(USER_KEY, JSON.stringify(merged));
       return merged;
@@ -123,6 +119,6 @@ export function AuthProvider({ children }) {
 // Custom hook — use this everywhere instead of useContext directly
 export function useAuth() {
   const ctx = useContext(AuthContext);
-  if (!ctx) throw new Error('useAuth must be used inside AuthProvider');
+  if (!ctx) throw new Error('useAuth must be used inside <AuthProvider>');
   return ctx;
 }

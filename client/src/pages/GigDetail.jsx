@@ -5,37 +5,6 @@ import { useGigById } from '../hooks';
 import { Button } from '../components/ui';
 import { QueryWrapper } from '../components/shared';
 
-// Mock data to gracefully render UI structure even if API fails
-const MOCK_GIG = {
-  title: 'I will design a highly converting modern web application',
-  seller: {
-    name: 'Alex Developer',
-    avatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&q=80&w=100',
-    rating: 4.9,
-    reviews: 128,
-    isTopRated: true,
-    bio: 'Senior full-stack engineer with 8 years of experience building beautiful, scalable web apps for startups.'
-  },
-  images: [
-    'https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&fit=crop&q=80&w=800',
-    'https://images.unsplash.com/photo-1555066931-4365d14bab8c?auto=format&fit=crop&q=80&w=800',
-    'https://images.unsplash.com/photo-1517694712202-14dd9538aa97?auto=format&fit=crop&q=80&w=800',
-    'https://images.unsplash.com/photo-1522199755839-a2bacb67c546?auto=format&fit=crop&q=80&w=800'
-  ],
-  description: 'I will build a completely custom, responsive, and highly optimized React web application tailored exactly to your brand needs. My approach combines cutting-edge performance with pixel-perfect design aesthetics.',
-  features: [
-    'Responsive Design across all devices',
-    'Performance & SEO optimization',
-    'Source code included',
-    'Custom animations and interactions'
-  ],
-  packages: [
-    { name: 'Basic', price: 150, delivery: '3 Days', revisions: 1, desc: 'Single page landing site with basic animations.', includes: [true, false, false, false] },
-    { name: 'Standard', price: 350, delivery: '5 Days', revisions: 3, desc: 'Multi-page React app (up to 4 pages).', includes: [true, true, true, false] },
-    { name: 'Premium', price: 750, delivery: '10 Days', revisions: 'Unlimited', desc: 'Full custom web app with complex routing, states, and advanced animations.', includes: [true, true, true, true] }
-  ]
-};
-
 export default function GigDetail() {
   const { id } = useParams();
   const { data, isLoading, isError } = useGigById(id);
@@ -43,9 +12,9 @@ export default function GigDetail() {
   const [selectedImageIdx, setSelectedImageIdx] = useState(0);
   const [activeTab, setActiveTab] = useState(1); // Default to standard tab
 
-  // If the backend isn't up, we fallback to our beautiful mock data to show the layout
-  const gig = data && !isError ? data : MOCK_GIG;
-  const activePackage = gig.packages?.[activeTab];
+  // Use only real API data
+  const gig = data || null;
+  const activePackage = gig?.packages ? Object.values(gig.packages)[activeTab] : null;
 
   return (
     <div className="w-full pb-24">

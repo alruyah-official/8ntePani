@@ -6,41 +6,32 @@ import {
   TrendingUp, Plus
 } from 'lucide-react';
 import { useAuth } from '../context';
+import { useIsSeller } from '../hooks';
 import { useSellerStats, useMyOrders, useMyGigs } from '../hooks';
-
-// ── Mock fallback data ────────────────────────────────────
-const MOCK_METRICS = [
-  { label: 'Total Earnings', value: '$4,250', change: '+12.5%' },
-  { label: 'Active Orders',  value: '8',      change: '+2.4%'  },
-  { label: 'Gig Views',      value: '1,420',  change: '+18.2%' },
-  { label: 'Response Rate',  value: '98%',    change: '+0.5%'  },
-];
-
-const MOCK_ORDERS = [
-  { id: '#ORD-1042', buyer: 'Sarah Jenkins', gig: 'Modern web application',  status: 'In Progress', amount: 350, date: 'Oct 24, 2026' },
-  { id: '#ORD-1041', buyer: 'Mike Ross',     gig: 'E-commerce UI design',    status: 'Completed',   amount: 150, date: 'Oct 22, 2026' },
-  { id: '#ORD-1040', buyer: 'Elena Gilbert', gig: 'API integration',         status: 'Cancelled',   amount: 200, date: 'Oct 20, 2026' },
-];
-
-const MOCK_GIGS = [
-  { id: 1, title: 'I will build a React web application',        price: 150, impressions: 450, clicks: 32 },
-  { id: 2, title: 'I will design a modern SaaS landing page',    price: 100, impressions: 210, clicks: 18 },
-  { id: 3, title: 'I will integrate Stripe payments into your app', price: 200, impressions: 120, clicks: 5 },
-];
 
 export default function Dashboard() {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const isSeller = useIsSeller();
 
-  // Try real API — silently fall back to mock if it fails
+  // Only fetch seller-specific data when the user actually has a seller role.
+  // Buyers would get 403 from /api/gigs/mine, crashing the dashboard.
   const { data: statsData } = useSellerStats();
-  const { data: ordersData } = useMyOrders('seller');
-  const { data: gigsData   } = useMyGigs();
+  const { data: ordersData } = useMyOrders(isSeller ? 'seller' : 'buyer');
+  // useMyGigs calls /api/gigs/mine which requires seller role — gate it
+  const { data: gigsData } = useMyGigs(isSeller);
 
-  // Use real data if available, otherwise use mock
-  const metrics = statsData?.data || MOCK_METRICS;
-  const orders  = (ordersData?.data?.length  > 0 ? ordersData.data  : MOCK_ORDERS);
-  const gigs    = (gigsData?.data?.length    > 0 ? gigsData.data    : MOCK_GIGS);
+  // statsData.data is a plain object { totalGigs, totalOrders, totalReviews } —
+  // NOT an array. We build the metric-card array from it explicitly.
+  const rawStats = statsData?.data;
+  const metrics = [
+    { label: 'Total Gigs',    value: rawStats?.totalGigs    ?? '–', change: null },
+    { label: 'Total Orders',  value: rawStats?.totalOrders  ?? '–', change: null },
+    { label: 'Total Reviews', value: rawStats?.totalReviews ?? '–', change: null },
+  ];
+
+  const orders = ordersData?.data || [];
+  const gigs   = gigsData?.data   || [];
 
   const navLinks = [
     { name: 'Overview', path: '/dashboard',          icon: LayoutDashboard },
@@ -99,16 +90,18 @@ export default function Dashboard() {
           </div>
 
           {/* ── Metric cards ── */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
             {metrics.map((metric, idx) => (
               <div key={idx} className="bg-surface border border-border rounded-2xl p-6 shadow-lg hover:border-muted transition-colors">
                 <p className="text-muted font-medium mb-3">{metric.label}</p>
                 <div className="flex items-end justify-between">
                   <h3 className="font-display text-4xl font-bold text-text-primary">{metric.value}</h3>
-                  <div className="flex items-center gap-1 text-accent bg-accent/10 px-2 py-1 rounded text-sm font-bold border border-accent/20">
-                    <TrendingUp className="w-3 h-3" />
-                    {metric.change}
-                  </div>
+                  {metric.change && (
+                    <div className="flex items-center gap-1 text-accent bg-accent/10 px-2 py-1 rounded text-sm font-bold border border-accent/20">
+                      <TrendingUp className="w-3 h-3" />
+                      {metric.change}
+                    </div>
+                  )}
                 </div>
               </div>
             ))}
@@ -120,71 +113,92 @@ export default function Dashboard() {
               <h2 className="text-2xl font-bold font-display">Recent Orders</h2>
               <Link to="/orders" className="text-sm font-bold text-accent hover:underline">View all</Link>
             </div>
-            <div className="bg-surface border border-border rounded-2xl overflow-hidden overflow-x-auto shadow-lg">
-              <table className="w-full text-left border-collapse min-w-[700px]">
-                <thead>
-                  <tr className="bg-primary/40 text-muted text-sm border-b border-border">
-                    {['Order ID','Buyer','Gig Title','Status','Amount','Date'].map(h => (
-                      <th key={h} className="py-4 px-6 font-medium">{h}</th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody>
-                  {orders.map((order, idx) => (
-                    <tr key={idx} className="border-b border-border/50 hover:bg-primary/20 transition-colors">
-                      <td className="py-4 px-6 text-sm font-medium">{order.id}</td>
-                      <td className="py-4 px-6 text-sm font-bold text-text-primary">
-                        {typeof order.buyer === 'object' ? order.buyer.name : order.buyer}
-                      </td>
-                      <td className="py-4 px-6 text-sm text-muted max-w-[200px] truncate">
-                        {order.gig?.title || order.gig}
-                      </td>
-                      <td className="py-4 px-6">
-                        <span className={`px-3 py-1 rounded-full text-xs font-bold border ${getStatusColor(order.status)}`}>
-                          {order.status}
-                        </span>
-                      </td>
-                      <td className="py-4 px-6 text-sm font-bold">${order.amount}</td>
-                      <td className="py-4 px-6 text-sm text-muted">{order.date || order.createdAt?.slice(0,10)}</td>
+            {orders.length === 0 ? (
+              <div className="bg-surface border border-border rounded-2xl p-12 text-center text-muted">
+                No orders yet.
+              </div>
+            ) : (
+              <div className="bg-surface border border-border rounded-2xl overflow-hidden overflow-x-auto shadow-lg">
+                <table className="w-full text-left border-collapse min-w-[700px]">
+                  <thead>
+                    <tr className="bg-primary/40 text-muted text-sm border-b border-border">
+                      {['Order ID','Buyer','Gig Title','Status','Amount','Date'].map(h => (
+                        <th key={h} className="py-4 px-6 font-medium">{h}</th>
+                      ))}
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+                  </thead>
+                  <tbody>
+                    {orders.map((order, idx) => (
+                      <tr key={idx} className="border-b border-border/50 hover:bg-primary/20 transition-colors">
+                        <td className="py-4 px-6 text-sm font-medium">{order.id || order._id}</td>
+                        <td className="py-4 px-6 text-sm font-bold text-text-primary">
+                          {typeof order.buyer === 'object' ? order.buyer?.name : order.buyer}
+                        </td>
+                        <td className="py-4 px-6 text-sm text-muted max-w-[200px] truncate">
+                          {order.gig?.title || order.gig}
+                        </td>
+                        <td className="py-4 px-6">
+                          <span className={`px-3 py-1 rounded-full text-xs font-bold border ${getStatusColor(order.status)}`}>
+                            {order.status}
+                          </span>
+                        </td>
+                        <td className="py-4 px-6 text-sm font-bold">${order.amount || order.totalPrice}</td>
+                        <td className="py-4 px-6 text-sm text-muted">{order.date || order.createdAt?.slice(0,10)}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
           </div>
 
-          {/* ── My gigs ── */}
+          {/* ── My gigs (seller only) ── */}
           <div>
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-2xl font-bold font-display">My Gigs</h2>
-              <button onClick={() => navigate('/gig/create')}
-                className="flex items-center gap-2 bg-accent text-black font-bold px-4 py-2 rounded-full text-sm hover:opacity-85 transition-opacity">
-                <Plus className="w-4 h-4" /> Create new gig
-              </button>
+              {isSeller && (
+                <button onClick={() => navigate('/gig/create')}
+                  className="flex items-center gap-2 bg-accent text-black font-bold px-4 py-2 rounded-full text-sm hover:opacity-85 transition-opacity">
+                  <Plus className="w-4 h-4" /> Create new gig
+                </button>
+              )}
             </div>
-            <div className="flex flex-col gap-4">
-              {gigs.map((gig) => (
-                <div key={gig.id || gig._id}
-                  onClick={() => navigate(`/gig/${gig.id || gig._id}`)}
-                  className="bg-surface border border-border rounded-xl p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:border-muted transition-colors cursor-pointer shadow-lg"
-                >
-                  <div className="flex-1">
-                    <h4 className="font-bold text-lg mb-1">{gig.title}</h4>
-                    <p className="text-accent font-bold">${gig.price} starting price</p>
-                  </div>
-                  <div className="flex items-center gap-8 text-sm text-muted">
-                    <div className="flex flex-col items-end">
-                      <span className="font-bold text-text-primary text-base">{gig.impressions || 0}</span>
-                      <span>Impressions</span>
+            {!isSeller ? (
+              <div className="bg-surface border border-border rounded-2xl p-12 text-center text-muted">
+                You need a seller account to create and manage gigs.
+              </div>
+            ) : gigs.length === 0 ? (
+              <div className="bg-surface border border-border rounded-2xl p-12 text-center text-muted">
+                You have no gigs yet.
+                <button onClick={() => navigate('/gig/create')} className="block mx-auto mt-4 text-accent font-bold hover:underline">
+                  Create your first gig →
+                </button>
+              </div>
+            ) : (
+              <div className="flex flex-col gap-4">
+                {gigs.map((gig) => (
+                  <div key={gig.id || gig._id}
+                    onClick={() => navigate(`/gig/${gig.id || gig._id}`)}
+                    className="bg-surface border border-border rounded-xl p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:border-muted transition-colors cursor-pointer shadow-lg"
+                  >
+                    <div className="flex-1">
+                      <h4 className="font-bold text-lg mb-1">{gig.title}</h4>
+                      <p className="text-accent font-bold">${gig.packages?.basic?.price ?? gig.price ?? 0} starting price</p>
                     </div>
-                    <div className="flex flex-col items-end">
-                      <span className="font-bold text-text-primary text-base">{gig.clicks || 0}</span>
-                      <span>Clicks</span>
+                    <div className="flex items-center gap-8 text-sm text-muted">
+                      <div className="flex flex-col items-end">
+                        <span className="font-bold text-text-primary text-base">{gig.orderCount || 0}</span>
+                        <span>Orders</span>
+                      </div>
+                      <div className="flex flex-col items-end">
+                        <span className="font-bold text-text-primary text-base">{gig.reviewCount || 0}</span>
+                        <span>Reviews</span>
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            )}
           </div>
 
         </div>
