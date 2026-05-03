@@ -1,5 +1,6 @@
 import axios from 'axios';
 import authStore from '../utils/authStore';
+require('dotenv').config();
 
 const TOKEN_KEY = 'skillhive_token';
 const REFRESH_TOKEN_KEY = 'skillhive_refresh_token';
@@ -7,7 +8,7 @@ const USER_KEY = 'skillhive_user';
 
 // ── Axios instance ────────────────────────────────────────────────────────────
 const client = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL,
+  baseURL: process.env.VITE_API_BASE_URL,
   timeout: 15000,
   headers: { 'Content-Type': 'application/json' },
 });
