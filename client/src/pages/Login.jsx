@@ -44,9 +44,11 @@ export default function Login() {
       >
         <div className="text-center mb-8">
           <Link to="/" className="inline-block mb-6">
-            <span className="text-3xl font-display font-bold text-text-primary tracking-tight">
-              Skill<span className="text-accent italic">Hive</span>
-            </span>
+            <img src="8ntepani.logowhite.png" alt="" style={{
+              height: "200px",
+              width: "200px",
+              objectFit: "cover"
+            }} />
           </Link>
           <h2 className="text-2xl font-bold font-display text-text-primary">Welcome back</h2>
           <p className="text-muted mt-2">Sign in to continue to your dashboard.</p>
