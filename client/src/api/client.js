@@ -7,7 +7,7 @@ const USER_KEY = 'skillhive_user';
 
 // ── Axios instance ────────────────────────────────────────────────────────────
 const client = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL || 'http://localhost:3030/api',
+  baseURL: import.meta.env.VITE_API_BASE_URL,
   timeout: 15000,
   headers: { 'Content-Type': 'application/json' },
 });
@@ -82,7 +82,7 @@ client.interceptors.response.use(
         // Call the refresh endpoint directly with a plain axios call (not our client,
         // to avoid interceptor loops)
         const response = await axios.post(
-          `${import.meta.env.VITE_API_BASE_URL || 'http://localhost:3030/api'}/auth/refresh`,
+          `${import.meta.env.VITE_API_BASE_URL}/auth/refresh`,
           { refreshToken: storedRefreshToken }
         );
 
