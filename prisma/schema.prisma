@@ -1,0 +1,25 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Datasource — reads DATABASE_URL from the .env file
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// Generator — outputs the Prisma Client to node_modules/@prisma/client
+generator client {
+  provider = "prisma-client-js"
+}
+
+// ---------------------------------------------------------------------------
+// Models — add your data models here
+// ---------------------------------------------------------------------------
+// Example:
+// model User {
+//   id        String   @id @default(cuid())
+//   email     String   @unique
+//   name      String?
+//   createdAt DateTime @default(now())
+//   updatedAt DateTime @updatedAt
+// }
