@@ -1,25 +1,178 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
+// Prisma Schema
+// Docs: https://pris.ly/d/prisma-schema
 
-// Datasource — reads DATABASE_URL from the .env file
-datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
-}
+// ---------------------------------------------------------------------------
+// Generator & Datasource
+// ---------------------------------------------------------------------------
 
-// Generator — outputs the Prisma Client to node_modules/@prisma/client
 generator client {
   provider = "prisma-client-js"
 }
 
+datasource db {
+  provider = "postgresql"
+}
+
 // ---------------------------------------------------------------------------
-// Models — add your data models here
+// Enums
 // ---------------------------------------------------------------------------
-// Example:
-// model User {
-//   id        String   @id @default(cuid())
-//   email     String   @unique
-//   name      String?
-//   createdAt DateTime @default(now())
-//   updatedAt DateTime @updatedAt
-// }
+
+enum Role {
+  CLIENT
+  FREELANCER
+  ADMIN
+}
+
+enum GigStatus {
+  DRAFT
+  ACTIVE
+  PAUSED
+}
+
+enum PackageTier {
+  BASIC
+  STANDARD
+  PREMIUM
+}
+
+enum OrderStatus {
+  PENDING
+  IN_PROGRESS
+  DELIVERED
+  COMPLETED
+  CANCELLED
+  DISPUTED
+}
+
+enum PaymentStatus {
+  UNPAID
+  MARKED_PAID
+  REFUNDED
+}
+
+// ---------------------------------------------------------------------------
+// Models
+// ---------------------------------------------------------------------------
+
+model User {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  passwordHash String
+  role         Role     @default(CLIENT)
+  name         String
+  avatarUrl    String?
+  bio          String?  @db.Text
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  // Relations
+  freelancerProfile  FreelancerProfile?
+  gigs               Gig[]
+  ordersAsClient     Order[]  @relation("ClientOrders")
+  ordersAsFreelancer Order[]  @relation("FreelancerOrders")
+  reviewsGiven       Review[] @relation("ReviewsGiven")
+  reviewsReceived    Review[] @relation("ReviewsReceived")
+}
+
+model FreelancerProfile {
+  id         String   @id @default(cuid())
+  userId     String   @unique
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  title      String
+  skills     String[]
+  hourlyRate Decimal? @db.Decimal(10, 2)
+  languages  String[]
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
+
+model Category {
+  id          String  @id @default(cuid())
+  name        String  @unique
+  slug        String  @unique
+  description String?
+
+  // Relations
+  gigs Gig[]
+}
+
+model Gig {
+  id           String    @id @default(cuid())
+  freelancerId String
+  freelancer   User      @relation(fields: [freelancerId], references: [id], onDelete: Cascade)
+  categoryId   String
+  category     Category  @relation(fields: [categoryId], references: [id])
+  title        String
+  description  String    @db.Text
+  status       GigStatus @default(DRAFT)
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  // Relations
+  packages GigPackage[]
+
+  @@index([freelancerId])
+  @@index([categoryId])
+  @@index([status])
+}
+
+model GigPackage {
+  id           String      @id @default(cuid())
+  gigId        String
+  gig          Gig         @relation(fields: [gigId], references: [id], onDelete: Cascade)
+  tier         PackageTier
+  price        Decimal     @db.Decimal(10, 2)
+  deliveryDays Int
+  description  String      @db.Text
+  revisions    Int
+
+  // Relations
+  orders Order[]
+
+  // A gig can only have one package per tier
+  @@unique([gigId, tier])
+  @@index([gigId])
+}
+
+model Order {
+  id            String        @id @default(cuid())
+  gigPackageId  String
+  gigPackage    GigPackage    @relation(fields: [gigPackageId], references: [id])
+  clientId      String
+  client        User          @relation("ClientOrders", fields: [clientId], references: [id])
+  freelancerId  String
+  freelancer    User          @relation("FreelancerOrders", fields: [freelancerId], references: [id])
+  amount        Decimal       @db.Decimal(10, 2)
+  status        OrderStatus   @default(PENDING)
+  paymentStatus PaymentStatus @default(UNPAID)
+  dueDate       DateTime?
+  deliveredAt   DateTime?
+  completedAt   DateTime?
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  // Relations
+  review Review?
+
+  @@index([clientId])
+  @@index([freelancerId])
+  @@index([gigPackageId])
+  @@index([status])
+}
+
+model Review {
+  id         String   @id @default(cuid())
+  orderId    String   @unique
+  order      Order    @relation(fields: [orderId], references: [id])
+  fromUserId String
+  fromUser   User     @relation("ReviewsGiven", fields: [fromUserId], references: [id])
+  toUserId   String
+  toUser     User     @relation("ReviewsReceived", fields: [toUserId], references: [id])
+  rating     Int
+  comment    String?  @db.Text
+  response   String?  @db.Text
+  createdAt  DateTime @default(now())
+
+  @@index([fromUserId])
+  @@index([toUserId])
+}
