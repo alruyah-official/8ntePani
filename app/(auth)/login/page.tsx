@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { Suspense, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { signIn } from "next-auth/react";
@@ -26,15 +26,14 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import type { Metadata } from "next";
 
 // ---------------------------------------------------------------------------
-// Page metadata (static export — Next.js hoists this even from Client pages
-// when using the `export const metadata` pattern, but since this is a Client
-// Component we set the title in the layout or via <title> tags if needed)
+// LoginForm — inner component that reads useSearchParams().
+// Must be wrapped in <Suspense> at the page level because useSearchParams()
+// opts the component into client-side rendering during static generation.
 // ---------------------------------------------------------------------------
 
-export default function LoginPage() {
+function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const callbackUrl = searchParams.get("callbackUrl") ?? "/dashboard";
@@ -62,12 +61,86 @@ export default function LoginPage() {
       return;
     }
 
-    // Redirect to callbackUrl or the smart dispatcher at /dashboard
-    // (which reads session.user.role and forwards to the right sub-page)
+    // callbackUrl preserved from middleware, falls back to /dashboard dispatcher
     router.push(callbackUrl);
     router.refresh(); // Refresh Server Component tree so Navbar picks up session
   }
 
+  return (
+    <Form {...form}>
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+        {/* Server-level error banner */}
+        {serverError && (
+          <div
+            role="alert"
+            className="rounded-md border border-destructive/50 bg-destructive/10 px-4 py-3 text-sm text-destructive"
+          >
+            {serverError}
+          </div>
+        )}
+
+        {/* Email */}
+        <FormField
+          control={form.control}
+          name="email"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Email</FormLabel>
+              <FormControl>
+                <Input
+                  id="login-email"
+                  type="email"
+                  placeholder="you@example.com"
+                  autoComplete="email"
+                  {...field}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        {/* Password */}
+        <FormField
+          control={form.control}
+          name="password"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Password</FormLabel>
+              <FormControl>
+                <Input
+                  id="login-password"
+                  type="password"
+                  placeholder="••••••••"
+                  autoComplete="current-password"
+                  {...field}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        {/* Submit */}
+        <Button
+          id="login-submit"
+          type="submit"
+          className="w-full"
+          disabled={isSubmitting}
+        >
+          {isSubmitting ? "Signing in…" : "Sign in"}
+        </Button>
+      </form>
+    </Form>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// LoginPage — wraps the form in Suspense so useSearchParams() doesn't break
+// static generation. The fallback renders an identical card skeleton.
+// ---------------------------------------------------------------------------
+
+export default function LoginPage() {
   return (
     <Card className="w-full max-w-md shadow-lg">
       <CardHeader className="space-y-1">
@@ -78,71 +151,17 @@ export default function LoginPage() {
       </CardHeader>
 
       <CardContent>
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-            {/* Server-level error banner */}
-            {serverError && (
-              <div
-                role="alert"
-                className="rounded-md border border-destructive/50 bg-destructive/10 px-4 py-3 text-sm text-destructive"
-              >
-                {serverError}
-              </div>
-            )}
-
-            {/* Email */}
-            <FormField
-              control={form.control}
-              name="email"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Email</FormLabel>
-                  <FormControl>
-                    <Input
-                      id="login-email"
-                      type="email"
-                      placeholder="you@example.com"
-                      autoComplete="email"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            {/* Password */}
-            <FormField
-              control={form.control}
-              name="password"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Password</FormLabel>
-                  <FormControl>
-                    <Input
-                      id="login-password"
-                      type="password"
-                      placeholder="••••••••"
-                      autoComplete="current-password"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            {/* Submit */}
-            <Button
-              id="login-submit"
-              type="submit"
-              className="w-full"
-              disabled={isSubmitting}
-            >
-              {isSubmitting ? "Signing in…" : "Sign in"}
-            </Button>
-          </form>
-        </Form>
+        <Suspense
+          fallback={
+            <div className="space-y-4 animate-pulse">
+              <div className="h-10 rounded-md bg-muted" />
+              <div className="h-10 rounded-md bg-muted" />
+              <div className="h-10 rounded-md bg-muted" />
+            </div>
+          }
+        >
+          <LoginForm />
+        </Suspense>
       </CardContent>
 
       <CardFooter className="justify-center text-sm">

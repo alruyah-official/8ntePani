@@ -1,6 +1,5 @@
 // prisma.config.ts
-// Prisma v7 configuration file — the datasource URL and CLI settings live here.
-// The schema file (prisma/schema.prisma) only defines data models and generators.
+// Prisma v7 configuration — datasource URL and CLI settings live here.
 // Docs: https://pris.ly/d/config-datasource
 
 import "dotenv/config";

@@ -1,12 +1,15 @@
 // ---------------------------------------------------------------------------
-// Zod validation schemas shared between client forms and server API routes.
+// Zod v3 validation schemas shared between client forms and server API routes.
 // Keeping them in one place prevents drift between the two layers.
 // ---------------------------------------------------------------------------
 
 import { z } from "zod";
 
 /** Reusable field definitions */
-const emailField = z.email({ message: "Enter a valid email address." });
+const emailField = z
+  .string()
+  .min(1, { message: "Email is required." })
+  .email({ message: "Enter a valid email address." });
 
 const passwordField = z
   .string()
@@ -29,12 +32,15 @@ export type LoginInput = z.infer<typeof loginSchema>;
 
 export const signupSchema = z
   .object({
-    name: z.string().min(2, { message: "Name must be at least 2 characters." }),
+    name: z
+      .string()
+      .min(2, { message: "Name must be at least 2 characters." }),
     email: emailField,
     password: passwordField,
     confirmPassword: z.string(),
     role: z.enum(["CLIENT", "FREELANCER"], {
-      message: "Select a valid role.",
+      required_error: "Please select a role.",
+      invalid_type_error: "Select a valid role.",
     }),
   })
   .refine((data) => data.password === data.confirmPassword, {
