@@ -2,6 +2,7 @@ import 'dotenv/config';
 import express from 'express';
 import cors from 'cors';
 import authRoutes from './src/routes/auth.routes.js';
+import profileRoutes from './src/routes/profile.routes.js';
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -21,6 +22,9 @@ app.use(cors());
 
 // Auth: register + login
 app.use('/api/auth', authRoutes);
+
+// Freelancer Profile: create, update, fetch
+app.use('/api/profile', profileRoutes);
 
 // ─── Health Check ─────────────────────────────────────────────────────────────
 
