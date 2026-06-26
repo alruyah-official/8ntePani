@@ -5,6 +5,7 @@ import authRoutes from './src/routes/auth.routes.js';
 import profileRoutes from './src/routes/profile.routes.js';
 import categoryRoutes from './src/routes/category.routes.js';
 import serviceRoutes from './src/routes/service.routes.js';
+import reviewRoutes from './src/routes/review.routes.js';
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -33,6 +34,9 @@ app.use('/api/categories', categoryRoutes);
 
 // Services: full CRUD for freelancers + public browsing
 app.use('/api/services', serviceRoutes);
+
+// Reviews: CLIENT creates/deletes, public fetch with stats
+app.use('/api/reviews', reviewRoutes);
 
 // ─── Health Check ─────────────────────────────────────────────────────────────
 
