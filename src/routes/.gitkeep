@@ -1,0 +1,4 @@
+# routes/ — Express Router definitions
+# Each file registers URL paths and maps them to controller functions.
+# Example: userRoutes.js defines GET /users, POST /users, GET /users/:id, etc.
+# All route files are imported in server.js and mounted under a base path like /api/v1.

@@ -1,0 +1,4 @@
+# utils/ — Shared utility/helper functions
+# Pure, reusable helper functions that have no side effects and no framework dependency.
+# Examples: formatDate(), generateToken(), paginate(), sendApiResponse(), etc.
+# Utilities can be used in controllers, services, or middlewares.

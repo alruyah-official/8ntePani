@@ -1,0 +1,4 @@
+# services/ — Business logic layer
+# Services contain the core application logic and interact with the database via Prisma.
+# Controllers stay thin — they delegate all heavy lifting to service functions.
+# Example: userService.js has functions like findUserById(id), createUser(data), etc.

@@ -1,0 +1,4 @@
+# models/ — Data shape definitions (optional with Prisma)
+# With Prisma ORM, the canonical data model lives in prisma/schema.prisma.
+# This folder can hold any supplementary TypeScript interfaces, Zod schemas,
+# or validation schemas that describe the shape of your data in application code.

@@ -1,0 +1,4 @@
+# controllers/ — Request handlers
+# Each file here exports functions that handle HTTP requests for a specific resource.
+# Example: userController.js exports getUser, createUser, updateUser, deleteUser
+# Controllers call service functions and send HTTP responses back to the client.

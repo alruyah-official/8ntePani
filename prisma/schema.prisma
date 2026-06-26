@@ -1,0 +1,32 @@
+// ─── Prisma Schema — 8ntePani Freelance Marketplace ──────────────────────────
+// Learn more: https://pris.ly/d/prisma-schema
+//
+// This file defines:
+//   1. The generator — what Prisma generates (the client library)
+//   2. The datasource — which database to connect to
+//   3. Your data models (tables) — to be added in future steps
+//
+// After editing this file, run:
+//   pnpm prisma migrate dev --name <migration-name>
+// to apply changes to your database and regenerate the Prisma Client.
+// ─────────────────────────────────────────────────────────────────────────────
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ─── Models ───────────────────────────────────────────────────────────────────
+// Data models (tables) will be added here in upcoming steps.
+// Example:
+//
+// model User {
+//   id        String   @id @default(cuid())
+//   email     String   @unique
+//   createdAt DateTime @default(now())
+// }

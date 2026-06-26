@@ -1,0 +1,4 @@
+# middlewares/ — Express middleware functions
+# Middleware runs between receiving a request and sending a response.
+# Common uses: authentication (JWT verification), input validation, error handling, rate limiting.
+# Example: authMiddleware.js verifies a JWT token before allowing access to protected routes.
