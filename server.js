@@ -3,6 +3,8 @@ import express from 'express';
 import cors from 'cors';
 import authRoutes from './src/routes/auth.routes.js';
 import profileRoutes from './src/routes/profile.routes.js';
+import categoryRoutes from './src/routes/category.routes.js';
+import serviceRoutes from './src/routes/service.routes.js';
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -25,6 +27,12 @@ app.use('/api/auth', authRoutes);
 
 // Freelancer Profile: create, update, fetch
 app.use('/api/profile', profileRoutes);
+
+// Categories: create (protected), list all (public)
+app.use('/api/categories', categoryRoutes);
+
+// Services: full CRUD for freelancers + public browsing
+app.use('/api/services', serviceRoutes);
 
 // ─── Health Check ─────────────────────────────────────────────────────────────
 
