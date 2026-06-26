@@ -1,11 +1,6 @@
 // ─── Prisma Schema — 8ntePani Freelance Marketplace ──────────────────────────
 // Learn more: https://pris.ly/d/prisma-schema
 //
-// This file defines:
-//   1. The generator — what Prisma generates (the client library)
-//   2. The datasource — which database to connect to
-//   3. Your data models (tables) — to be added in future steps
-//
 // After editing this file, run:
 //   pnpm prisma migrate dev --name <migration-name>
 // to apply changes to your database and regenerate the Prisma Client.
@@ -18,15 +13,124 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")
+}
+
+// ─── Enums ────────────────────────────────────────────────────────────────────
+
+enum Role {
+  CLIENT
+  FREELANCER
 }
 
 // ─── Models ───────────────────────────────────────────────────────────────────
-// Data models (tables) will be added here in upcoming steps.
-// Example:
-//
-// model User {
-//   id        String   @id @default(cuid())
-//   email     String   @unique
-//   createdAt DateTime @default(now())
-// }
+
+// Represents every person on the platform — either a CLIENT hiring work
+// or a FREELANCER offering services. One user can only hold one role.
+model User {
+  id        String   @id @default(cuid())
+  name      String
+  email     String   @unique
+  password  String
+  role      Role
+  avatar    String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  freelancerProfile          FreelancerProfile?
+  services                   Service[]
+  reviewsGiven               Review[]             @relation("ClientReviews")
+  conversationsAsClient      Conversation[]       @relation("ClientConversations")
+  conversationsAsFreelancer  Conversation[]       @relation("FreelancerConversations")
+  messagesSent               Message[]            @relation("SenderMessages")
+}
+
+// Stores additional details that only apply to FREELANCER accounts, such as
+// their bio, skills, location, and spoken languages. One-to-one with User.
+model FreelancerProfile {
+  id        String   @id @default(cuid())
+  userId    String   @unique
+  bio       String?
+  skills    String[]
+  location  String?
+  languages String[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  user User @relation(fields: [userId], references: [id])
+}
+
+// A top-level grouping for services (e.g. "Web Development", "Graphic Design").
+// Each service belongs to exactly one category.
+model Category {
+  id   String @id @default(cuid())
+  name String @unique
+  slug String @unique
+
+  // Relations
+  services Service[]
+}
+
+// A gig or offering created by a FREELANCER. It belongs to one category and
+// holds pricing, delivery timeline, description, and optional image gallery.
+model Service {
+  id           String   @id @default(cuid())
+  freelancerId String
+  categoryId   String
+  title        String
+  description  String
+  price        Decimal
+  deliveryDays Int
+  images       String[]
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  // Relations
+  freelancer User      @relation(fields: [freelancerId], references: [id])
+  category   Category  @relation(fields: [categoryId], references: [id])
+  reviews    Review[]
+}
+
+// A star rating (1–5) and optional comment left by a CLIENT on a specific
+// Service. Tracks who wrote it (clientId) and which service it targets.
+model Review {
+  id        String   @id @default(cuid())
+  clientId  String
+  serviceId String
+  rating    Int
+  comment   String?
+  createdAt DateTime @default(now())
+
+  // Relations
+  client  User    @relation("ClientReviews", fields: [clientId], references: [id])
+  service Service @relation(fields: [serviceId], references: [id])
+}
+
+// A messaging thread between a CLIENT and a FREELANCER. Acts as the container
+// for all Messages exchanged between those two parties.
+model Conversation {
+  id           String   @id @default(cuid())
+  clientId     String
+  freelancerId String
+  createdAt    DateTime @default(now())
+
+  // Relations
+  client     User      @relation("ClientConversations",     fields: [clientId],     references: [id])
+  freelancer User      @relation("FreelancerConversations", fields: [freelancerId], references: [id])
+  messages   Message[]
+}
+
+// A single chat message inside a Conversation. Tracks the sender (senderId)
+// and the text content so the full thread can be reconstructed in order.
+model Message {
+  id             String   @id @default(cuid())
+  conversationId String
+  senderId       String
+  content        String
+  createdAt      DateTime @default(now())
+
+  // Relations
+  conversation Conversation @relation(fields: [conversationId], references: [id])
+  sender       User         @relation("SenderMessages", fields: [senderId], references: [id])
+}

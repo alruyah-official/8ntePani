@@ -8,7 +8,11 @@
     "start": "node server.js",
     "dev": "node --watch server.js"
   },
-  "keywords": ["freelance", "marketplace", "api"],
+  "keywords": [
+    "freelance",
+    "marketplace",
+    "api"
+  ],
   "author": "",
   "license": "ISC",
   "devEngines": {
@@ -19,10 +23,14 @@
     }
   },
   "dependencies": {
+    "@prisma/adapter-pg": "^7.8.0",
     "@prisma/client": "^7.8.0",
+    "bcrypt": "^6.0.0",
     "cors": "^2.8.6",
     "dotenv": "^17.4.2",
     "express": "^5.2.1",
+    "jsonwebtoken": "^9.0.3",
+    "pg": "^8.22.0",
     "prisma": "^7.8.0"
   }
 }

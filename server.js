@@ -1,6 +1,7 @@
 import 'dotenv/config';
 import express from 'express';
 import cors from 'cors';
+import authRoutes from './src/routes/auth.routes.js';
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -15,6 +16,11 @@ app.use(express.urlencoded({ extended: true }));
 
 // Enable Cross-Origin Resource Sharing (allow frontend to talk to this API)
 app.use(cors());
+
+// ─── Routes ───────────────────────────────────────────────────────────────────
+
+// Auth: register + login
+app.use('/api/auth', authRoutes);
 
 // ─── Health Check ─────────────────────────────────────────────────────────────
 
