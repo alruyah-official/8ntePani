@@ -6,11 +6,13 @@ import {
   getReviewsByService,
   deleteReview,
 } from '../controllers/review.controller.js';
+import { validate } from '../middlewares/validate.middleware.js';
+import { createReviewSchema } from '../validators/review.validator.js';
 
 const router = Router();
 
 // POST   /api/reviews                        → CLIENT submits a review
-router.post('/', protect, restrictTo('CLIENT'), createReview);
+router.post('/', validate(createReviewSchema), protect, restrictTo('CLIENT'), createReview);
 
 // GET    /api/reviews/service/:serviceId     → public list of reviews for a service
 // NOTE: declared before /:reviewId so "service" is not matched as a reviewId

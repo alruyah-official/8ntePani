@@ -6,6 +6,8 @@ import profileRoutes from './src/routes/profile.routes.js';
 import categoryRoutes from './src/routes/category.routes.js';
 import serviceRoutes from './src/routes/service.routes.js';
 import reviewRoutes from './src/routes/review.routes.js';
+import conversationRoutes from './src/routes/conversation.routes.js';
+import { globalErrorHandler } from './src/middlewares/error.middleware.js';
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -38,6 +40,9 @@ app.use('/api/services', serviceRoutes);
 // Reviews: CLIENT creates/deletes, public fetch with stats
 app.use('/api/reviews', reviewRoutes);
 
+// Conversations & Messaging: CLIENT starts threads, both parties reply
+app.use('/api/conversations', conversationRoutes);
+
 // ─── Health Check ─────────────────────────────────────────────────────────────
 
 app.get('/', (req, res) => {
@@ -47,6 +52,20 @@ app.get('/', (req, res) => {
     version: '1.0.0',
   });
 });
+
+// ─── 404 Fallback ─────────────────────────────────────────────────────────────
+
+app.use((req, res, next) => {
+  res.status(404).json({
+    success: false,
+    message: 'Route not found',
+    error: 'NOT_FOUND',
+  });
+});
+
+// ─── Global Error Handler ──────────────────────────────────────────────────────
+
+app.use(globalErrorHandler);
 
 // ─── Start Server ─────────────────────────────────────────────────────────────
 

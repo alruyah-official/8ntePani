@@ -9,16 +9,18 @@ import {
   getServiceById,
   getServicesByFreelancer,
 } from '../controllers/service.controller.js';
+import { validate } from '../middlewares/validate.middleware.js';
+import { createServiceSchema, updateServiceSchema } from '../validators/service.validator.js';
 
 const router = Router();
 
 // ── Protected: FREELANCER only ────────────────────────────────────────────────
 
 // POST   /api/services             → create a new service listing
-router.post('/', protect, restrictTo('FREELANCER'), createService);
+router.post('/', validate(createServiceSchema), protect, restrictTo('FREELANCER'), createService);
 
 // PUT    /api/services/:serviceId  → update own service
-router.put('/:serviceId', protect, restrictTo('FREELANCER'), updateService);
+router.put('/:serviceId', validate(updateServiceSchema), protect, restrictTo('FREELANCER'), updateService);
 
 // DELETE /api/services/:serviceId  → delete own service
 router.delete('/:serviceId', protect, restrictTo('FREELANCER'), deleteService);

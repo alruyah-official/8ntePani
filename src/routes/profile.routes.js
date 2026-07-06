@@ -7,16 +7,18 @@ import {
   getMyProfile,
   getProfileByUserId,
 } from '../controllers/profile.controller.js';
+import { validate } from '../middlewares/validate.middleware.js';
+import { createProfileSchema, updateProfileSchema } from '../validators/profile.validator.js';
 
 const router = Router();
 
 // ── Protected: FREELANCER only ────────────────────────────────────────────────
 
 // POST /api/profile → create a new freelancer profile
-router.post('/', protect, restrictTo('FREELANCER'), createProfile);
+router.post('/', validate(createProfileSchema), protect, restrictTo('FREELANCER'), createProfile);
 
 // PUT  /api/profile → update the authenticated freelancer's profile
-router.put('/', protect, restrictTo('FREELANCER'), updateProfile);
+router.put('/', validate(updateProfileSchema), protect, restrictTo('FREELANCER'), updateProfile);
 
 // ── Protected: any authenticated user ────────────────────────────────────────
 
