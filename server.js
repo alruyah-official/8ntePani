@@ -8,6 +8,7 @@ import serviceRoutes from './src/routes/service.routes.js';
 import reviewRoutes from './src/routes/review.routes.js';
 import conversationRoutes from './src/routes/conversation.routes.js';
 import { globalErrorHandler } from './src/middlewares/error.middleware.js';
+import uploadRoutes from './src/routes/upload.routes.js';
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -42,6 +43,9 @@ app.use('/api/reviews', reviewRoutes);
 
 // Conversations & Messaging: CLIENT starts threads, both parties reply
 app.use('/api/conversations', conversationRoutes);
+
+// Image Uploads: Cloudinary integration
+app.use('/api/upload', uploadRoutes);
 
 // ─── Health Check ─────────────────────────────────────────────────────────────
 

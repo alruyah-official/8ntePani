@@ -6,7 +6,9 @@ import {
   updateProfile,
   getMyProfile,
   getProfileByUserId,
+  uploadAvatar,
 } from '../controllers/profile.controller.js';
+import { uploadSingle } from '../middlewares/upload.middleware.js';
 import { validate } from '../middlewares/validate.middleware.js';
 import { createProfileSchema, updateProfileSchema } from '../validators/profile.validator.js';
 
@@ -26,6 +28,9 @@ router.put('/', validate(updateProfileSchema), protect, restrictTo('FREELANCER')
 // NOTE: /me must be declared BEFORE /:userId so Express doesn't treat
 //       the literal string "me" as a dynamic userId parameter.
 router.get('/me', protect, getMyProfile);
+
+// POST /api/profile/avatar → upload and update the user's avatar
+router.post('/avatar', protect, uploadSingle, uploadAvatar);
 
 // ── Public ────────────────────────────────────────────────────────────────────
 
