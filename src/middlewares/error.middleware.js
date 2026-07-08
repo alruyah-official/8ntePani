@@ -36,12 +36,19 @@ export const globalErrorHandler = (err, req, res, next) => {
     }
   }
 
-  // Fallback for all other unhandled errors (database down, syntax errors, etc)
-  console.error('Unhandled Error:', err);
+  // Fallback for all other unhandled errors
+  const isProduction = process.env.NODE_ENV === 'production';
+  
+  if (!isProduction) {
+    console.error('Unhandled Error:', err);
+  }
 
   return res.status(500).json({
     success: false,
     message: 'Something went wrong',
-    error: err.message || 'Internal Server Error',
+    ...(isProduction ? {} : { 
+      error: err.message || 'Internal Server Error',
+      stack: err.stack 
+    }),
   });
 };

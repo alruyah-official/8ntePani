@@ -1,0 +1,9 @@
+services:
+  - type: web
+    name: 8ntepani-backend
+    env: node
+    buildCommand: pnpm install && pnpm prisma generate
+    startCommand: pnpm start
+    envVars:
+      - key: NODE_ENV
+        value: production

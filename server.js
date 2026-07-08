@@ -22,7 +22,12 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // Enable Cross-Origin Resource Sharing (allow frontend to talk to this API)
-app.use(cors());
+app.use(cors({
+  origin: process.env.FRONTEND_URL || 'http://localhost:5173',
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  credentials: true
+}));
 
 // ─── Routes ───────────────────────────────────────────────────────────────────
 
@@ -54,6 +59,15 @@ app.get('/', (req, res) => {
     success: true,
     message: '8ntePani API is running 🚀',
     version: '1.0.0',
+  });
+});
+
+app.get('/health', (req, res) => {
+  res.status(200).json({
+    success: true,
+    message: 'Server is running',
+    environment: process.env.NODE_ENV,
+    timestamp: new Date().toISOString()
   });
 });
 
