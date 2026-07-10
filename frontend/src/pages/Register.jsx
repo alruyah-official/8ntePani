@@ -29,14 +29,11 @@ const Register = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("Register button clicked");
     setLoading(true);
     setError(null);
 
     try {
-      console.log("Sending request...");
       const res = await api.post('/api/auth/register', formData);
-      console.log("Response:", res);
       if (res.data.success) {
         const { user, token } = res.data.data;
         login(user, token);
