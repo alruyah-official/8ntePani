@@ -16,6 +16,7 @@ import Messages from './pages/Messages.jsx';
 import Explore from './pages/Explore.jsx';
 import Jobs from './pages/Jobs.jsx';
 import JobDetail from './pages/JobDetail.jsx';
+import Notifications from './pages/Notifications.jsx';
 
 function App() {
   return (
@@ -55,6 +56,11 @@ function App() {
           <Route path="/messages/:conversationId" element={
             <ProtectedRoute>
               <Messages />
+            </ProtectedRoute>
+          } />
+          <Route path="/notifications" element={
+            <ProtectedRoute>
+              <Notifications />
             </ProtectedRoute>
           } />
         </Routes>

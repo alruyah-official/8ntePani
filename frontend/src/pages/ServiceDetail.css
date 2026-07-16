@@ -449,3 +449,117 @@
     gap: var(--space-4);
   }
 }
+
+/* ── Job Redesign Enhancements ── */
+.sd-upwork-breadcrumbs {
+  font-size: 13px;
+  color: #64748b;
+  margin-bottom: var(--space-4);
+  font-weight: 500;
+}
+.sd-upwork-breadcrumbs a {
+  color: #1a73e8;
+  text-decoration: none;
+}
+.sd-upwork-breadcrumbs a:hover {
+  text-decoration: underline;
+}
+
+.sd-skills-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  margin-top: var(--space-4);
+}
+.sd-skill-pill {
+  background-color: #f1f5f9;
+  color: #334155;
+  padding: 6px 14px;
+  border-radius: 9999px;
+  font-size: 14px;
+  font-weight: 500;
+  transition: background-color var(--transition-fast);
+  cursor: pointer;
+}
+.sd-skill-pill:hover {
+  background-color: #e2e8f0;
+}
+
+.sd-activity-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  margin-top: var(--space-4);
+}
+.sd-activity-item {
+  display: flex;
+  justify-content: space-between;
+  font-size: 14px;
+  color: #334155;
+  padding-bottom: var(--space-3);
+  border-bottom: 1px solid var(--color-border);
+}
+.sd-activity-item:last-child {
+  border-bottom: none;
+}
+.sd-activity-label {
+  color: #64748b;
+}
+.sd-activity-value {
+  font-weight: 600;
+}
+
+.sd-attachment-card {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-4);
+  margin-top: var(--space-4);
+  background: white;
+  width: 100%;
+  max-width: 300px;
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+}
+.sd-attachment-card:hover {
+  border-color: #1a73e8;
+  box-shadow: var(--shadow-sm);
+}
+.sd-attachment-info {
+  display: flex;
+  flex-direction: column;
+}
+.sd-attachment-name {
+  font-weight: 600;
+  font-size: 14px;
+  color: #1a73e8;
+  cursor: pointer;
+  text-decoration: none;
+}
+.sd-attachment-name:hover {
+  text-decoration: underline;
+}
+.sd-attachment-size {
+  font-size: 12px;
+  color: #64748b;
+  margin-top: 2px;
+}
+
+.freelancer-verification-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  margin-top: var(--space-4);
+}
+.freelancer-verification-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  font-size: 14px;
+  color: #334155;
+}
+.freelancer-verification-icon {
+  color: #15803d;
+  flex-shrink: 0;
+}

@@ -30,18 +30,7 @@ function JobCard({ job }) {
     <a href={`/jobs/${id}`} onClick={handleClick} className="service-card" aria-label={`View job: ${title}`}>
       <div className="service-card-body">
         
-        {/* Client Profile Block */}
-        <div className="service-card-freelancer-block">
-          {client?.avatar ? (
-            <img src={client.avatar} alt={client?.name} className="service-card-avatar" />
-          ) : (
-            <div className="service-card-avatar-placeholder">{initials}</div>
-          )}
-          <div className="service-card-freelancer-info">
-            <span className="service-card-freelancer-name">{client?.name || 'Unknown Client'}</span>
-            <span className="service-card-freelancer-location">{location}</span>
-          </div>
-        </div>
+        {/* Removed Client Profile Block to limit information */}
         
         <h3 className="service-card-title">{title}</h3>
         
@@ -76,7 +65,7 @@ function JobCard({ job }) {
         <p className="service-card-description">{description}</p>
         
         <div className="service-card-action">
-          <button className="service-card-cta">View Job Details</button>
+          <button className="service-card-cta">See more</button>
         </div>
       </div>
     </a>

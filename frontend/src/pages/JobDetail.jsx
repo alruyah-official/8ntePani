@@ -4,19 +4,15 @@ import api from '../api/axios';
 import { useAuth } from '../context/AuthContext';
 import StarRating from '../components/StarRating';
 import '../components/StarRating.css';
-import './ServiceDetail.css'; // Reusing the exact same Upwork style CSS
+import './ServiceDetail.css';
 
 /* ─────────────────────────── helpers ─────────────────────────── */
 function getInitials(name = '') {
-  return name
-    .split(' ')
-    .map((w) => w[0])
-    .join('')
-    .slice(0, 2)
-    .toUpperCase();
+  return name.split(' ').map((w) => w[0]).join('').slice(0, 2).toUpperCase();
 }
 
 function relativeDate(iso) {
+  if (!iso) return 'just now';
   const diff = Date.now() - new Date(iso).getTime();
   const mins = Math.floor(diff / 60000);
   if (mins < 1) return 'just now';
@@ -64,7 +60,6 @@ export default function JobDetail() {
     setLoading(true);
     setError('');
     try {
-      // Mocking: Fetching from services for now since there's no jobs endpoint
       const res = await api.get(`/api/services/${jobId}`);
       setJob(res.data.data.service);
     } catch (err) {
@@ -80,7 +75,6 @@ export default function JobDetail() {
     if (!isAuthenticated) { navigate('/login'); return; }
     setContactLoading(true);
     try {
-      // Create conversation with the person who posted this
       const res = await api.post('/api/conversations', { freelancerId: job.freelancerId });
       navigate(`/messages/${res.data.data.conversation.id}`);
     } catch (err) {
@@ -110,12 +104,21 @@ export default function JobDetail() {
 
   if (!job) return null;
 
-  // Mocking client with freelancer data for UI purposes
   const client = job.freelancer;
   const profile = client?.clientProfile || client?.freelancerProfile; 
 
   const isOwner = user?.id === job.freelancerId;
   const canInteract = !isOwner;
+
+  // Mock data for new UI elements
+  const mockSkills = ['React', 'Node.js', 'Figma', 'UI/UX Design', 'Tailwind CSS'];
+  const mockActivity = {
+    proposals: '15 to 20',
+    lastViewed: '1 day ago',
+    interviewing: 2,
+    invitesSent: 4,
+    unansweredInvites: 1
+  };
 
   return (
     <div className="page-wrapper sd-upwork-page">
@@ -126,14 +129,18 @@ export default function JobDetail() {
           
           {/* Header Area */}
           <div className="sd-upwork-header">
+            <div className="sd-upwork-breadcrumbs">
+              <Link to="/jobs">Jobs</Link> / {job.category?.name || 'Development'} / {job.title}
+            </div>
+
             <h1 className="sd-upwork-title">{job.title}</h1>
             
             <div className="sd-upwork-badges">
-              <span className="badge-new">New Job</span>
-              <span className="badge-meta">Fixed-price • Posted recently</span>
-              {job.category?.name && (
-                <span className="badge-meta">• {job.category.name}</span>
-              )}
+              <span className="badge-meta" style={{color: '#1a73e8', fontWeight: '600'}}>{job.category?.name || 'Development'}</span>
+              <span className="badge-meta">• Posted {relativeDate(job.createdAt)}</span>
+              <span className="badge-meta">
+                • <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" style={{marginRight: '2px', verticalAlign: 'middle'}}><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" /><circle cx="12" cy="10" r="3" /></svg> Worldwide
+              </span>
             </div>
             
             <div className="sd-upwork-details-grid">
@@ -174,15 +181,69 @@ export default function JobDetail() {
 
           {/* Description */}
           <section className="sd-upwork-section">
-            <h2 className="sd-upwork-heading">Job Description</h2>
+            <h2 className="sd-upwork-heading" style={{fontSize: '1.1rem'}}>Job Description</h2>
             <div className="sd-upwork-description">
               {job.description.split('\n').map((paragraph, idx) => (
                 <p key={idx}>{paragraph}</p>
               ))}
             </div>
+
+            {/* Mock Attachments */}
+            <div className="sd-attachment-card">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#64748b" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                <polyline points="14 2 14 8 20 8"></polyline>
+                <line x1="16" y1="13" x2="8" y2="13"></line>
+                <line x1="16" y1="17" x2="8" y2="17"></line>
+                <polyline points="10 9 9 9 8 9"></polyline>
+              </svg>
+              <div className="sd-attachment-info">
+                <a href="#" onClick={e=>e.preventDefault()} className="sd-attachment-name">project-requirements.pdf</a>
+                <span className="sd-attachment-size">1.2 MB</span>
+              </div>
+            </div>
           </section>
 
           <hr className="sd-upwork-divider" />
+
+          {/* Skills and Expertise */}
+          <section className="sd-upwork-section">
+            <h2 className="sd-upwork-heading" style={{fontSize: '1.1rem'}}>Skills and Expertise</h2>
+            <div className="sd-skills-list">
+              {mockSkills.map(skill => (
+                <span key={skill} className="sd-skill-pill">{skill}</span>
+              ))}
+            </div>
+          </section>
+
+          <hr className="sd-upwork-divider" />
+
+          {/* Activity on this job */}
+          <section className="sd-upwork-section">
+            <h2 className="sd-upwork-heading" style={{fontSize: '1.1rem'}}>Activity on this job</h2>
+            <div className="sd-activity-list">
+              <div className="sd-activity-item">
+                <span className="sd-activity-label">Proposals:</span>
+                <span className="sd-activity-value">{mockActivity.proposals}</span>
+              </div>
+              <div className="sd-activity-item">
+                <span className="sd-activity-label">Last viewed by client:</span>
+                <span className="sd-activity-value">{mockActivity.lastViewed}</span>
+              </div>
+              <div className="sd-activity-item">
+                <span className="sd-activity-label">Interviewing:</span>
+                <span className="sd-activity-value">{mockActivity.interviewing}</span>
+              </div>
+              <div className="sd-activity-item">
+                <span className="sd-activity-label">Invites sent:</span>
+                <span className="sd-activity-value">{mockActivity.invitesSent}</span>
+              </div>
+              <div className="sd-activity-item">
+                <span className="sd-activity-label">Unanswered invites:</span>
+                <span className="sd-activity-value">{mockActivity.unansweredInvites}</span>
+              </div>
+            </div>
+          </section>
         </main>
 
         {/* ── RIGHT: Sidebar ── */}
@@ -198,9 +259,12 @@ export default function JobDetail() {
                     onClick={handleContact}
                     disabled={contactLoading}
                   >
-                    {contactLoading ? '' : 'Submit Proposal'}
+                    {contactLoading ? '' : 'Apply Now'}
                   </button>
-                  <p className="upwork-cta-hint">Send a message to the client to apply.</p>
+                  <button className="btn btn-secondary btn-full mt-3" style={{border: '1px solid #1a73e8', color: '#1a73e8', height: '48px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: '600', borderRadius: 'var(--radius-md)', background: 'transparent', cursor: 'pointer'}}>
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{marginRight: '8px'}}><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>
+                    Save Job
+                  </button>
                 </>
               ) : (
                 <div className="sd-owner-notice">You posted this job.</div>
@@ -215,40 +279,40 @@ export default function JobDetail() {
 
           {/* Client Profile Box */}
           <div className="sd-upwork-box freelancer-box">
-            <h3 className="freelancer-box-title">About the Client</h3>
+            <h3 className="freelancer-box-title" style={{fontSize: '1.1rem'}}>About the client</h3>
             
-            <div className="freelancer-box-identity">
-              <Avatar src={client?.avatar} name={client?.name || 'Client'} size="lg" />
-              <div className="freelancer-box-info">
-                <Link to={`/profile/${client?.id}`} className="freelancer-name">
-                  {client?.name}
-                </Link>
-                {profile?.location && (
-                  <span className="freelancer-location">
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                      <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
-                      <circle cx="12" cy="10" r="3" />
-                    </svg>
-                    {profile.location}
-                  </span>
-                )}
-                
-                <div className="freelancer-rating-sm">
-                  <StarRating rating={5.0} size={12} interactive={false} />
-                  <span>5.0</span>
-                </div>
+            <div className="freelancer-verification-list" style={{marginTop: '0', marginBottom: 'var(--space-5)'}}>
+              <div className="freelancer-verification-item">
+                <svg className="freelancer-verification-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+                Payment method verified
+              </div>
+              <div className="freelancer-verification-item">
+                <StarRating rating={4.9} size={14} interactive={false} />
+                <span style={{fontWeight: '600'}}>4.9</span> of 24 reviews
               </div>
             </div>
 
             <div className="freelancer-meta-section">
-              <span className="meta-label">Client History</span>
-              <p style={{fontSize: '13px', color: '#475569'}}>14 jobs posted<br/>85% hire rate, 1 open job<br/>$12k+ total spent</p>
+              <span className="meta-label">Location</span>
+              <p style={{fontSize: '14px', color: '#334155', fontWeight: '500'}}>{profile?.location || 'United States'}</p>
+              <p style={{fontSize: '12px', color: '#64748b'}}>10:45 AM local time</p>
+            </div>
+
+            <div className="freelancer-meta-section">
+              <span className="meta-label">History</span>
+              <p style={{fontSize: '14px', color: '#334155', fontWeight: '500'}}>34 jobs posted</p>
+              <p style={{fontSize: '12px', color: '#64748b'}}>85% hire rate, 1 open job</p>
+            </div>
+
+            <div className="freelancer-meta-section">
+              <span className="meta-label">Total Spent</span>
+              <p style={{fontSize: '14px', color: '#334155', fontWeight: '500'}}>$12k+ total spent</p>
+              <p style={{fontSize: '12px', color: '#64748b'}}>32 hires, 5 active</p>
             </div>
             
-            <hr className="freelancer-box-divider" />
-            <Link to={`/profile/${client?.id}`} className="btn btn-secondary btn-full">
-              View Client Profile
-            </Link>
+            <div className="freelancer-meta-section" style={{marginBottom: '0'}}>
+              <p style={{fontSize: '12px', color: '#64748b'}}>Member since Nov 2022</p>
+            </div>
           </div>
           
         </aside>

@@ -1,10 +1,15 @@
 import './Navbar.css';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
 function Navbar() {
   const { user, isAuthenticated, logout } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
+
+  if (location.pathname === '/login' || location.pathname === '/register') {
+    return null;
+  }
 
   const handleLogout = () => {
     logout();

@@ -41,6 +41,12 @@ const Login = () => {
   return (
     <div className="auth-page">
       <div className="auth-card">
+        <Link to="/" className="auth-back-arrow" aria-label="Back to home">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <line x1="19" y1="12" x2="5" y2="12"></line>
+            <polyline points="12 19 5 12 12 5"></polyline>
+          </svg>
+        </Link>
         {/* Logo */}
         <div className="auth-logo">
           <img src="/logo.png" alt="8ntePani Logo" className="auth-logo-img" style={{ height: '180px', objectFit: 'contain', margin: '-40px 0' }} />
