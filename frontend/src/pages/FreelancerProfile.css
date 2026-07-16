@@ -1,6 +1,6 @@
 /* ═══════════════════════════════════════════════════
    FreelancerProfile.css
-   Premium Light SaaS design
+   Premium Public Portfolio Design
    ═══════════════════════════════════════════════════ */
 
 /* ── Page ── */
@@ -8,6 +8,7 @@
   min-height: 100vh;
   padding-bottom: var(--space-16);
   background-color: var(--color-bg);
+  position: relative;
 }
 
 /* ── Hero Banner ── */
@@ -16,9 +17,13 @@
   top: 0;
   left: 0;
   right: 0;
-  height: 220px;
-  background: var(--gradient-hero, linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%));
+  height: 280px;
+  background: 
+    radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.4) 0px, transparent 50%),
+    radial-gradient(at 100% 100%, rgba(6, 182, 212, 0.4) 0px, transparent 50%),
+    linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
   z-index: 0;
+  border-bottom: 1px solid var(--color-border);
 }
 
 /* ── Container ── */
@@ -58,18 +63,34 @@
 
 .fp-avatar-wrap {
   flex-shrink: 0;
-  margin-top: -64px; /* overlap banner */
+  margin-top: -80px; /* pull avatar up to overlap banner */
 }
 
-.avatar.fp-avatar {
-  width: 120px;
-  height: 120px;
-  font-size: var(--font-size-4xl);
-  font-weight: 700;
+/* Fix for avatar and placeholder */
+.fp-avatar {
+  width: 140px;
+  height: 140px;
   border-radius: var(--radius-full);
   border: 6px solid var(--color-surface);
   box-shadow: var(--shadow-md);
-  background: var(--color-surface);
+  object-fit: cover;
+  background: white;
+}
+
+.fp-avatar-placeholder {
+  width: 140px;
+  height: 140px;
+  border-radius: var(--radius-full);
+  border: 6px solid var(--color-surface);
+  box-shadow: var(--shadow-md);
+  background: var(--gradient-primary);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 3rem;
+  font-weight: 800;
+  letter-spacing: -1px;
 }
 
 .fp-header-info {
@@ -87,11 +108,12 @@
 }
 
 .fp-name {
-  font-size: var(--font-size-3xl);
+  font-size: var(--font-size-4xl);
   font-weight: 800;
   color: var(--color-text);
   margin: 0;
   line-height: 1.15;
+  letter-spacing: -0.02em;
 }
 
 .fp-role-badge {
@@ -102,7 +124,7 @@
 }
 
 .fp-email {
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-base);
   color: var(--color-text-muted);
   margin: 0 0 var(--space-3) 0;
 }
@@ -117,9 +139,10 @@
 .fp-meta-item {
   display: flex;
   align-items: center;
-  gap: var(--space-1);
+  gap: 6px;
   font-size: var(--font-size-sm);
   color: var(--color-text-muted);
+  font-weight: 500;
 }
 
 .fp-meta-item svg {
@@ -133,7 +156,7 @@
   align-items: flex-end;
   gap: var(--space-2);
   flex-shrink: 0;
-  padding-top: var(--space-2);
+  padding-top: var(--space-4);
 }
 
 .fp-contact-error {
@@ -146,7 +169,7 @@
 /* ═══════════════════ BODY GRID ═══════════════════ */
 .fp-body-grid {
   display: grid;
-  grid-template-columns: 280px 1fr;
+  grid-template-columns: 320px 1fr;
   gap: var(--space-8);
   align-items: start;
 }
@@ -161,7 +184,7 @@
 }
 
 .fp-sidebar-card {
-  background: var(--color-surface);
+  background: white;
   border: 1px solid var(--color-border);
   border-radius: var(--radius-xl);
   box-shadow: var(--shadow-sm);
@@ -169,15 +192,15 @@
 }
 
 .fp-sidebar-card-body {
-  padding: var(--space-5);
+  padding: var(--space-6);
 }
 
 .fp-sidebar-heading {
   font-size: var(--font-size-xs);
-  font-weight: 700;
+  font-weight: 800;
   color: var(--color-text-muted);
   text-transform: uppercase;
-  letter-spacing: 0.1em;
+  letter-spacing: 0.12em;
   margin: 0 0 var(--space-4) 0;
 }
 
@@ -186,6 +209,12 @@
   line-height: 1.6;
   color: var(--color-text);
   margin: 0;
+}
+
+.fp-coming-soon {
+  color: var(--color-text-faint);
+  font-style: italic;
+  font-size: var(--font-size-sm);
 }
 
 /* Skills */
@@ -199,10 +228,14 @@
   background: var(--color-surface-2);
   border: 1px solid var(--color-border);
   color: var(--color-text);
-  font-weight: 500;
+  font-weight: 600;
   font-size: var(--font-size-xs);
-  border-radius: var(--radius-full);
-  padding: var(--space-1) var(--space-3);
+  border-radius: var(--radius-lg);
+  padding: var(--space-2) var(--space-3);
+  transition: border-color var(--transition-fast);
+}
+.fp-skill-tag:hover {
+  border-color: var(--color-primary);
 }
 
 /* Languages */
@@ -218,6 +251,7 @@
   gap: var(--space-3);
   font-size: var(--font-size-sm);
   color: var(--color-text);
+  font-weight: 500;
 }
 
 .fp-lang-item svg {
@@ -238,38 +272,134 @@
 }
 
 .fp-services-title {
-  font-size: var(--font-size-2xl);
-  font-weight: 700;
+  font-size: var(--font-size-3xl);
+  font-weight: 800;
   color: var(--color-text);
   margin: 0;
+  letter-spacing: -0.02em;
 }
 
 .fp-empty-services {
-  background: var(--color-surface);
-  border-radius: var(--radius-xl);
+  background: white;
+  border-radius: var(--radius-2xl);
   box-shadow: var(--shadow-sm);
-  border: 1px solid var(--color-border);
+  border: 1px dashed var(--color-border-light);
   padding: var(--space-16) var(--space-4);
+  text-align: center;
+  color: var(--color-text-muted);
 }
 
-/* Services Grid */
+/* ── Profile Service Card (New) ── */
 .fp-services-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
   gap: var(--space-6);
 }
 
+.fp-service-card {
+  background: white;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-xl);
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+  transition: transform var(--transition-base), box-shadow var(--transition-base);
+  display: flex;
+  flex-direction: column;
+  text-decoration: none;
+}
+
+.fp-service-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-md);
+  border-color: var(--color-border-hover);
+}
+
+.fp-service-thumb {
+  height: 180px;
+  background: #f1f5f9;
+  position: relative;
+}
+
+.fp-service-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.fp-service-thumb-placeholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2.5rem;
+  color: #cbd5e1;
+}
+
+.fp-service-category {
+  position: absolute;
+  top: var(--space-3);
+  left: var(--space-3);
+  background: rgba(255, 255, 255, 0.95);
+  padding: 4px 10px;
+  border-radius: var(--radius-full);
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--color-primary-dark);
+  box-shadow: var(--shadow-sm);
+}
+
+.fp-service-body {
+  padding: var(--space-5);
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.fp-service-title {
+  font-size: var(--font-size-lg);
+  font-weight: 700;
+  color: var(--color-text);
+  margin: 0 0 var(--space-2) 0;
+  line-height: 1.4;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.fp-service-footer {
+  margin-top: auto;
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--color-border-light);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.fp-service-price {
+  font-size: var(--font-size-xl);
+  font-weight: 800;
+  color: var(--color-text);
+}
+
+.fp-service-delivery {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
 
 /* ═══════════════════ RESPONSIVE ═══════════════════ */
 @media (max-width: 960px) {
   .fp-body-grid {
     grid-template-columns: 1fr;
   }
-
   .fp-sidebar {
     position: static;
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
   }
 }
 
@@ -279,25 +409,23 @@
     align-items: center;
     text-align: center;
   }
-
   .fp-header-top-row {
     justify-content: center;
   }
-
   .fp-header-meta {
     justify-content: center;
   }
-
   .fp-header-actions {
     align-items: center;
     width: 100%;
   }
-
   .fp-name {
-    font-size: var(--font-size-2xl);
+    font-size: var(--font-size-3xl);
   }
-
   .fp-sidebar {
+    grid-template-columns: 1fr;
+  }
+  .fp-services-grid {
     grid-template-columns: 1fr;
   }
 }

@@ -1,14 +1,14 @@
 import { useState, useEffect, useCallback } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, Link } from 'react-router-dom';
 import api from '../api/axios';
 import { useAuth } from '../context/AuthContext';
-import ServiceCard from '../components/ServiceCard';
 import './FreelancerProfile.css';
 
 /* ─────────────────────────── helpers ─────────────────────────── */
 function getInitials(name = '') {
   return name
     .split(' ')
+    .filter(Boolean)
     .map((w) => w[0])
     .join('')
     .slice(0, 2)
@@ -22,22 +22,56 @@ function formatMemberSince(iso) {
 }
 
 /* ─────────────────────────── Avatar ─────────────────────────── */
-function Avatar({ src, name, size = 'md', className = '' }) {
+function Avatar({ src, name }) {
   const [imgError, setImgError] = useState(false);
+  
   if (src && !imgError) {
     return (
       <img
         src={src}
         alt={name}
-        className={`avatar avatar-${size} ${className}`}
+        className="fp-avatar"
         onError={() => setImgError(true)}
       />
     );
   }
+  
   return (
-    <div className={`avatar avatar-${size} avatar-placeholder ${className}`}>
-      {getInitials(name)}
+    <div className="fp-avatar-placeholder">
+      {getInitials(name) || '??'}
     </div>
+  );
+}
+
+/* ─────────────────────────── ProfileServiceCard ─────────────────── */
+function ProfileServiceCard({ service }) {
+  const { id, title, price, deliveryDays, images, category } = service;
+  
+  return (
+    <Link to={`/services/${id}`} className="fp-service-card">
+      <div className="fp-service-thumb">
+        {category && (
+          <span className="fp-service-category">{category.name}</span>
+        )}
+        {images?.[0] ? (
+          <img src={images[0]} alt={title} />
+        ) : (
+          <div className="fp-service-thumb-placeholder">🖼</div>
+        )}
+      </div>
+      
+      <div className="fp-service-body">
+        <h4 className="fp-service-title">{title}</h4>
+        
+        <div className="fp-service-footer">
+          <span className="fp-service-price">${parseFloat(price || 0).toLocaleString()}</span>
+          <div className="fp-service-delivery">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+            {deliveryDays ? `${deliveryDays} days` : 'Flexible'}
+          </div>
+        </div>
+      </div>
+    </Link>
   );
 }
 
@@ -114,7 +148,7 @@ export default function FreelancerProfile() {
       <div className="fp-hero-banner" aria-hidden="true" />
 
       <div className="page-wrapper">
-        <div className="container fp-container">
+        <div className="container fp-container animate-fade-in">
 
           {/* ── Profile Header ── */}
           <div className="fp-header-card">
@@ -123,8 +157,6 @@ export default function FreelancerProfile() {
                 <Avatar
                   src={freelancerUser?.avatar}
                   name={freelancerUser?.name || 'Freelancer'}
-                  size="xl"
-                  className="fp-avatar"
                 />
               </div>
 
@@ -138,7 +170,7 @@ export default function FreelancerProfile() {
                 <div className="fp-header-meta">
                   {profile.location && (
                     <span className="fp-meta-item">
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
                         <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
                         <circle cx="12" cy="10" r="3" />
                       </svg>
@@ -147,7 +179,7 @@ export default function FreelancerProfile() {
                   )}
                   {freelancerUser?.createdAt && (
                     <span className="fp-meta-item">
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
                         <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
                         <line x1="16" y1="2" x2="16" y2="6" />
                         <line x1="8" y1="2" x2="8" y2="6" />
@@ -157,7 +189,7 @@ export default function FreelancerProfile() {
                     </span>
                   )}
                   <span className="fp-meta-item">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
                       <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z" />
                     </svg>
                     {services.length} service{services.length !== 1 ? 's' : ''}
@@ -175,7 +207,7 @@ export default function FreelancerProfile() {
                     disabled={contactLoading}
                     id="contact-freelancer-profile-btn"
                   >
-                    {contactLoading ? '' : 'Contact'}
+                    {contactLoading ? '' : 'Contact Freelancer'}
                   </button>
                 </div>
               )}
@@ -189,34 +221,38 @@ export default function FreelancerProfile() {
             <aside className="fp-sidebar">
 
               {/* Bio */}
-              {profile.bio && (
-                <div className="fp-sidebar-card">
-                  <div className="fp-sidebar-card-body">
-                    <h2 className="fp-sidebar-heading">About</h2>
+              <div className="fp-sidebar-card">
+                <div className="fp-sidebar-card-body">
+                  <h2 className="fp-sidebar-heading">About</h2>
+                  {profile.bio ? (
                     <p className="fp-bio-text">{profile.bio}</p>
-                  </div>
+                  ) : (
+                    <p className="fp-coming-soon">Information coming soon.</p>
+                  )}
                 </div>
-              )}
+              </div>
 
               {/* Skills */}
-              {profile.skills?.length > 0 && (
-                <div className="fp-sidebar-card">
-                  <div className="fp-sidebar-card-body">
-                    <h2 className="fp-sidebar-heading">Skills</h2>
-                    <div className="tag-list fp-skills-list">
+              <div className="fp-sidebar-card">
+                <div className="fp-sidebar-card-body">
+                  <h2 className="fp-sidebar-heading">Skills</h2>
+                  {profile.skills?.length > 0 ? (
+                    <div className="fp-skills-list">
                       {profile.skills.map((skill) => (
-                        <span key={skill} className="tag fp-skill-tag">{skill}</span>
+                        <span key={skill} className="fp-skill-tag">{skill}</span>
                       ))}
                     </div>
-                  </div>
+                  ) : (
+                    <p className="fp-coming-soon">No skills listed yet.</p>
+                  )}
                 </div>
-              )}
+              </div>
 
               {/* Languages */}
-              {profile.languages?.length > 0 && (
-                <div className="fp-sidebar-card">
-                  <div className="fp-sidebar-card-body">
-                    <h2 className="fp-sidebar-heading">Languages</h2>
+              <div className="fp-sidebar-card">
+                <div className="fp-sidebar-card-body">
+                  <h2 className="fp-sidebar-heading">Languages</h2>
+                  {profile.languages?.length > 0 ? (
                     <div className="fp-lang-list">
                       {profile.languages.map((lang) => (
                         <div key={lang} className="fp-lang-item">
@@ -229,32 +265,35 @@ export default function FreelancerProfile() {
                         </div>
                       ))}
                     </div>
-                  </div>
+                  ) : (
+                    <p className="fp-coming-soon">No languages specified.</p>
+                  )}
                 </div>
-              )}
+              </div>
 
             </aside>
 
             {/* ── RIGHT: Services ── */}
             <section className="fp-services-section">
               <div className="fp-services-header">
-                <h2 className="fp-services-title">Services</h2>
+                <h2 className="fp-services-title">Portfolio Services</h2>
                 {services.length > 0 && (
                   <span className="badge badge-neutral">{services.length}</span>
                 )}
               </div>
 
               {services.length === 0 ? (
-                <div className="empty-state fp-empty-services">
-                  <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                <div className="fp-empty-services">
+                  <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" style={{ marginBottom: '16px', opacity: 0.5 }}>
                     <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z" />
                   </svg>
-                  <p>No services listed yet.</p>
+                  <h3>No services listed yet</h3>
+                  <p>Check back later to see what this freelancer has to offer.</p>
                 </div>
               ) : (
                 <div className="fp-services-grid">
                   {services.map((svc) => (
-                    <ServiceCard key={svc.id} service={svc} />
+                    <ProfileServiceCard key={svc.id} service={svc} />
                   ))}
                 </div>
               )}

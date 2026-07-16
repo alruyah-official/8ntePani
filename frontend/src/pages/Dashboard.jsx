@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import api from '../api/axios';
 import ConfirmModal from '../components/ConfirmModal';
@@ -78,7 +78,7 @@ function TagInput({ tags, onAdd, onRemove, placeholder, label, inputId }) {
   );
 }
 
-/* ─── Service Form Component ──────────────────────────────────────────────── */
+/* ─── Service Form Component (Inside Modal) ───────────────────────────────── */
 function ServiceForm({ initialData, categories, onSuccess, onClose }) {
   const isEdit = !!initialData;
 
@@ -201,7 +201,6 @@ function ServiceForm({ initialData, categories, onSuccess, onClose }) {
         </div>
       )}
 
-      {/* Title */}
       <div className="form-group">
         <label className="form-label" htmlFor="svc-title">Title</label>
         <input
@@ -217,7 +216,6 @@ function ServiceForm({ initialData, categories, onSuccess, onClose }) {
         />
       </div>
 
-      {/* Description */}
       <div className="form-group">
         <label className="form-label" htmlFor="svc-desc">Description</label>
         <textarea
@@ -232,7 +230,6 @@ function ServiceForm({ initialData, categories, onSuccess, onClose }) {
         />
       </div>
 
-      {/* Price & Delivery */}
       <div className="form-row-2">
         <div className="form-group">
           <label className="form-label" htmlFor="svc-price">Price ($)</label>
@@ -266,7 +263,6 @@ function ServiceForm({ initialData, categories, onSuccess, onClose }) {
         </div>
       </div>
 
-      {/* Category */}
       <div className="form-group">
         <label className="form-label" htmlFor="svc-category">Category</label>
         <select
@@ -279,14 +275,11 @@ function ServiceForm({ initialData, categories, onSuccess, onClose }) {
         >
           <option value="">Select a category</option>
           {categories.map((cat) => (
-            <option key={cat.id} value={cat.id}>
-              {cat.name}
-            </option>
+            <option key={cat.id} value={cat.id}>{cat.name}</option>
           ))}
         </select>
       </div>
 
-      {/* Image upload */}
       <div className="form-group">
         <label className="form-label">Images (up to 5)</label>
         <div
@@ -297,8 +290,6 @@ function ServiceForm({ initialData, categories, onSuccess, onClose }) {
           onClick={() => !uploadingImages && images.length < 5 && fileInputRef.current?.click()}
           role="button"
           tabIndex={0}
-          onKeyDown={(e) => e.key === 'Enter' && fileInputRef.current?.click()}
-          aria-label="Upload images"
         >
           <input
             ref={fileInputRef}
@@ -327,9 +318,7 @@ function ServiceForm({ initialData, categories, onSuccess, onClose }) {
           )}
         </div>
 
-        {imageError && (
-          <p className="form-error">⚠ {imageError}</p>
-        )}
+        {imageError && <p className="form-error">⚠ {imageError}</p>}
 
         {images.length > 0 && (
           <div className="image-preview-grid">
@@ -340,7 +329,6 @@ function ServiceForm({ initialData, categories, onSuccess, onClose }) {
                   type="button"
                   className="image-remove-btn"
                   onClick={() => removeImage(url)}
-                  aria-label="Remove image"
                 >
                   ×
                 </button>
@@ -350,7 +338,6 @@ function ServiceForm({ initialData, categories, onSuccess, onClose }) {
         )}
       </div>
 
-      {/* Actions */}
       <div className="modal-actions">
         <button type="button" className="btn btn-secondary" onClick={onClose} disabled={submitting}>
           Cancel
@@ -367,6 +354,78 @@ function ServiceForm({ initialData, categories, onSuccess, onClose }) {
   );
 }
 
+/* ─── Overview Tab (Mock Analytics) ───────────────────────────────────────── */
+function OverviewTab() {
+  return (
+    <div className="animate-fade-in">
+      <div className="tab-header">
+        <h2 className="tab-title">Overview</h2>
+        <p className="tab-subtitle">Here's what's happening with your profile today.</p>
+      </div>
+
+      <div className="analytics-grid">
+        <div className="stat-card green">
+          <span className="stat-title">Active Services</span>
+          <span className="stat-value">3</span>
+          <div className="stat-change neutral">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+            No change this week
+          </div>
+        </div>
+        <div className="stat-card purple">
+          <span className="stat-title">Profile Views</span>
+          <span className="stat-value">1,248</span>
+          <div className="stat-change positive">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline><polyline points="17 6 23 6 23 12"></polyline></svg>
+            +12% this week
+          </div>
+        </div>
+        <div className="stat-card orange">
+          <span className="stat-title">Response Rate</span>
+          <span className="stat-value">98%</span>
+          <div className="stat-change positive">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+            Excellent
+          </div>
+        </div>
+      </div>
+
+      <div className="activity-section">
+        <h3 className="activity-title">Recent Activity</h3>
+        <div className="activity-list">
+          <div className="activity-item">
+            <div className="activity-icon">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+            </div>
+            <div className="activity-content">
+              <p className="activity-text"><b>Sarah Connor</b> sent you a message.</p>
+              <p className="activity-time">2 hours ago</p>
+            </div>
+          </div>
+          <div className="activity-item">
+            <div className="activity-icon">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+            </div>
+            <div className="activity-content">
+              <p className="activity-text">Your proposal for <b>Fullstack React App</b> was viewed by the client.</p>
+              <p className="activity-time">1 day ago</p>
+            </div>
+          </div>
+          <div className="activity-item">
+            <div className="activity-icon">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+            </div>
+            <div className="activity-content">
+              <p className="activity-text">You successfully created a new service <b>"Logo Design"</b>.</p>
+              <p className="activity-time">3 days ago</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 /* ─── My Services Tab ─────────────────────────────────────────────────────── */
 function MyServicesTab({ user }) {
   const [services, setServices] = useState([]);
@@ -375,11 +434,8 @@ function MyServicesTab({ user }) {
   const [categories, setCategories] = useState([]);
   const [successMsg, setSuccessMsg] = useState('');
 
-  // Modal state
   const [modalOpen, setModalOpen] = useState(false);
   const [editService, setEditService] = useState(null);
-
-  // Confirm delete
   const [deleteTarget, setDeleteTarget] = useState(null);
   const [deleting, setDeleting] = useState(false);
 
@@ -451,38 +507,37 @@ function MyServicesTab({ user }) {
   };
 
   return (
-    <div className="tab-panel animate-fade-in">
-      <div className="section-header">
-        <div>
-          <h2 className="section-title">My Services</h2>
-          <p className="section-subtitle">Manage the services you offer to clients</p>
+    <div className="animate-fade-in">
+      <div className="services-header-actions">
+        <div className="tab-header" style={{ marginBottom: 0 }}>
+          <h2 className="tab-title">My Services</h2>
+          <p className="tab-subtitle">Manage the services you offer to clients</p>
         </div>
-        <button className="btn btn-primary" onClick={openCreate} id="create-service-btn">
-          <span>+</span> New Service
+        <button className="btn btn-primary" onClick={openCreate}>
+          <span>+</span> Create Service
         </button>
       </div>
 
       {successMsg && (
-        <div className="success-banner" role="status">
+        <div className="success-banner" style={{ marginBottom: 'var(--space-6)' }}>
           <span>✓</span> {successMsg}
         </div>
       )}
       {error && (
-        <div className="error-banner" role="alert">
+        <div className="error-banner" style={{ marginBottom: 'var(--space-6)' }}>
           <span>⚠</span> {error}
         </div>
       )}
 
       {loading ? (
-        <div className="services-skeleton">
+        <div className="services-grid">
           {[1, 2, 3].map((i) => (
-            <div key={i} className="service-row-skeleton">
-              <div className="skeleton" style={{ width: 80, height: 60, borderRadius: 8 }} />
-              <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 8 }}>
+            <div key={i} className="dash-service-card" style={{ height: 320 }}>
+              <div className="skeleton" style={{ height: 160, width: '100%' }} />
+              <div className="dash-service-body">
+                <div className="skeleton" style={{ height: 16, width: '80%', marginBottom: 8 }} />
                 <div className="skeleton" style={{ height: 16, width: '60%' }} />
-                <div className="skeleton" style={{ height: 12, width: '30%' }} />
               </div>
-              <div className="skeleton" style={{ width: 80, height: 32 }} />
             </div>
           ))}
         </div>
@@ -491,19 +546,39 @@ function MyServicesTab({ user }) {
           <div className="empty-state-icon">🛠️</div>
           <h3>No services yet</h3>
           <p>You haven't listed any services yet. Create your first service to start earning.</p>
-          <button className="btn btn-primary btn-lg" onClick={openCreate} id="create-first-service-btn">
+          <button className="btn btn-primary btn-lg" onClick={openCreate}>
             Create your first service
           </button>
         </div>
       ) : (
-        <div className="services-list">
+        <div className="services-grid">
           {services.map((svc) => (
-            <ServiceRow
-              key={svc.id}
-              service={svc}
-              onEdit={() => openEdit(svc)}
-              onDelete={() => setDeleteTarget(svc)}
-            />
+            <div className="dash-service-card" key={svc.id}>
+              <div className="dash-service-thumb">
+                {svc.category && (
+                  <span className="dash-service-category">{svc.category.name}</span>
+                )}
+                {svc.images?.[0] ? (
+                  <img src={svc.images[0]} alt={svc.title} />
+                ) : (
+                  <div className="dash-service-thumb-placeholder">🖼</div>
+                )}
+              </div>
+              <div className="dash-service-body">
+                <h4 className="dash-service-title">{svc.title}</h4>
+                <div className="dash-service-footer">
+                  <span className="dash-service-price">${Number(svc.price).toFixed(2)}</span>
+                  <div className="dash-service-actions">
+                    <button className="dash-action-btn dash-btn-edit" title="Edit" onClick={() => openEdit(svc)}>
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+                    </button>
+                    <button className="dash-action-btn dash-btn-delete" title="Delete" onClick={() => setDeleteTarget(svc)}>
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
           ))}
         </div>
       )}
@@ -511,20 +586,10 @@ function MyServicesTab({ user }) {
       {/* Service Form Modal */}
       {modalOpen && (
         <div className="modal-overlay" onClick={closeModal}>
-          <div
-            className="modal service-modal"
-            onClick={(e) => e.stopPropagation()}
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby="service-modal-title"
-          >
+          <div className="modal service-modal" onClick={(e) => e.stopPropagation()}>
             <div className="modal-header">
-              <h3 className="modal-title" id="service-modal-title">
-                {editService ? 'Edit Service' : 'Create New Service'}
-              </h3>
-              <button className="modal-close" onClick={closeModal} aria-label="Close">
-                ×
-              </button>
+              <h3 className="modal-title">{editService ? 'Edit Service' : 'Create New Service'}</h3>
+              <button className="modal-close" onClick={closeModal}>×</button>
             </div>
             <ServiceForm
               initialData={editService}
@@ -552,47 +617,8 @@ function MyServicesTab({ user }) {
   );
 }
 
-/* ─── Service Row ─────────────────────────────────────────────────────────── */
-function ServiceRow({ service, onEdit, onDelete }) {
-  const thumbnail = service.images?.[0] || null;
-  return (
-    <div className="service-row">
-      <div className="service-row-thumb">
-        {thumbnail ? (
-          <img src={thumbnail} alt={service.title} className="service-thumb-img" />
-        ) : (
-          <div className="service-thumb-placeholder">🖼</div>
-        )}
-      </div>
-      <div className="service-row-info">
-        <h4 className="service-row-title">{service.title}</h4>
-        <div className="service-row-meta">
-          {service.category && (
-            <span className="badge badge-primary">{service.category.name}</span>
-          )}
-          <span className="service-row-price">${Number(service.price).toFixed(2)}</span>
-          <span className="service-row-delivery">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ marginBottom: -2 }}>
-              <circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" />
-            </svg>
-            {service.deliveryDays}d delivery
-          </span>
-        </div>
-      </div>
-      <div className="service-row-actions">
-        <button className="btn btn-secondary btn-sm" onClick={onEdit} id={`edit-service-${service.id}`}>
-          ✏ Edit
-        </button>
-        <button className="btn btn-danger btn-sm" onClick={onDelete} id={`delete-service-${service.id}`}>
-          🗑 Delete
-        </button>
-      </div>
-    </div>
-  );
-}
-
 /* ─── My Profile Tab ──────────────────────────────────────────────────────── */
-function MyProfileTab() {
+function MyProfileTab({ localAvatar, handleAvatarChange, avatarUploading, avatarError, avatarInputRef, handleAvatarClick }) {
   const [profile, setProfile] = useState(null);
   const [profileExists, setProfileExists] = useState(false);
   const [loadingProfile, setLoadingProfile] = useState(true);
@@ -647,13 +673,7 @@ function MyProfileTab() {
 
     setSubmitting(true);
     try {
-      const body = {
-        bio: bio.trim(),
-        skills,
-        location: location.trim(),
-        languages,
-      };
-
+      const body = { bio: bio.trim(), skills, location: location.trim(), languages };
       if (profileExists) {
         await api.put('/api/profile', body);
         setSuccessMsg('Profile updated successfully!');
@@ -663,7 +683,6 @@ function MyProfileTab() {
         setProfileExists(true);
         setSuccessMsg('Profile created successfully!');
       }
-
       setTimeout(() => setSuccessMsg(''), 5000);
     } catch (err) {
       setFormError(err?.response?.data?.message || 'Failed to save profile.');
@@ -683,30 +702,20 @@ function MyProfileTab() {
 
   if (profileError) {
     return (
-      <div className="tab-panel animate-fade-in">
-        <div className="error-banner">
-          <span>⚠</span> {profileError}
-        </div>
-        <button className="btn btn-secondary" onClick={fetchProfile}>
-          Retry
-        </button>
+      <div className="animate-fade-in">
+        <div className="error-banner"><span>⚠</span> {profileError}</div>
+        <button className="btn btn-secondary" onClick={fetchProfile}>Retry</button>
       </div>
     );
   }
 
   return (
-    <div className="tab-panel animate-fade-in">
-      <div className="section-header">
-        <div>
-          <h2 className="section-title">
-            {profileExists ? 'Edit Profile' : 'Create Your Profile'}
-          </h2>
-          <p className="section-subtitle">
-            {profileExists
-              ? 'Keep your profile up to date to attract more clients'
-              : 'Set up your freelancer profile to start receiving work'}
-          </p>
-        </div>
+    <div className="animate-fade-in">
+      <div className="tab-header">
+        <h2 className="tab-title">{profileExists ? 'Edit Profile' : 'Create Your Profile'}</h2>
+        <p className="tab-subtitle">
+          {profileExists ? 'Keep your profile up to date to attract more clients' : 'Set up your freelancer profile to start receiving work'}
+        </p>
       </div>
 
       {!profileExists && (
@@ -720,79 +729,124 @@ function MyProfileTab() {
       )}
 
       {successMsg && (
-        <div className="success-banner" role="status">
+        <div className="success-banner" style={{ marginBottom: 'var(--space-6)' }}>
           <span>✓</span> {successMsg}
         </div>
       )}
+      {formError && (
+        <div className="error-banner" style={{ marginBottom: 'var(--space-6)' }}>
+          <span>⚠</span> {formError}
+        </div>
+      )}
+      {avatarError && (
+        <div className="error-banner" style={{ marginBottom: 'var(--space-6)' }}>
+          <span>⚠</span> {avatarError}
+        </div>
+      )}
 
-      <form className="profile-form" onSubmit={handleSubmit} noValidate>
-        {formError && (
-          <div className="error-banner" role="alert">
-            <span>⚠</span> {formError}
+      <form className="profile-cards-container" onSubmit={handleSubmit} noValidate>
+        
+        {/* Basic Info Card */}
+        <div className="profile-card">
+          <div className="profile-card-header">
+            <h3 className="profile-card-title">Basic Information</h3>
+            <p className="profile-card-subtitle">Your avatar and biography</p>
           </div>
-        )}
-
-        {/* Bio */}
-        <div className="form-group">
-          <div className="profile-form-label-row">
-            <label className="form-label" htmlFor="profile-bio">Bio</label>
-            <span className="char-count" aria-live="polite">{bio.length}/500</span>
+          
+          <div className="avatar-edit-section">
+            <div
+              className={`avatar-upload-trigger ${avatarUploading ? 'uploading' : ''}`}
+              onClick={handleAvatarClick}
+            >
+              {localAvatar ? (
+                <img src={localAvatar} alt="Avatar" className="profile-edit-avatar" />
+              ) : (
+                <div className="profile-edit-avatar sidebar-avatar-placeholder" style={{ width: '100%', height: '100%' }}>
+                  +
+                </div>
+              )}
+              <div className="avatar-overlay">
+                {avatarUploading ? (
+                  <div className="spinner" style={{ width: 24, height: 24, borderWidth: 2 }} />
+                ) : (
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+                )}
+              </div>
+              <input ref={avatarInputRef} type="file" accept="image/*" style={{ display: 'none' }} onChange={handleAvatarChange} />
+            </div>
+            <div className="avatar-edit-info">
+              <h4>Profile Picture</h4>
+              <p>JPG, PNG or WEBP. Max size of 5MB.</p>
+            </div>
           </div>
-          <textarea
-            id="profile-bio"
-            className="form-textarea"
-            placeholder="Tell clients about yourself, your expertise, and what makes you unique…"
-            value={bio}
-            onChange={(e) => setBio(e.target.value.slice(0, 500))}
-            rows={5}
-          />
+
+          <div className="form-group">
+            <div className="profile-form-label-row">
+              <label className="form-label" htmlFor="profile-bio">Bio</label>
+              <span className="char-count">{bio.length}/500</span>
+            </div>
+            <textarea
+              id="profile-bio"
+              className="form-textarea"
+              placeholder="Tell clients about yourself, your expertise, and what makes you unique…"
+              value={bio}
+              onChange={(e) => setBio(e.target.value.slice(0, 500))}
+              rows={5}
+            />
+          </div>
         </div>
 
-        {/* Skills */}
-        <div className="form-group">
-          <TagInput
-            tags={skills}
-            onAdd={(v) => setSkills((prev) => [...prev, v])}
-            onRemove={(v) => setSkills((prev) => prev.filter((s) => s !== v))}
-            placeholder="Type a skill and press Enter"
-            label="Skills (min. 1 required)"
-            inputId="profile-skills"
-          />
+        {/* Skills & Expertise */}
+        <div className="profile-card">
+          <div className="profile-card-header">
+            <h3 className="profile-card-title">Skills & Expertise</h3>
+            <p className="profile-card-subtitle">Highlight your core strengths</p>
+          </div>
+          <div className="form-group">
+            <TagInput
+              tags={skills}
+              onAdd={(v) => setSkills((prev) => [...prev, v])}
+              onRemove={(v) => setSkills((prev) => prev.filter((s) => s !== v))}
+              placeholder="Type a skill and press Enter"
+              inputId="profile-skills"
+            />
+          </div>
         </div>
 
-        {/* Location */}
-        <div className="form-group">
-          <label className="form-label" htmlFor="profile-location">Location</label>
-          <input
-            id="profile-location"
-            type="text"
-            className="form-input"
-            placeholder="e.g. New York, USA"
-            value={location}
-            onChange={(e) => setLocation(e.target.value)}
-          />
-        </div>
-
-        {/* Languages */}
-        <div className="form-group">
-          <TagInput
-            tags={languages}
-            onAdd={(v) => setLanguages((prev) => [...prev, v])}
-            onRemove={(v) => setLanguages((prev) => prev.filter((l) => l !== v))}
-            placeholder="Type a language and press Enter"
-            label="Languages"
-            inputId="profile-languages"
-          />
+        {/* Location & Languages */}
+        <div className="profile-card">
+          <div className="profile-card-header">
+            <h3 className="profile-card-title">Location & Languages</h3>
+            <p className="profile-card-subtitle">Where are you based and what do you speak?</p>
+          </div>
+          <div className="form-row-2">
+            <div className="form-group">
+              <label className="form-label" htmlFor="profile-location">Location</label>
+              <input
+                id="profile-location"
+                type="text"
+                className="form-input"
+                placeholder="e.g. New York, USA"
+                value={location}
+                onChange={(e) => setLocation(e.target.value)}
+              />
+            </div>
+            <div className="form-group">
+              <TagInput
+                tags={languages}
+                onAdd={(v) => setLanguages((prev) => [...prev, v])}
+                onRemove={(v) => setLanguages((prev) => prev.filter((l) => l !== v))}
+                placeholder="Type a language and press Enter"
+                label="Languages"
+                inputId="profile-languages"
+              />
+            </div>
+          </div>
         </div>
 
         <div className="profile-form-actions">
-          <button
-            type="submit"
-            className={`btn btn-primary btn-lg ${submitting ? 'btn-loading' : ''}`}
-            disabled={submitting}
-            id="save-profile-btn"
-          >
-            {submitting ? '' : profileExists ? 'Save Changes' : 'Create Profile'}
+          <button type="submit" className={`btn btn-primary btn-lg ${submitting ? 'btn-loading' : ''}`} disabled={submitting}>
+            {submitting ? '' : profileExists ? 'Save Profile Changes' : 'Create Profile'}
           </button>
         </div>
       </form>
@@ -800,30 +854,28 @@ function MyProfileTab() {
   );
 }
 
-/* ─── Dashboard ───────────────────────────────────────────────────────────── */
+/* ─── Dashboard Main ──────────────────────────────────────────────────────── */
 export default function Dashboard() {
   const { user } = useAuth();
   const navigate = useNavigate();
 
-  const [activeTab, setActiveTab] = useState('services');
+  const [activeTab, setActiveTab] = useState('overview'); // Default tab
+
+  // Avatar states for sidebar and passing down to MyProfileTab
   const [localAvatar, setLocalAvatar] = useState(user?.avatar || null);
   const [avatarUploading, setAvatarUploading] = useState(false);
   const [avatarError, setAvatarError] = useState('');
   const avatarInputRef = useRef(null);
 
-  // Redirect non-freelancers
   useEffect(() => {
-    if (user && user.role !== 'FREELANCER') {
-      navigate('/', { replace: true });
-    }
+    if (user && user.role !== 'FREELANCER') navigate('/', { replace: true });
   }, [user, navigate]);
 
-  // Sync avatar when user changes
   useEffect(() => {
     if (user?.avatar) setLocalAvatar(user.avatar);
   }, [user?.avatar]);
 
-  if (!user) {
+  if (!user || user.role !== 'FREELANCER') {
     return (
       <div className="loading-page">
         <div className="spinner" />
@@ -831,8 +883,6 @@ export default function Dashboard() {
       </div>
     );
   }
-
-  if (user.role !== 'FREELANCER') return null;
 
   const handleAvatarClick = () => {
     if (!avatarUploading) avatarInputRef.current?.click();
@@ -847,8 +897,7 @@ export default function Dashboard() {
       const formData = new FormData();
       formData.append('image', file);
       const res = await api.post('/api/profile/avatar', formData);
-      const updatedUser = res.data.data.user;
-      setLocalAvatar(updatedUser.avatar);
+      setLocalAvatar(res.data.data.user.avatar);
     } catch (err) {
       setAvatarError(err?.response?.data?.message || 'Avatar upload failed.');
     } finally {
@@ -860,119 +909,68 @@ export default function Dashboard() {
   const initials = getInitials(user.name);
 
   return (
-    <div className="dashboard-wrapper animate-fade-in">
-      {/* ── Dashboard Header ── */}
-      <div className="dashboard-header">
-        <div className="dashboard-header-left">
-          {/* Avatar */}
-          <div className="avatar-upload-container">
-            <div
-              className={`avatar-upload-trigger ${avatarUploading ? 'uploading' : ''}`}
-              onClick={handleAvatarClick}
-              role="button"
-              tabIndex={0}
-              onKeyDown={(e) => e.key === 'Enter' && handleAvatarClick()}
-              aria-label="Upload avatar"
-              title="Click to change avatar"
-            >
-              {localAvatar ? (
-                <img
-                  src={localAvatar}
-                  alt={user.name}
-                  className="avatar avatar-2xl dashboard-avatar"
-                />
-              ) : (
-                <div className="avatar-placeholder avatar-2xl dashboard-avatar">
-                  <span style={{ fontSize: '2.5rem' }}>{initials}</span>
-                </div>
-              )}
-
-              {/* Upload overlay */}
-              <div className="avatar-overlay">
-                {avatarUploading ? (
-                  <div className="spinner" style={{ width: 24, height: 24, borderWidth: 2 }} />
-                ) : (
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5">
-                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-                    <polyline points="17 8 12 3 7 8" />
-                    <line x1="12" y1="3" x2="12" y2="15" />
-                  </svg>
-                )}
-              </div>
-            </div>
-            <input
-              ref={avatarInputRef}
-              type="file"
-              accept="image/*"
-              style={{ display: 'none' }}
-              onChange={handleAvatarChange}
-              id="avatar-file-input"
-            />
-          </div>
-
-          {/* User info */}
-          <div className="dashboard-user-info">
-            <div className="dashboard-user-name-row">
-              <h1 className="dashboard-user-name">{user.name}</h1>
-              <span className="badge badge-primary dashboard-role-badge">
-                {user.role}
-              </span>
-            </div>
-            <p className="dashboard-user-email">{user.email}</p>
-            <p className="dashboard-member-since">
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ marginBottom: -2 }}>
-                <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
-                <line x1="16" y1="2" x2="16" y2="6" />
-                <line x1="8" y1="2" x2="8" y2="6" />
-                <line x1="3" y1="10" x2="21" y2="10" />
-              </svg>
-              Member since {formatDate(user.createdAt)}
-            </p>
-            {avatarError && (
-              <p className="dashboard-avatar-error">⚠ {avatarError}</p>
-            )}
+    <div className="dashboard-layout">
+      {/* ── Sidebar Navigation ── */}
+      <aside className="dashboard-sidebar">
+        <div className="sidebar-user-block">
+          {localAvatar ? (
+            <img src={localAvatar} alt={user.name} className="sidebar-avatar" />
+          ) : (
+            <div className="sidebar-avatar-placeholder">{initials}</div>
+          )}
+          <div className="sidebar-user-info">
+            <span className="sidebar-user-name">{user.name}</span>
+            <span className="sidebar-user-role">{user.role}</span>
           </div>
         </div>
 
-        {/* Header gradient accent */}
-        <div className="dashboard-header-glow" aria-hidden="true" />
-      </div>
+        <nav className="sidebar-nav">
+          <button 
+            className={`sidebar-link ${activeTab === 'overview' ? 'active' : ''}`}
+            onClick={() => setActiveTab('overview')}
+          >
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
+            Overview
+          </button>
+          
+          <button 
+            className={`sidebar-link ${activeTab === 'services' ? 'active' : ''}`}
+            onClick={() => setActiveTab('services')}
+          >
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+            My Services
+          </button>
+          
+          <button 
+            className={`sidebar-link ${activeTab === 'profile' ? 'active' : ''}`}
+            onClick={() => setActiveTab('profile')}
+          >
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+            Edit Profile
+          </button>
+          
+          <Link to={`/profile/${user.id}`} className="sidebar-link">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
+            View Public Profile
+          </Link>
+        </nav>
+      </aside>
 
-      {/* ── Tab Navigation ── */}
-      <div className="dashboard-tabs" role="tablist" aria-label="Dashboard sections">
-        <button
-          className={`dashboard-tab ${activeTab === 'services' ? 'active' : ''}`}
-          onClick={() => setActiveTab('services')}
-          role="tab"
-          aria-selected={activeTab === 'services'}
-          id="tab-services"
-        >
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <rect x="3" y="3" width="7" height="7" /><rect x="14" y="3" width="7" height="7" />
-            <rect x="14" y="14" width="7" height="7" /><rect x="3" y="14" width="7" height="7" />
-          </svg>
-          My Services
-        </button>
-        <button
-          className={`dashboard-tab ${activeTab === 'profile' ? 'active' : ''}`}
-          onClick={() => setActiveTab('profile')}
-          role="tab"
-          aria-selected={activeTab === 'profile'}
-          id="tab-profile"
-        >
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
-            <circle cx="12" cy="7" r="4" />
-          </svg>
-          My Profile
-        </button>
-      </div>
-
-      {/* ── Tab Content ── */}
-      <div className="dashboard-content">
+      {/* ── Main Content ── */}
+      <main className="dashboard-main">
+        {activeTab === 'overview' && <OverviewTab />}
         {activeTab === 'services' && <MyServicesTab user={user} />}
-        {activeTab === 'profile' && <MyProfileTab />}
-      </div>
+        {activeTab === 'profile' && (
+          <MyProfileTab
+            localAvatar={localAvatar}
+            handleAvatarChange={handleAvatarChange}
+            avatarUploading={avatarUploading}
+            avatarError={avatarError}
+            avatarInputRef={avatarInputRef}
+            handleAvatarClick={handleAvatarClick}
+          />
+        )}
+      </main>
     </div>
   );
 }
