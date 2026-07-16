@@ -1,0 +1,35 @@
+/* ─── StarRating Styles ───────────────────────────────────────────────────── */
+
+.star-rating {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.star {
+  background: none;
+  border: none;
+  padding: 0;
+  line-height: 1;
+  transition: transform var(--transition-fast), color var(--transition-fast);
+}
+
+.star-filled {
+  color: var(--color-star);
+}
+
+.star-empty {
+  color: var(--color-surface-3); /* In light theme, this is a slate-200 color */
+}
+
+.star-interactive {
+  cursor: pointer;
+}
+
+.star-interactive:hover {
+  transform: scale(1.2);
+}
+
+.star-interactive:disabled {
+  cursor: default;
+}

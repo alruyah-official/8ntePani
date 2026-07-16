@@ -1,3 +1,4 @@
+import './Auth.css';
 import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import api from '../api/axios.js';
@@ -7,131 +8,151 @@ const Register = () => {
   const { isAuthenticated, login } = useAuth();
   const navigate = useNavigate();
 
-  const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    password: '',
-    role: 'CLIENT',
-  });
+  const [formData, setFormData] = useState({ name: '', email: '', password: '', role: 'CLIENT' });
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
 
-  // Redirect if already logged in
   useEffect(() => {
-    if (isAuthenticated) {
-      navigate('/', { replace: true });
-    }
+    if (isAuthenticated) navigate('/', { replace: true });
   }, [isAuthenticated, navigate]);
 
   const handleChange = (e) => {
-    setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
+    setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
     setError(null);
-
     try {
       const res = await api.post('/api/auth/register', formData);
       if (res.data.success) {
-        const { user, token } = res.data.data;
+        // Auto-login: backend only returns user on register, not token.
+        // We need to log in separately.
+        const loginRes = await api.post('/api/auth/login', {
+          email: formData.email,
+          password: formData.password,
+        });
+        const { user, token } = loginRes.data.data;
         login(user, token);
-        navigate('/');
+        navigate(user.role === 'FREELANCER' ? '/dashboard' : '/');
       }
     } catch (err) {
-      console.log("Error:", err);
-      console.log("Response:", err.response);
-      console.log("Message:", err.message);
       setError(err.response?.data?.message || 'Failed to register. Please try again.');
     } finally {
       setLoading(false);
     }
   };
 
-  const pageStyle = {
-    display: 'flex',
-    justifyContent: 'center',
-    alignItems: 'center',
-    minHeight: '80vh',
-  };
-
-  const errorStyle = {
-    background: '#fee2e2',
-    border: '1px solid #ef4444',
-    color: '#991b1b',
-    padding: '0.75rem',
-    borderRadius: '4px',
-    marginBottom: '1rem',
-  };
-
   return (
-    <div style={pageStyle}>
-      <div className="card" style={{ width: '100%', maxWidth: '400px' }}>
-        <h1 style={{ textAlign: 'center', marginBottom: '0.5rem' }}>Join 8ntePani</h1>
-        <p style={{ textAlign: 'center', color: '#666', marginBottom: '1.5rem' }}>Create your account</p>
+    <div className="auth-page">
+      <div className="auth-card">
+        {/* Logo */}
+        <div className="auth-logo">
+          <img src="/logo.png" alt="8ntePani Logo" className="auth-logo-img" style={{ height: '180px', objectFit: 'contain', margin: '-40px 0' }} />
+        </div>
 
-        {error && <div style={errorStyle}>{error}</div>}
+        <div className="auth-header">
+          <h1 className="auth-title">Create your account</h1>
+          <p className="auth-subtitle">Join thousands of freelancers and clients</p>
+        </div>
 
-        <form onSubmit={handleSubmit}>
+        {error && (
+          <div className="error-banner">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            {error}
+          </div>
+        )}
+
+        <form onSubmit={handleSubmit} noValidate>
           <div className="form-group">
-            <label htmlFor="name">Full Name</label>
+            <label htmlFor="name" className="form-label">Full name</label>
             <input
               type="text"
               id="name"
               name="name"
+              className="form-input"
               value={formData.name}
               onChange={handleChange}
+              placeholder="Your full name"
               required
+              minLength={2}
+              maxLength={50}
+              autoComplete="name"
             />
           </div>
 
           <div className="form-group">
-            <label htmlFor="email">Email</label>
+            <label htmlFor="email" className="form-label">Email address</label>
             <input
               type="email"
               id="email"
               name="email"
+              className="form-input"
               value={formData.email}
               onChange={handleChange}
+              placeholder="you@example.com"
               required
+              autoComplete="email"
             />
           </div>
 
           <div className="form-group">
-            <label htmlFor="password">Password</label>
+            <label htmlFor="password" className="form-label">Password</label>
             <input
               type="password"
               id="password"
               name="password"
+              className="form-input"
               value={formData.password}
               onChange={handleChange}
+              placeholder="Minimum 6 characters"
               required
-              minLength="6"
+              minLength={6}
+              autoComplete="new-password"
             />
           </div>
 
           <div className="form-group">
-            <label htmlFor="role">Role</label>
-            <select id="role" name="role" value={formData.role} onChange={handleChange}>
-              <option value="CLIENT">I want to hire freelancers (Client)</option>
-              <option value="FREELANCER">I want to work (Freelancer)</option>
-            </select>
+            <label htmlFor="role" className="form-label">I want to...</label>
+            <div className="auth-role-picker">
+              <button
+                type="button"
+                id="role-client"
+                className={`auth-role-option ${formData.role === 'CLIENT' ? 'active' : ''}`}
+                onClick={() => setFormData(prev => ({ ...prev, role: 'CLIENT' }))}
+              >
+                <span className="auth-role-icon">🏢</span>
+                <span className="auth-role-label">Hire Freelancers</span>
+                <span className="auth-role-desc">I'm a Client</span>
+              </button>
+              <button
+                type="button"
+                id="role-freelancer"
+                className={`auth-role-option ${formData.role === 'FREELANCER' ? 'active' : ''}`}
+                onClick={() => setFormData(prev => ({ ...prev, role: 'FREELANCER' }))}
+              >
+                <span className="auth-role-icon">💼</span>
+                <span className="auth-role-label">Offer Services</span>
+                <span className="auth-role-desc">I'm a Freelancer</span>
+              </button>
+            </div>
           </div>
 
           <button
+            id="register-submit-btn"
             type="submit"
-            className="btn btn-primary"
-            style={{ width: '100%', marginTop: '0.5rem' }}
+            className={`btn btn-primary btn-full btn-lg ${loading ? 'btn-loading' : ''}`}
+            style={{ marginTop: 'var(--space-2)' }}
             disabled={loading}
-            
           >
-            {loading ? 'Registering...' : 'Register'}
+            {loading ? '' : 'Create account'}
           </button>
         </form>
 
-        <p style={{ textAlign: 'center', marginTop: '1.5rem', fontSize: '0.9rem' }}>
-          Already have an account? <Link to="/login" style={{ color: '#4f46e5' }}>Login</Link>
+        <p className="auth-footer">
+          Already have an account?{' '}
+          <Link to="/login">Sign in</Link>
         </p>
       </div>
     </div>

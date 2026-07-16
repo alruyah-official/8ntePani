@@ -1,0 +1,10 @@
+/* 
+  Jobs.css 
+  Inherits styles from Explore.css since the layout is identical.
+*/
+@import './Explore.css';
+
+/* Any specific overrides for Jobs page can go here */
+.jobs-page {
+  /* Inherits everything from .explore-page */
+}

@@ -1,244 +1,264 @@
-import React, { useState, useEffect } from 'react';
-import axios from '../api/axios';
+import './Home.css';
+import { useState, useEffect, useCallback } from 'react';
+import { useSearchParams, useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
+import api from '../api/axios';
 import ServiceCard from '../components/ServiceCard';
 
-// The Home page displays a hero section, search/filter controls, and a grid of service cards.
-// We use functional components and hooks to manage local state and side effects (API calls).
-const Home = () => {
-  // State for storing the list of services and available categories fetched from API.
+function Home() {
+  const navigate = useNavigate();
+  const { user } = useAuth();
+  const isFreelancer = user?.role === 'FREELANCER';
+  const [searchParams, setSearchParams] = useSearchParams();
   const [services, setServices] = useState([]);
   const [categories, setCategories] = useState([]);
-  
-  // Loading and error states to provide appropriate UI feedback during asynchronous operations.
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  
-  // Filters state holds the current values for our search inputs and dropdowns.
-  const [filters, setFilters] = useState({
-    search: '',
-    categoryId: '',
-    minPrice: '',
-    maxPrice: ''
-  });
 
-  // On initial mount, fetch categories and services simultaneously to optimize loading time.
+  // Filters
+  const [search, setSearch] = useState(searchParams.get('search') || '');
+  const [debouncedSearch, setDebouncedSearch] = useState(searchParams.get('search') || '');
+  const [selectedCategory, setSelectedCategory] = useState('');
+  const [minPrice, setMinPrice] = useState('');
+  const [maxPrice, setMaxPrice] = useState('');
+
+  // Debounce search input
   useEffect(() => {
-    const fetchInitialData = async () => {
-      try {
-        setLoading(true);
-        // Using Promise.all allows us to run both API requests concurrently.
-        const [categoriesRes, servicesRes] = await Promise.all([
-          axios.get('/api/categories'),
-          axios.get('/api/services')
-        ]);
-        
+    const timer = setTimeout(() => setDebouncedSearch(search), 400);
+    return () => clearTimeout(timer);
+  }, [search]);
 
-        setCategories(categoriesRes.data.data.categories);
-        setServices(servicesRes.data.data.services);
-
-        setError(null);
-
-      } catch (err) {
-        // If an error occurs, we set the error state to display a message to the user.
-        setError(err.response?.data?.message || 'Failed to fetch data');
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchInitialData();
+  // Fetch categories once
+  useEffect(() => {
+    api.get('/api/categories')
+      .then(res => setCategories(res.data.data.categories))
+      .catch(() => {}); // non-critical
   }, []);
 
-  // Generic handler for filter inputs to keep our state up-to-date as the user types or selects.
-  // We use computed property names to dynamically update the correct field in our filters object.
-  const handleFilterChange = (e) => {
-    const { name, value } = e.target;
-    setFilters(prev => ({
-      ...prev,
-      [name]: value
-    }));
+  // Fetch services whenever filters change
+  const fetchServices = useCallback(() => {
+    setLoading(true);
+    setError(null);
+
+    const params = {};
+    if (debouncedSearch) params.search = debouncedSearch;
+    if (selectedCategory) params.categoryId = selectedCategory;
+    if (minPrice) params.minPrice = minPrice;
+    if (maxPrice) params.maxPrice = maxPrice;
+
+    api.get('/api/services', { params })
+      .then(res => {
+        setServices(res.data.data.services);
+      })
+      .catch(() => setError('Failed to load services. Please try again.'))
+      .finally(() => setLoading(false));
+  }, [debouncedSearch, selectedCategory, minPrice, maxPrice]);
+
+  useEffect(() => {
+    fetchServices();
+  }, [fetchServices]);
+
+  const handleCategorySelect = (categoryId) => {
+    setSelectedCategory(prev => prev === categoryId ? '' : categoryId);
   };
 
-  // Handles form submission for the search bar, applying filters to the API request.
-  const handleSearch = async (e) => {
-    e.preventDefault(); // Prevents page reload on form submit.
-    
-    // We only want to send filter parameters that have a value to keep the query string clean.
-    const queryParams = new URLSearchParams();
-    Object.entries(filters).forEach(([key, value]) => {
-      if (value !== '') {
-        queryParams.append(key, value);
-      }
-    });
-
-    try {
-      setLoading(true);
-      // Fetch services with the constructed query parameters applied.
-      const response = await axios.get(`/api/services?${queryParams.toString()}`);
-      setServices(response.data.data.services);
-      setError(null);
-    } catch (err) {
-      setError(err.response?.data?.message || 'Failed to fetch filtered services');
-    } finally {
-      setLoading(false);
-    }
+  const handleClearFilters = () => {
+    setSearch('');
+    setDebouncedSearch('');
+    setSelectedCategory('');
+    setMinPrice('');
+    setMaxPrice('');
   };
 
-  // Resets all filters to empty and fetches the full, unfiltered list of services again.
-  const handleReset = async () => {
-    const emptyFilters = {
-      search: '',
-      categoryId: '',
-      minPrice: '',
-      maxPrice: ''
-    };
-    setFilters(emptyFilters);
-    
-    try {
-      setLoading(true);
-      const response = await axios.get('/api/services');
-      setServices(response.data.data.services);
-      setError(null);
-    } catch (err) {
-      setError(err.response?.data?.message || 'Failed to reset services');
-    } finally {
-      setLoading(false);
-    }
-  };
+  const hasActiveFilters = search || selectedCategory || minPrice || maxPrice;
+
+  const ServiceSkeleton = () => (
+    <div className="service-skeleton">
+      <div className="skeleton service-skeleton-img" />
+      <div className="service-skeleton-body">
+        <div className="skeleton" style={{ height: '14px', width: '40%' }} />
+        <div className="skeleton" style={{ height: '24px', width: '90%', marginTop: '12px' }} />
+        <div className="skeleton" style={{ height: '16px', width: '80%', marginTop: '8px' }} />
+        <div className="skeleton" style={{ height: '16px', width: '50%', marginTop: '8px' }} />
+      </div>
+      <div className="service-skeleton-footer">
+        <div className="skeleton" style={{ height: '16px', width: '30%' }} />
+        <div className="skeleton" style={{ height: '20px', width: '40%' }} />
+      </div>
+    </div>
+  );
 
   return (
-    <div>
-      {/* Hero Section: Grabs the user's attention with a vibrant gradient background and clear value proposition. */}
-      <section
-        style={{
-          background: 'linear-gradient(135deg, #4f46e5, #7c3aed)',
-          color: 'white',
-          padding: '3rem 1rem',
-          textAlign: 'center'
-        }}
-      >
-        <h1>Find Freelancers for Any Job</h1>
-        <p>Browse services from talented college students</p>
-      </section>
-
-      {/* Search and Filter Bar: Provided as a form so pressing Enter triggers a search. */}
-      <section
-        style={{
-          background: 'white',
-          padding: '1rem',
-          boxShadow: '0 2px 4px rgba(0,0,0,0.05)'
-        }}
-      >
-        <form 
-          onSubmit={handleSearch}
-          style={{
-            display: 'flex',
-            flexDirection: 'row',
-            gap: '0.5rem',
-            flexWrap: 'wrap',
-            alignItems: 'center',
-            justifyContent: 'center' // Centers the filter bar on wider screens
-          }}
-        >
-          <input
-            type="text"
-            name="search"
-            placeholder="Search services..."
-            value={filters.search}
-            onChange={handleFilterChange}
-            style={{ padding: '0.5rem', border: '1px solid #ccc', borderRadius: '4px' }}
-          />
-          
-          <select
-            name="categoryId"
-            value={filters.categoryId}
-            onChange={handleFilterChange}
-            style={{ padding: '0.5rem', border: '1px solid #ccc', borderRadius: '4px' }}
-          >
-            <option value="">All Categories</option>
-            {/* Dynamically render category options based on API response. */}
-            {categories.map(cat => (
-              <option key={cat.id || cat._id} value={cat.id || cat._id}>
-                {cat.name}
-              </option>
-            ))}
-          </select>
-          
-          <input
-            type="number"
-            name="minPrice"
-            placeholder="Min Price (₹)"
-            value={filters.minPrice}
-            onChange={handleFilterChange}
-            style={{ padding: '0.5rem', border: '1px solid #ccc', borderRadius: '4px', width: '120px' }}
-          />
-          
-          <input
-            type="number"
-            name="maxPrice"
-            placeholder="Max Price (₹)"
-            value={filters.maxPrice}
-            onChange={handleFilterChange}
-            style={{ padding: '0.5rem', border: '1px solid #ccc', borderRadius: '4px', width: '120px' }}
-          />
-          
-          <button type="submit" className="btn btn-primary">
-            Search
-          </button>
-          
-          <button 
-            type="button" 
-            className="btn" 
-            onClick={handleReset}
-            style={{ backgroundColor: '#e5e7eb', color: '#374151' }}
-          >
-            Reset
-          </button>
-        </form>
-      </section>
-
-      {/* Results Section: Displays the grid of services or appropriate fallback UI (loading/error/empty). */}
-      <section className="container" style={{ padding: '2rem 1rem' }}>
-        <div style={{ color: '#6b7280', fontSize: '0.85rem', marginBottom: '1rem' }}>
-          {services.length} services found
+    <div className="home">
+      {/* ─── Premium SaaS Hero ─────────────────────────────────────────────────── */}
+      <section className="hero">
+        <div className="hero-background">
+          <div className="hero-glow hero-glow-1"></div>
+          <div className="hero-glow hero-glow-2"></div>
+          <div className="hero-grid"></div>
         </div>
 
-        {error && (
-          <div style={{ color: 'red', border: '1px solid red', padding: '1rem', borderRadius: '4px', marginBottom: '1rem' }}>
-            {error}
-          </div>
-        )}
+        <div className="container hero-container">
+          {isFreelancer ? (
+            <div className="hero-content">
+              <div className="hero-badge">
+                <span className="badge badge-primary">
+                  <span className="hero-badge-dot"></span>
+                  Freelancer Hub
+                </span>
+              </div>
+              <h1 className="hero-title">
+                Grow your business <br />
+                <span className="text-gradient">and reach new clients.</span>
+              </h1>
+              <p className="hero-subtitle">
+                Manage your active services, respond to messages, and scale your freelance career with startups looking for your unique skills.
+              </p>
+              <div className="hero-cta-group">
+                <button 
+                  className="btn btn-primary btn-lg hero-cta-primary" 
+                  onClick={() => window.location.href='/dashboard'}
+                >
+                  Go to Dashboard
+                </button>
+                <div className="hero-trust-indicators">
+                  <span className="hero-trust-text">Maximize your earnings today</span>
+                </div>
+              </div>
+            </div>
+          ) : (
+            <div className="hero-content">
+              <div className="hero-badge">
+                <span className="badge badge-primary">
+                  <span className="hero-badge-dot"></span>
+                  The #1 Student Marketplace
+                </span>
+              </div>
+              <h1 className="hero-title">
+                Hire top student talent <br />
+                <span className="text-gradient">for your next big idea.</span>
+              </h1>
+              <p className="hero-subtitle">
+                Scale your startup with ambitious, verified students offering world-class services in engineering, design, and marketing at a fraction of the cost.
+              </p>
+              <div className="hero-cta-group">
+                <button className="btn btn-primary btn-lg hero-cta-primary" onClick={() => navigate('/explore')}>
+                  Explore Services
+                </button>
+                <div className="hero-trust-indicators">
+                  <div className="hero-trust-stars">
+                    {'★★★★★'.split('').map((star, i) => <span key={i}>{star}</span>)}
+                  </div>
+                  <span className="hero-trust-text">Trusted by 500+ startups</span>
+                </div>
+              </div>
+            </div>
+          )}
 
-        {loading ? (
-          <div style={{ textAlign: 'center', color: '#6b7280', padding: '3rem 0' }}>
-            Loading services...
+          {/* Floating UI Mockup Illustration */}
+          <div className="hero-visual">
+            <div className="hero-mockup-wrapper animate-float">
+              {/* Main Dashboard Card */}
+              <div className="mockup-card mockup-main">
+                <div className="mockup-header">
+                  <div className="mockup-dots"><span></span><span></span><span></span></div>
+                  <div className="mockup-header-text">Freelancer Dashboard</div>
+                </div>
+                <div className="mockup-body">
+                  <div className="mockup-stat-row">
+                    <div className="mockup-stat-box">
+                      <span className="mockup-stat-label">Total Earnings</span>
+                      <span className="mockup-stat-value">$12,450</span>
+                    </div>
+                    <div className="mockup-stat-box">
+                      <span className="mockup-stat-label">Active Orders</span>
+                      <span className="mockup-stat-value text-gradient">14</span>
+                    </div>
+                  </div>
+                  <div className="mockup-chart">
+                    <div className="mockup-bar" style={{ height: '40%' }}></div>
+                    <div className="mockup-bar" style={{ height: '60%' }}></div>
+                    <div className="mockup-bar" style={{ height: '30%' }}></div>
+                    <div className="mockup-bar" style={{ height: '80%', background: 'var(--gradient-primary)' }}></div>
+                    <div className="mockup-bar" style={{ height: '50%' }}></div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Floating Element 1 (Service Card) */}
+              <div className="mockup-card mockup-float-1 animate-float-delayed">
+                <div className="mockup-service-image"></div>
+                <div className="mockup-service-body">
+                  <div className="skeleton" style={{ width: '80%', height: '10px', marginBottom: '8px' }}></div>
+                  <div className="skeleton" style={{ width: '60%', height: '10px' }}></div>
+                  <div className="mockup-service-footer">
+                    <span className="mockup-service-price">$450</span>
+                    <div className="mockup-stars">★★★★★</div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Floating Element 2 (Profile Bubble) */}
+              <div className="mockup-card mockup-float-2 animate-float-slow">
+                <img src="https://i.pravatar.cc/100?img=32" alt="Student Freelancer" className="mockup-avatar" />
+                <div className="mockup-profile-info">
+                  <span className="mockup-profile-name">Sarah Jenkins</span>
+                  <span className="mockup-profile-role">UI/UX Designer</span>
+                </div>
+                <span className="mockup-badge">Top Rated</span>
+              </div>
+            </div>
           </div>
-        ) : services.length === 0 ? (
-          <div style={{ textAlign: 'center', padding: '3rem 0' }}>
-            <p style={{ marginBottom: '1rem' }}>No services found</p>
-            <button 
-              onClick={handleReset} 
-              className="btn btn-primary"
-            >
-              Reset Filters
-            </button>
+        </div>
+      </section>
+
+      {/* ─── Trusted By Section ──────────────────────────────────────────────── */}
+      <section className="trusted-by">
+        <div className="container">
+          <p className="trusted-by-title">Trusted By</p>
+          <div className="trusted-by-logos" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '4rem' }}>
+            <img src="/connectemea.png" alt="Connect EMEA" className="trusted-by-logo" style={{ height: '45px', width: 'auto', maxHeight: 'none' }} />
+            <img src="/emea%20college.png" alt="EMEA College" className="trusted-by-logo" style={{ height: '65px', width: 'auto', maxHeight: 'none' }} />
           </div>
-        ) : (
-          <div
-            style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))',
-              gap: '1.5rem'
-            }}
-          >
-            {services.map(service => (
-              <ServiceCard key={service.id || service._id} service={service} />
-            ))}
+        </div>
+      </section>
+
+      {/* ─── Search & Marketplace ────────────────────────────────────────────── */}
+      <section id="marketplace" className="home-marketplace">
+        <div className="container">
+          
+          {/* New Category Grid Section */}
+          <div className="home-category-grid-section" style={{ marginTop: 'var(--space-8)', marginBottom: 'var(--space-16)' }}>
+            <h2 className="section-title" style={{ marginBottom: 'var(--space-8)' }}>Find freelancers for every type of work</h2>
+            
+            {loading ? (
+              <div className="category-grid">
+                {Array.from({ length: 8 }).map((_, i) => (
+                  <div key={i} className="category-card skeleton" style={{ height: '140px', borderRadius: '12px' }}></div>
+                ))}
+              </div>
+            ) : (
+              <div className="category-grid">
+                {categories.map((cat, i) => (
+                  <div key={cat.id} className="category-card" onClick={() => navigate(`/explore?category=${cat.id}`)}>
+                    <div className="category-card-icon">
+                      {/* Using a generic icon for now, ideally matched by category slug */}
+                      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <polygon points="12 2 2 7 12 12 22 7 12 2"></polygon>
+                        <polyline points="2 17 12 22 22 17"></polyline>
+                        <polyline points="2 12 12 17 22 12"></polyline>
+                      </svg>
+                    </div>
+                    <h3 className="category-card-title">{cat.name}</h3>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
-        )}
+        </div>
       </section>
     </div>
   );
-};
+}
 
 export default Home;

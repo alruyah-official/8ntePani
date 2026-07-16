@@ -1,32 +1,44 @@
 import './ServiceCard.css';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 
-function ServiceCard({ service }) {
-  const { id, title, description, price, freelancer } = service;
+function JobCard({ job }) {
+  const { id, title, description, price, client } = job;
+  const { isAuthenticated } = useAuth();
+  const navigate = useNavigate();
 
   // Mocking data based on reference image
   const isNew = true;
   const postedTime = "7 hours ago";
   const experienceLevel = "Intermediate";
-  const location = "Lagos, Nigeria"; // Fallback to reference location
+  const location = client?.clientProfile?.location || "Lagos, Nigeria"; // Fallback to reference location
 
-  const initials = freelancer?.name
-    ? freelancer.name.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase()
+  const initials = client?.name
+    ? client.name.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase()
     : '??';
 
+  const handleClick = (e) => {
+    e.preventDefault();
+    if (!isAuthenticated) {
+      navigate('/login');
+    } else {
+      navigate(`/jobs/${id}`);
+    }
+  };
+
   return (
-    <Link to={`/services/${id}`} className="service-card" aria-label={`View service: ${title}`}>
+    <a href={`/jobs/${id}`} onClick={handleClick} className="service-card" aria-label={`View job: ${title}`}>
       <div className="service-card-body">
         
-        {/* Freelancer Profile Block */}
+        {/* Client Profile Block */}
         <div className="service-card-freelancer-block">
-          {freelancer?.avatar ? (
-            <img src={freelancer.avatar} alt={freelancer?.name} className="service-card-avatar" />
+          {client?.avatar ? (
+            <img src={client.avatar} alt={client?.name} className="service-card-avatar" />
           ) : (
             <div className="service-card-avatar-placeholder">{initials}</div>
           )}
           <div className="service-card-freelancer-info">
-            <span className="service-card-freelancer-name">{freelancer?.name || 'Unknown Freelancer'}</span>
+            <span className="service-card-freelancer-name">{client?.name || 'Unknown Client'}</span>
             <span className="service-card-freelancer-location">{location}</span>
           </div>
         </div>
@@ -64,11 +76,11 @@ function ServiceCard({ service }) {
         <p className="service-card-description">{description}</p>
         
         <div className="service-card-action">
-          <button className="service-card-cta">See more</button>
+          <button className="service-card-cta">View Job Details</button>
         </div>
       </div>
-    </Link>
+    </a>
   );
 }
 
-export default ServiceCard;
+export default JobCard;

@@ -1,3 +1,4 @@
+import './Auth.css';
 import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import api from '../api/axios.js';
@@ -7,41 +8,28 @@ const Login = () => {
   const { isAuthenticated, login } = useAuth();
   const navigate = useNavigate();
 
-  const [formData, setFormData] = useState({
-    email: '',
-    password: '',
-  });
+  const [formData, setFormData] = useState({ email: '', password: '' });
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
 
-  // Redirect if already logged in
   useEffect(() => {
-    if (isAuthenticated) {
-      navigate('/', { replace: true });
-    }
+    if (isAuthenticated) navigate('/', { replace: true });
   }, [isAuthenticated, navigate]);
 
   const handleChange = (e) => {
-    setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
+    setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
     setError(null);
-
     try {
       const res = await api.post('/api/auth/login', formData);
       if (res.data.success) {
         const { user, token } = res.data.data;
         login(user, token);
-        
-        // Redirect based on role
-        if (user.role === 'FREELANCER') {
-          navigate('/dashboard');
-        } else {
-          navigate('/');
-        }
+        navigate(user.role === 'FREELANCER' ? '/dashboard' : '/');
       }
     } catch (err) {
       setError(err.response?.data?.message || 'Failed to login. Please try again.');
@@ -50,67 +38,71 @@ const Login = () => {
     }
   };
 
-  const pageStyle = {
-    display: 'flex',
-    justifyContent: 'center',
-    alignItems: 'center',
-    minHeight: '80vh',
-  };
-
-  const errorStyle = {
-    background: '#fee2e2',
-    border: '1px solid #ef4444',
-    color: '#991b1b',
-    padding: '0.75rem',
-    borderRadius: '4px',
-    marginBottom: '1rem',
-  };
-
   return (
-    <div style={pageStyle}>
-      <div className="card" style={{ width: '100%', maxWidth: '400px' }}>
-        <h1 style={{ textAlign: 'center', marginBottom: '0.5rem' }}>Welcome Back</h1>
-        <p style={{ textAlign: 'center', color: '#666', marginBottom: '1.5rem' }}>Login to your account</p>
+    <div className="auth-page">
+      <div className="auth-card">
+        {/* Logo */}
+        <div className="auth-logo">
+          <img src="/logo.png" alt="8ntePani Logo" className="auth-logo-img" style={{ height: '180px', objectFit: 'contain', margin: '-40px 0' }} />
+        </div>
 
-        {error && <div style={errorStyle}>{error}</div>}
+        <div className="auth-header">
+          <h1 className="auth-title">Welcome back</h1>
+          <p className="auth-subtitle">Sign in to your account to continue</p>
+        </div>
 
-        <form onSubmit={handleSubmit}>
+        {error && (
+          <div className="error-banner">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            {error}
+          </div>
+        )}
+
+        <form onSubmit={handleSubmit} noValidate>
           <div className="form-group">
-            <label htmlFor="email">Email</label>
+            <label htmlFor="email" className="form-label">Email address</label>
             <input
               type="email"
               id="email"
               name="email"
+              className="form-input"
               value={formData.email}
               onChange={handleChange}
+              placeholder="you@example.com"
               required
+              autoComplete="email"
             />
           </div>
 
           <div className="form-group">
-            <label htmlFor="password">Password</label>
+            <label htmlFor="password" className="form-label">Password</label>
             <input
               type="password"
               id="password"
               name="password"
+              className="form-input"
               value={formData.password}
               onChange={handleChange}
+              placeholder="••••••••"
               required
+              autoComplete="current-password"
             />
           </div>
 
           <button
+            id="login-submit-btn"
             type="submit"
-            className="btn btn-primary"
-            style={{ width: '100%', marginTop: '0.5rem' }}
+            className={`btn btn-primary btn-full btn-lg ${loading ? 'btn-loading' : ''}`}
+            style={{ marginTop: 'var(--space-2)' }}
             disabled={loading}
           >
-            {loading ? 'Logging in...' : 'Login'}
+            {loading ? '' : 'Sign in'}
           </button>
         </form>
 
-        <p style={{ textAlign: 'center', marginTop: '1.5rem', fontSize: '0.9rem' }}>
-          Don't have an account? <Link to="/register" style={{ color: '#4f46e5' }}>Register</Link>
+        <p className="auth-footer">
+          Don't have an account?{' '}
+          <Link to="/register">Create one free</Link>
         </p>
       </div>
     </div>

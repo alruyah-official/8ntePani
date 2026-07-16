@@ -1,0 +1,180 @@
+/* ─── ServiceCard Styles (Job Board Layout) ─── */
+
+.service-card {
+  display: flex;
+  flex-direction: column;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-2xl);
+  text-decoration: none;
+  color: inherit;
+  transition: transform var(--transition-bounce), box-shadow var(--transition-bounce), border-color var(--transition-base);
+  cursor: pointer;
+  box-shadow: var(--shadow-sm);
+  padding: var(--space-6) var(--space-6) var(--space-5);
+}
+
+.service-card:hover {
+  transform: translateY(-6px);
+  box-shadow: var(--shadow-xl);
+  border-color: var(--color-border-hover);
+}
+
+.service-card-body {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+/* Freelancer Profile Block */
+.service-card-freelancer-block {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  margin-bottom: var(--space-5);
+}
+
+.service-card-avatar,
+.service-card-avatar-placeholder {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.service-card-avatar-placeholder {
+  background: linear-gradient(135deg, #1e293b, #334155);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: var(--font-size-lg);
+}
+
+.service-card-freelancer-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.service-card-freelancer-name {
+  font-size: var(--font-size-xl);
+  font-weight: 700;
+  color: var(--color-text);
+  letter-spacing: -0.01em;
+}
+
+.service-card-freelancer-location {
+  font-size: var(--font-size-sm);
+  color: #64748b;
+  font-weight: 500;
+}
+
+.service-card-title {
+  font-size: var(--font-size-xl);
+  font-weight: 700;
+  color: var(--color-text);
+  line-height: 1.3;
+  margin-bottom: var(--space-3);
+  letter-spacing: -0.02em;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+/* Badges Row */
+.service-card-badges {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  margin-bottom: var(--space-6);
+  flex-wrap: wrap;
+}
+
+.badge-new {
+  background-color: #1a73e8;
+  color: white;
+  font-size: 13px;
+  font-weight: 600;
+  padding: 4px 12px;
+  border-radius: 9999px;
+}
+
+.badge-meta {
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+}
+
+/* Details Grid */
+.service-card-details {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-4);
+  margin-bottom: var(--space-6);
+}
+
+.detail-block {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+}
+
+.detail-icon {
+  color: var(--color-text-muted);
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.detail-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.detail-value {
+  font-weight: 600;
+  color: var(--color-text);
+  font-size: var(--font-size-md);
+}
+
+.detail-label {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+}
+
+/* Description */
+.service-card-description {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+  line-height: 1.6;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  margin-bottom: var(--space-6);
+  flex: 1; /* Pushes the CTA to the bottom */
+  word-break: break-word;
+  overflow-wrap: anywhere;
+}
+
+/* Action CTA */
+.service-card-action {
+  margin-top: auto;
+}
+
+.service-card-cta {
+  background-color: #15803d; /* Green matching reference */
+  color: white;
+  border: none;
+  padding: var(--space-2) var(--space-6);
+  border-radius: var(--radius-md);
+  font-weight: 600;
+  font-size: var(--font-size-sm);
+  cursor: pointer;
+  transition: background-color var(--transition-fast);
+}
+
+.service-card-cta:hover {
+  background-color: #166534;
+}

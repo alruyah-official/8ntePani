@@ -1,0 +1,303 @@
+/* ═══════════════════════════════════════════════════
+   FreelancerProfile.css
+   Premium Light SaaS design
+   ═══════════════════════════════════════════════════ */
+
+/* ── Page ── */
+.fp-page {
+  min-height: 100vh;
+  padding-bottom: var(--space-16);
+  background-color: var(--color-bg);
+}
+
+/* ── Hero Banner ── */
+.fp-hero-banner {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 220px;
+  background: var(--gradient-hero, linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%));
+  z-index: 0;
+}
+
+/* ── Container ── */
+.fp-container {
+  position: relative;
+  z-index: 1;
+  padding-top: calc(var(--navbar-height) + 120px);
+}
+
+/* ── Error State ── */
+.fp-error-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-4);
+  padding: var(--space-20) var(--space-4);
+}
+
+/* ═══════════════════ HEADER CARD ═══════════════════ */
+.fp-header-card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-2xl);
+  box-shadow: var(--shadow-xl);
+  margin-bottom: var(--space-8);
+  position: relative;
+  padding: var(--space-6) var(--space-8);
+}
+
+.fp-header-body {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-6);
+  flex-wrap: wrap;
+  position: relative;
+}
+
+.fp-avatar-wrap {
+  flex-shrink: 0;
+  margin-top: -64px; /* overlap banner */
+}
+
+.avatar.fp-avatar {
+  width: 120px;
+  height: 120px;
+  font-size: var(--font-size-4xl);
+  font-weight: 700;
+  border-radius: var(--radius-full);
+  border: 6px solid var(--color-surface);
+  box-shadow: var(--shadow-md);
+  background: var(--color-surface);
+}
+
+.fp-header-info {
+  flex: 1;
+  min-width: 0;
+  padding-top: var(--space-2);
+}
+
+.fp-header-top-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+  margin-bottom: var(--space-1);
+}
+
+.fp-name {
+  font-size: var(--font-size-3xl);
+  font-weight: 800;
+  color: var(--color-text);
+  margin: 0;
+  line-height: 1.15;
+}
+
+.fp-role-badge {
+  font-size: var(--font-size-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  flex-shrink: 0;
+}
+
+.fp-email {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+  margin: 0 0 var(--space-3) 0;
+}
+
+.fp-header-meta {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  flex-wrap: wrap;
+}
+
+.fp-meta-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+}
+
+.fp-meta-item svg {
+  color: var(--color-text-faint);
+  flex-shrink: 0;
+}
+
+.fp-header-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: var(--space-2);
+  flex-shrink: 0;
+  padding-top: var(--space-2);
+}
+
+.fp-contact-error {
+  font-size: var(--font-size-xs);
+  color: var(--color-danger);
+  margin: 0;
+  text-align: right;
+}
+
+/* ═══════════════════ BODY GRID ═══════════════════ */
+.fp-body-grid {
+  display: grid;
+  grid-template-columns: 280px 1fr;
+  gap: var(--space-8);
+  align-items: start;
+}
+
+/* ═══════════════════ SIDEBAR ═══════════════════ */
+.fp-sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+  position: sticky;
+  top: calc(var(--navbar-height) + var(--space-6));
+}
+
+.fp-sidebar-card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+}
+
+.fp-sidebar-card-body {
+  padding: var(--space-5);
+}
+
+.fp-sidebar-heading {
+  font-size: var(--font-size-xs);
+  font-weight: 700;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin: 0 0 var(--space-4) 0;
+}
+
+.fp-bio-text {
+  font-size: var(--font-size-sm);
+  line-height: 1.6;
+  color: var(--color-text);
+  margin: 0;
+}
+
+/* Skills */
+.fp-skills-list {
+  gap: var(--space-2);
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.fp-skill-tag {
+  background: var(--color-surface-2);
+  border: 1px solid var(--color-border);
+  color: var(--color-text);
+  font-weight: 500;
+  font-size: var(--font-size-xs);
+  border-radius: var(--radius-full);
+  padding: var(--space-1) var(--space-3);
+}
+
+/* Languages */
+.fp-lang-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.fp-lang-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  font-size: var(--font-size-sm);
+  color: var(--color-text);
+}
+
+.fp-lang-item svg {
+  color: var(--color-text-faint);
+  flex-shrink: 0;
+}
+
+/* ═══════════════════ SERVICES SECTION ═══════════════════ */
+.fp-services-section {
+  min-width: 0;
+}
+
+.fp-services-header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  margin-bottom: var(--space-6);
+}
+
+.fp-services-title {
+  font-size: var(--font-size-2xl);
+  font-weight: 700;
+  color: var(--color-text);
+  margin: 0;
+}
+
+.fp-empty-services {
+  background: var(--color-surface);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--color-border);
+  padding: var(--space-16) var(--space-4);
+}
+
+/* Services Grid */
+.fp-services-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: var(--space-6);
+}
+
+
+/* ═══════════════════ RESPONSIVE ═══════════════════ */
+@media (max-width: 960px) {
+  .fp-body-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .fp-sidebar {
+    position: static;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  }
+}
+
+@media (max-width: 640px) {
+  .fp-header-body {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+
+  .fp-header-top-row {
+    justify-content: center;
+  }
+
+  .fp-header-meta {
+    justify-content: center;
+  }
+
+  .fp-header-actions {
+    align-items: center;
+    width: 100%;
+  }
+
+  .fp-name {
+    font-size: var(--font-size-2xl);
+  }
+
+  .fp-sidebar {
+    grid-template-columns: 1fr;
+  }
+}

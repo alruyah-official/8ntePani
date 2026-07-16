@@ -1,0 +1,402 @@
+/* ─── Messages Page Styles (SaaS Style) ────────────────────────────────────────────────── */
+
+.messages-layout {
+  display: flex;
+  height: calc(100vh - var(--navbar-height));
+  overflow: hidden;
+  background: var(--color-bg);
+}
+
+/* ─── Sidebar ─────────────────────────────────────────────────────────────── */
+.messages-sidebar {
+  width: 340px;
+  flex-shrink: 0;
+  border-right: 1px solid var(--color-border);
+  display: flex;
+  flex-direction: column;
+  background: var(--color-surface);
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+  z-index: 2;
+}
+
+.messages-sidebar-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-4) var(--space-5);
+  border-bottom: 1px solid var(--color-border);
+  flex-shrink: 0;
+  background: var(--color-surface);
+}
+
+.messages-sidebar-title {
+  font-size: var(--font-size-lg);
+  font-weight: 700;
+  color: var(--color-text);
+  margin: 0;
+}
+
+.messages-sidebar-error {
+  padding: var(--space-5);
+  text-align: center;
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  align-items: center;
+}
+
+.messages-empty-convos {
+  padding: var(--space-8) var(--space-5);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* Conversation list */
+.convo-list {
+  flex: 1;
+  overflow-y: auto;
+  padding: var(--space-3) var(--space-2);
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.convo-list::-webkit-scrollbar {
+  width: 4px;
+}
+
+.convo-list::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.convo-list::-webkit-scrollbar-thumb {
+  background: var(--color-border);
+  border-radius: var(--radius-full);
+}
+
+.convo-skeleton {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3);
+}
+
+.convo-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  width: 100%;
+  padding: var(--space-3);
+  border-radius: var(--radius-lg);
+  border: none;
+  background: transparent;
+  color: var(--color-text);
+  text-align: left;
+  cursor: pointer;
+  transition: background 0.15s ease;
+  font-family: inherit;
+}
+
+.convo-item:hover {
+  background: var(--color-surface-2);
+}
+
+.convo-item-active {
+  background: var(--color-primary-glow) !important;
+}
+
+.convo-item-body {
+  flex: 1;
+  min-width: 0;
+}
+
+.convo-item-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 2px;
+}
+
+.convo-item-name {
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  color: var(--color-text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.convo-item-time {
+  font-size: 0.7rem;
+  color: var(--color-text-faint);
+  flex-shrink: 0;
+}
+
+.convo-item-preview {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ─── Main thread area ────────────────────────────────────────────────────── */
+.messages-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  min-width: 0;
+  background: var(--color-bg);
+}
+
+/* Empty state */
+.messages-empty-thread {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-4);
+  padding: var(--space-8);
+  text-align: center;
+  color: var(--color-text-muted);
+}
+
+.messages-empty-icon {
+  opacity: 0.4;
+}
+
+.messages-empty-thread h3 {
+  font-size: var(--font-size-xl);
+  color: var(--color-text-muted);
+  font-weight: 600;
+}
+
+.messages-empty-thread p {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-faint);
+}
+
+.messages-error-thread {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-4);
+  padding: var(--space-8);
+}
+
+/* Thread header */
+.thread-header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-4) var(--space-6);
+  border-bottom: 1px solid var(--color-border);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-sm);
+  flex-shrink: 0;
+  z-index: 1;
+}
+
+.thread-header-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.thread-header-name {
+  font-size: var(--font-size-base);
+  font-weight: 600;
+  margin: 0;
+  color: var(--color-text);
+  line-height: 1.2;
+}
+
+/* Messages scroll area */
+.thread-messages {
+  flex: 1;
+  overflow-y: auto;
+  padding: var(--space-6);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.thread-messages::-webkit-scrollbar {
+  width: 6px;
+}
+
+.thread-messages::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.thread-messages::-webkit-scrollbar-thumb {
+  background: var(--color-border-light);
+  border-radius: var(--radius-full);
+}
+
+.thread-empty {
+  text-align: center;
+  padding: var(--space-8);
+  color: var(--color-text-faint);
+  font-size: var(--font-size-sm);
+}
+
+/* Message groups */
+.message-group {
+  display: flex;
+  align-items: flex-end;
+  gap: var(--space-3);
+  animation: fadeIn 0.2s ease;
+}
+
+.message-group-mine {
+  flex-direction: row-reverse;
+}
+
+.message-group-theirs {
+  flex-direction: row;
+}
+
+.message-content-wrapper {
+  display: flex;
+  flex-direction: column;
+  max-width: 70%;
+  gap: 4px;
+}
+
+.message-group-mine .message-content-wrapper {
+  align-items: flex-end;
+}
+
+.message-group-theirs .message-content-wrapper {
+  align-items: flex-start;
+}
+
+.message-sender-name {
+  font-size: var(--font-size-xs);
+  font-weight: 600;
+  color: var(--color-text-muted);
+  margin-left: 4px;
+}
+
+.message-bubble {
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-2xl);
+  font-size: var(--font-size-sm);
+  line-height: 1.5;
+  word-break: break-word;
+  white-space: pre-wrap;
+  box-shadow: var(--shadow-sm);
+}
+
+.message-bubble-mine {
+  background: var(--gradient-primary);
+  color: #ffffff;
+  border-bottom-right-radius: var(--radius-sm);
+}
+
+.message-bubble-theirs {
+  background: var(--color-surface-2);
+  color: var(--color-text);
+  border: none;
+  border-bottom-left-radius: var(--radius-sm);
+}
+
+.message-time {
+  font-size: 0.68rem;
+  color: var(--color-text-faint);
+  margin: 0 4px;
+}
+
+/* Input bar */
+.thread-input-bar {
+  display: flex;
+  align-items: flex-end;
+  gap: var(--space-3);
+  padding: var(--space-4) var(--space-6);
+  background: var(--color-surface);
+  border-top: 1px solid var(--color-border);
+  flex-shrink: 0;
+  z-index: 1;
+}
+
+.thread-input {
+  flex: 1;
+  padding: 12px 16px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-2xl);
+  color: var(--color-text);
+  font-size: var(--font-size-sm);
+  font-family: inherit;
+  resize: none;
+  outline: none;
+  transition: all 0.2s ease;
+  min-height: 48px;
+  max-height: 160px;
+  overflow-y: auto;
+  line-height: 1.5;
+  box-shadow: var(--shadow-sm);
+}
+
+.thread-input:focus {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 4px var(--color-primary-glow), var(--shadow-sm);
+}
+
+.thread-input::placeholder {
+  color: var(--color-text-faint);
+}
+
+.thread-send-btn {
+  width: 48px;
+  height: 48px;
+  padding: 0;
+  border-radius: var(--radius-full);
+  flex-shrink: 0;
+  box-shadow: var(--shadow-md);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.thread-send-btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
+}
+
+.thread-send-btn:disabled {
+  opacity: 0.5;
+  box-shadow: none;
+}
+
+/* ─── Responsive ──────────────────────────────────────────────────────────── */
+@media (max-width: 768px) {
+  .messages-sidebar {
+    width: 100%;
+    position: absolute;
+    z-index: 10;
+    height: calc(100vh - var(--navbar-height));
+  }
+
+  .messages-sidebar.hidden {
+    display: none;
+  }
+
+  .messages-layout {
+    position: relative;
+  }
+}
+
+@media (max-width: 640px) {
+  .messages-sidebar {
+    width: 100%;
+    border-right: none;
+  }
+}
