@@ -12,7 +12,7 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
+  provider  = "postgresql"
 }
 
 // ─── Enums ────────────────────────────────────────────────────────────────────
@@ -20,6 +20,12 @@ datasource db {
 enum Role {
   CLIENT
   FREELANCER
+}
+
+enum JobStatus {
+  OPEN
+  IN_PROGRESS
+  COMPLETED
 }
 
 // ─── Models ───────────────────────────────────────────────────────────────────
@@ -43,6 +49,7 @@ model User {
   conversationsAsClient      Conversation[]       @relation("ClientConversations")
   conversationsAsFreelancer  Conversation[]       @relation("FreelancerConversations")
   messagesSent               Message[]            @relation("SenderMessages")
+  jobsPosted                 Job[]                @relation("ClientJobs")
 }
 
 // Stores additional details that only apply to FREELANCER accounts, such as
@@ -70,6 +77,7 @@ model Category {
 
   // Relations
   services Service[]
+  jobs     Job[]
 }
 
 // A gig or offering created by a FREELANCER. It belongs to one category and
@@ -133,4 +141,22 @@ model Message {
   // Relations
   conversation Conversation @relation(fields: [conversationId], references: [id])
   sender       User         @relation("SenderMessages", fields: [senderId], references: [id])
+}
+
+// A job posting created by a CLIENT looking to hire a FREELANCER.
+// Tracks the category, budget, and lifecycle status of the listing.
+model Job {
+  id          String    @id @default(cuid())
+  clientId    String
+  categoryId  String
+  title       String
+  description String
+  budget      Decimal?
+  status      JobStatus @default(OPEN)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  // Relations
+  client   User     @relation("ClientJobs", fields: [clientId],   references: [id])
+  category Category @relation(fields: [categoryId], references: [id])
 }
