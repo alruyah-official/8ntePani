@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams, useNavigate } from 'react-router-dom';
 import api from '../api/axios';
+import { useAuth } from '../context/AuthContext';
 import JobCard from '../components/JobCard';
 import './Jobs.css';
 
@@ -34,8 +35,7 @@ function Jobs() {
   const [search, setSearch] = useState(initialSearch);
   const [debouncedSearch, setDebouncedSearch] = useState(initialSearch);
   const [selectedCategory, setSelectedCategory] = useState(initialCategory);
-  const [minPrice, setMinPrice] = useState('');
-  const [maxPrice, setMaxPrice] = useState('');
+  const [selectedStatus, setSelectedStatus] = useState('');
 
   // Update state when URL params change
   useEffect(() => {
@@ -65,8 +65,7 @@ function Jobs() {
     const params = {};
     if (debouncedSearch) params.search = debouncedSearch;
     if (selectedCategory) params.categoryId = selectedCategory;
-    if (minPrice) params.minPrice = minPrice;
-    if (maxPrice) params.maxPrice = maxPrice;
+    if (selectedStatus) params.status = selectedStatus;
 
     // Update URL with current filters to make shareable
     const newSearchParams = new URLSearchParams();
@@ -74,18 +73,13 @@ function Jobs() {
     if (selectedCategory) newSearchParams.set('category', selectedCategory);
     setSearchParams(newSearchParams, { replace: true });
 
-    // Assuming we use the same endpoint but map freelancer to client for the UI mock
-    api.get('/api/services', { params })
+    api.get('/api/jobs', { params })
       .then(res => {
-        const mappedJobs = res.data.data.services.map(s => ({
-          ...s,
-          client: s.freelancer // map freelancer profile to client for UI
-        }));
-        setJobs(mappedJobs);
+        setJobs(res.data.data.jobs || []);
       })
       .catch(() => setError('Failed to load jobs. Please try again.'))
       .finally(() => setLoading(false));
-  }, [debouncedSearch, selectedCategory, minPrice, maxPrice, setSearchParams]);
+  }, [debouncedSearch, selectedCategory, selectedStatus, setSearchParams]);
 
   useEffect(() => {
     fetchJobs();
@@ -99,12 +93,54 @@ function Jobs() {
     setSearch('');
     setDebouncedSearch('');
     setSelectedCategory('');
-    setMinPrice('');
-    setMaxPrice('');
+    setSelectedStatus('');
     setSearchParams(new URLSearchParams());
   };
 
-  const hasActiveFilters = debouncedSearch || selectedCategory || minPrice || maxPrice;
+  const hasActiveFilters = debouncedSearch || selectedCategory || selectedStatus;
+
+  const { user, isAuthenticated } = useAuth();
+  const navigate = useNavigate();
+  const [showPostForm, setShowPostForm] = useState(false);
+  const [jobForm, setJobForm] = useState({
+    title: '', description: '', categoryId: '', budget: ''
+  });
+  const [postLoading, setPostLoading] = useState(false);
+  const [postError, setPostError] = useState(null);
+  const [postSuccess, setPostSuccess] = useState(null);
+
+  const handlePostButtonClick = () => {
+    if (!isAuthenticated) { navigate('/login'); return; }
+    if (user.role === 'FREELANCER') {
+      alert('Only clients can post jobs. Please register as a client.');
+      return;
+    }
+    setShowPostForm(true);
+  };
+
+  const handlePostJob = async (e) => {
+    e.preventDefault();
+    setPostLoading(true);
+    setPostError(null);
+    try {
+      const data = {
+        title: jobForm.title,
+        description: jobForm.description,
+        categoryId: jobForm.categoryId,
+      };
+      if (jobForm.budget) data.budget = Number(jobForm.budget);
+      const res = await api.post('/api/jobs', data);
+      setJobs(prev => [res.data.data.job, ...prev]);
+      setPostSuccess('Job posted successfully!');
+      setJobForm({ title: '', description: '', categoryId: '', budget: '' });
+      setShowPostForm(false);
+      setTimeout(() => setPostSuccess(null), 3000);
+    } catch (err) {
+      setPostError(err.response?.data?.message || 'Failed to post job.');
+    } finally {
+      setPostLoading(false);
+    }
+  };
 
   return (
     <div className="explore-page jobs-page">
@@ -138,7 +174,97 @@ function Jobs() {
               )}
             </div>
           </div>
+          <div style={{ marginTop: '1rem' }}>
+            <button
+              className="explore-btn-primary"
+              onClick={handlePostButtonClick}
+            >
+              + Post a Job
+            </button>
+          </div>
         </div>
+
+        {showPostForm && (
+          <div className="card" style={{
+            maxWidth: '700px', margin: '1.5rem auto',
+            padding: '2rem', background: 'white',
+            borderRadius: '12px',
+            boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
+          }}>
+            <h2 style={{ marginBottom: '1.5rem' }}>Post a New Job</h2>
+            {postError && (
+              <div style={{
+                background: '#fee2e2', border: '1px solid #ef4444',
+                color: '#991b1b', padding: '0.75rem',
+                borderRadius: '4px', marginBottom: '1rem'
+              }}>{postError}</div>
+            )}
+            {postSuccess && (
+              <div style={{
+                background: '#d1fae5', border: '1px solid #10b981',
+                color: '#065f46', padding: '0.75rem',
+                borderRadius: '4px', marginBottom: '1rem'
+              }}>{postSuccess}</div>
+            )}
+            <div className="form-group">
+              <label>Job Title</label>
+              <input
+                type="text"
+                placeholder="e.g. Need a logo for my startup"
+                value={jobForm.title}
+                onChange={e => setJobForm(p => ({ ...p, title: e.target.value }))}
+              />
+            </div>
+            <div className="form-group">
+              <label>Category</label>
+              <select
+                value={jobForm.categoryId}
+                onChange={e => setJobForm(p => ({ ...p, categoryId: e.target.value }))}
+              >
+                <option value="">Select a category</option>
+                {categories.map(cat => (
+                  <option key={cat.id} value={cat.id}>{cat.name}</option>
+                ))}
+              </select>
+            </div>
+            <div className="form-group">
+              <label>Job Description</label>
+              <textarea
+                rows={5}
+                placeholder="Describe what you need in detail..."
+                value={jobForm.description}
+                onChange={e => setJobForm(p => ({ ...p, description: e.target.value }))}
+                style={{ padding: '0.5rem', borderRadius: '4px', border: '1px solid #ccc', fontSize: '1rem', width: '100%' }}
+              />
+            </div>
+            <div className="form-group">
+              <label>Budget (₹) — Optional</label>
+              <input
+                type="number"
+                min="1"
+                placeholder="Leave empty if negotiable"
+                value={jobForm.budget}
+                onChange={e => setJobForm(p => ({ ...p, budget: e.target.value }))}
+              />
+            </div>
+            <div style={{ display: 'flex', gap: '1rem', marginTop: '1rem' }}>
+              <button
+                className="btn btn-primary"
+                onClick={handlePostJob}
+                disabled={postLoading}
+              >
+                {postLoading ? 'Posting...' : 'Post Job'}
+              </button>
+              <button
+                className="btn"
+                style={{ background: '#e5e7eb' }}
+                onClick={() => setShowPostForm(false)}
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        )}
 
         <div className="explore-content-layout">
           {/* Sidebar */}
@@ -165,29 +291,32 @@ function Jobs() {
             </div>
 
             <div className="explore-sidebar-section">
-              <h3 className="explore-sidebar-title">Budget</h3>
-              <div className="explore-price-filter-vertical">
-                <div className="price-input-wrapper">
-                  <span className="price-symbol">$</span>
-                  <input
-                    type="number"
-                    className="explore-price-input"
-                    placeholder="Min"
-                    value={minPrice}
-                    onChange={e => setMinPrice(e.target.value)}
-                  />
-                </div>
-                <span className="explore-price-sep">to</span>
-                <div className="price-input-wrapper">
-                  <span className="price-symbol">$</span>
-                  <input
-                    type="number"
-                    className="explore-price-input"
-                    placeholder="Max"
-                    value={maxPrice}
-                    onChange={e => setMaxPrice(e.target.value)}
-                  />
-                </div>
+              <h3 className="explore-sidebar-title">Status</h3>
+              <div className="explore-category-list">
+                <button
+                  className={`explore-category-item ${selectedStatus === '' ? 'active' : ''}`}
+                  onClick={() => setSelectedStatus('')}
+                >
+                  All Jobs
+                </button>
+                <button
+                  className={`explore-category-item ${selectedStatus === 'OPEN' ? 'active' : ''}`}
+                  onClick={() => setSelectedStatus('OPEN')}
+                >
+                  🟢 Open
+                </button>
+                <button
+                  className={`explore-category-item ${selectedStatus === 'IN_PROGRESS' ? 'active' : ''}`}
+                  onClick={() => setSelectedStatus('IN_PROGRESS')}
+                >
+                  🟡 In Progress
+                </button>
+                <button
+                  className={`explore-category-item ${selectedStatus === 'COMPLETED' ? 'active' : ''}`}
+                  onClick={() => setSelectedStatus('COMPLETED')}
+                >
+                  ⚫ Completed
+                </button>
               </div>
             </div>
 
