@@ -6,6 +6,7 @@ import profileRoutes from './src/routes/profile.routes.js';
 import categoryRoutes from './src/routes/category.routes.js';
 import serviceRoutes from './src/routes/service.routes.js';
 import reviewRoutes from './src/routes/review.routes.js';
+import jobRoutes from './src/routes/job.routes.js';
 import conversationRoutes from './src/routes/conversation.routes.js';
 import { globalErrorHandler } from './src/middlewares/error.middleware.js';
 import uploadRoutes from './src/routes/upload.routes.js';
@@ -54,6 +55,9 @@ app.use('/api/categories', categoryRoutes);
 
 // Services: full CRUD for freelancers + public browsing
 app.use('/api/services', serviceRoutes);
+
+// Jobs: CLIENT posts jobs, public browsing with filters
+app.use('/api/jobs', jobRoutes);
 
 // Reviews: CLIENT creates/deletes, public fetch with stats
 app.use('/api/reviews', reviewRoutes);
