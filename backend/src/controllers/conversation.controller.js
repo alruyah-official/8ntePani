@@ -7,14 +7,23 @@ import {
 
 /**
  * POST /api/conversations
- * Starts a new conversation between the authenticated CLIENT and a FREELANCER.
+ * Starts a new conversation between a CLIENT and a FREELANCER.
+ * A CLIENT supplies { freelancerId } in the body; a FREELANCER supplies { clientId }.
  * Returns 201 for a newly created conversation, 200 if one already existed.
- * Expects: { freelancerId } in req.body
  */
 export const startConversation = async (req, res) => {
   try {
-    const clientId = req.user.id;
-    const { freelancerId } = req.body;
+    let clientId, freelancerId;
+
+    if (req.user.role === 'CLIENT') {
+      // CLIENT initiates — they are always the client side
+      clientId = req.user.id;
+      freelancerId = req.body.freelancerId;
+    } else {
+      // FREELANCER initiates (e.g. applying to a job) — they are the freelancer side
+      freelancerId = req.user.id;
+      clientId = req.body.clientId;
+    }
 
     const { conversation, isNew } = await startConversationService(
       clientId,

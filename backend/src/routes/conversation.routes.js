@@ -1,6 +1,5 @@
 import { Router } from 'express';
 import { protect } from '../middlewares/auth.middleware.js';
-import { restrictTo } from '../middlewares/role.middleware.js';
 import {
   startConversation,
   getMyConversations,
@@ -13,8 +12,8 @@ import { startConversationSchema, sendMessageSchema } from '../validators/conver
 const router = Router();
 
 // POST /api/conversations
-// Only a CLIENT may initiate a conversation — freelancers can only respond
-router.post('/', validate(startConversationSchema), protect, restrictTo('CLIENT'), startConversation);
+// Both CLIENT and FREELANCER may initiate a conversation (e.g. freelancer applying to a job)
+router.post('/', validate(startConversationSchema), protect, startConversation);
 
 // GET  /api/conversations
 // Any authenticated user fetches their own inbox
