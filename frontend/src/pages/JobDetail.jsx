@@ -55,13 +55,14 @@ export default function JobDetail() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [contactLoading, setContactLoading] = useState(false);
+  const [statusLoading, setStatusLoading] = useState(false);
 
   const fetchJob = useCallback(async () => {
     setLoading(true);
     setError('');
     try {
-      const res = await api.get(`/api/services/${jobId}`);
-      setJob(res.data.data.service);
+      const res = await api.get(`/api/jobs/${jobId}`);
+      setJob(res.data.data.job);
     } catch (err) {
       setError(err.response?.data?.message || 'Failed to load job posting.');
     } finally {
@@ -70,19 +71,6 @@ export default function JobDetail() {
   }, [jobId]);
 
   useEffect(() => { fetchJob(); }, [fetchJob]);
-
-  const handleContact = async () => {
-    if (!isAuthenticated) { navigate('/login'); return; }
-    setContactLoading(true);
-    try {
-      const res = await api.post('/api/conversations', { freelancerId: job.freelancerId });
-      navigate(`/messages/${res.data.data.conversation.id}`);
-    } catch (err) {
-      console.error('Failed to start conversation:', err);
-    } finally {
-      setContactLoading(false);
-    }
-  };
 
   if (loading) {
     return (
@@ -104,20 +92,44 @@ export default function JobDetail() {
 
   if (!job) return null;
 
-  const client = job.freelancer;
-  const profile = client?.clientProfile || client?.freelancerProfile; 
+  const client = job.client;
+  const profile = null;
 
-  const isOwner = user?.id === job.freelancerId;
+  const isOwner = user?.id === job.clientId;
   const canInteract = !isOwner;
 
-  // Mock data for new UI elements
-  const mockSkills = ['React', 'Node.js', 'Figma', 'UI/UX Design', 'Tailwind CSS'];
-  const mockActivity = {
-    proposals: '15 to 20',
-    lastViewed: '1 day ago',
-    interviewing: 2,
-    invitesSent: 4,
-    unansweredInvites: 1
+
+  const handleContact = async () => {
+    if (!isAuthenticated) { navigate('/login'); return; }
+    if (user.role === 'CLIENT') {
+      alert('Only freelancers can apply to jobs.');
+      return;
+    }
+    setContactLoading(true);
+    try {
+      const res = await api.post('/api/conversations', { 
+        clientId: job.clientId 
+      });
+      navigate(`/messages/${res.data.data.conversation.id}`);
+    } catch (err) {
+      alert(err.response?.data?.message || 'Failed to start conversation.');
+    } finally {
+      setContactLoading(false);
+    }
+  };
+
+  const handleStatusUpdate = async (newStatus) => {
+    setStatusLoading(true);
+    try {
+      const res = await api.patch(`/api/jobs/${jobId}/status`, { 
+        status: newStatus 
+      });
+      setJob(res.data.data.job);
+    } catch (err) {
+      alert(err.response?.data?.message || 'Failed to update status.');
+    } finally {
+      setStatusLoading(false);
+    }
   };
 
   return (
@@ -251,67 +263,147 @@ export default function JobDetail() {
           
           {/* CTA / Action Box */}
           <div className="sd-upwork-box cta-box">
-            {isAuthenticated ? (
-              canInteract ? (
-                <>
-                  <button
-                    className={`btn btn-primary btn-full btn-lg upwork-cta-btn${contactLoading ? ' btn-loading' : ''}`}
-                    onClick={handleContact}
-                    disabled={contactLoading}
-                  >
-                    {contactLoading ? '' : 'Apply Now'}
-                  </button>
-                  <button className="btn btn-secondary btn-full mt-3" style={{border: '1px solid #1a73e8', color: '#1a73e8', height: '48px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: '600', borderRadius: 'var(--radius-md)', background: 'transparent', cursor: 'pointer'}}>
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{marginRight: '8px'}}><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>
-                    Save Job
-                  </button>
-                </>
-              ) : (
-                <div className="sd-owner-notice">You posted this job.</div>
-              )
-            ) : (
+            {!isAuthenticated ? (
               <div className="sd-auth-cta">
-                <Link to="/login" className="btn btn-primary btn-full upwork-cta-btn">Log In to Apply</Link>
-                <Link to="/register" className="btn btn-ghost btn-full mt-2">Create Account</Link>
+                <p style={{ marginBottom: '1rem', color: '#64748b', fontSize: '0.9rem' }}>
+                  Login as a freelancer to apply for this job
+                </p>
+                <Link to="/login" className="btn btn-primary btn-full upwork-cta-btn">
+                  Log In to Apply
+                </Link>
+                <Link to="/register" className="btn btn-ghost btn-full mt-2">
+                  Create Account
+                </Link>
               </div>
+            ) : isOwner ? (
+              <div>
+                <p style={{ color: '#64748b', marginBottom: '1rem', fontWeight: '600' }}>
+                  You posted this job
+                </p>
+                {job.status === 'COMPLETED' ? (
+                  <div style={{
+                    background: '#d1fae5', padding: '1rem',
+                    borderRadius: '8px', color: '#065f46',
+                    textAlign: 'center', fontWeight: '600'
+                  }}>
+                    ✅ This job is completed
+                  </div>
+                ) : (
+                  <>
+                    <p style={{ fontSize: '0.85rem', color: '#6b7280', marginBottom: '1rem' }}>
+                      Update job status:
+                    </p>
+                    {statusLoading ? (
+                      <p style={{ color: '#6b7280' }}>Updating...</p>
+                    ) : (
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                        {job.status === 'OPEN' && (
+                          <button
+                            className="btn btn-full"
+                            style={{ background: '#f59e0b', color: 'white', height: '48px', borderRadius: '8px', fontWeight: '600', cursor: 'pointer', border: 'none' }}
+                            onClick={() => handleStatusUpdate('IN_PROGRESS')}
+                          >
+                            🟡 Mark as In Progress
+                          </button>
+                        )}
+                        <button
+                          className="btn btn-primary btn-full"
+                          style={{ height: '48px' }}
+                          onClick={() => handleStatusUpdate('COMPLETED')}
+                        >
+                          ✅ Mark as Completed
+                        </button>
+                      </div>
+                    )}
+                  </>
+                )}
+              </div>
+            ) : user.role === 'CLIENT' ? (
+              <div style={{ color: '#6b7280', textAlign: 'center', padding: '1rem' }}>
+                <p>Only freelancers can apply for jobs.</p>
+                <p style={{ fontSize: '0.85rem', marginTop: '0.5rem' }}>
+                  Register as a freelancer to apply.
+                </p>
+              </div>
+            ) : job.status !== 'OPEN' ? (
+              <div style={{
+                background: job.status === 'IN_PROGRESS' ? '#fef3c7' : '#f3f4f6',
+                padding: '1rem', borderRadius: '8px',
+                color: job.status === 'IN_PROGRESS' ? '#92400e' : '#6b7280',
+                textAlign: 'center', fontWeight: '600'
+              }}>
+                {job.status === 'IN_PROGRESS' 
+                  ? '🟡 This job is currently in progress'
+                  : '⚫ This job has been completed'}
+              </div>
+            ) : (
+              <>
+                <button
+                  className={`btn btn-primary btn-full btn-lg upwork-cta-btn${contactLoading ? ' btn-loading' : ''}`}
+                  onClick={handleContact}
+                  disabled={contactLoading}
+                >
+                  {contactLoading ? 'Opening chat...' : 'Apply Now'}
+                </button>
+                <p style={{ 
+                  fontSize: '0.8rem', color: '#6b7280', 
+                  textAlign: 'center', marginTop: '0.75rem' 
+                }}>
+                  Send a message to the client about this job
+                </p>
+              </>
             )}
           </div>
 
           {/* Client Profile Box */}
           <div className="sd-upwork-box freelancer-box">
-            <h3 className="freelancer-box-title" style={{fontSize: '1.1rem'}}>About the client</h3>
-            
-            <div className="freelancer-verification-list" style={{marginTop: '0', marginBottom: 'var(--space-5)'}}>
-              <div className="freelancer-verification-item">
-                <svg className="freelancer-verification-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
-                Payment method verified
+            <h3 className="freelancer-box-title" style={{fontSize: '1.1rem'}}>
+              About the Client
+            </h3>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1rem' }}>
+              {job.client?.avatar ? (
+                <img 
+                  src={job.client.avatar} 
+                  alt={job.client.name}
+                  style={{ width: '48px', height: '48px', borderRadius: '50%', objectFit: 'cover' }}
+                />
+              ) : (
+                <div style={{
+                  width: '48px', height: '48px', borderRadius: '50%',
+                  background: '#4f46e5', color: 'white',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  fontWeight: '600', fontSize: '1.1rem'
+                }}>
+                  {job.client?.name?.charAt(0).toUpperCase()}
+                </div>
+              )}
+              <div>
+                <p style={{ fontWeight: '600', color: '#1e293b' }}>{job.client?.name}</p>
+                <p style={{ fontSize: '0.8rem', color: '#64748b' }}>Client</p>
               </div>
-              <div className="freelancer-verification-item">
-                <StarRating rating={4.9} size={14} interactive={false} />
-                <span style={{fontWeight: '600'}}>4.9</span> of 24 reviews
-              </div>
             </div>
-
             <div className="freelancer-meta-section">
-              <span className="meta-label">Location</span>
-              <p style={{fontSize: '14px', color: '#334155', fontWeight: '500'}}>{profile?.location || 'United States'}</p>
-              <p style={{fontSize: '12px', color: '#64748b'}}>10:45 AM local time</p>
+              <span className="meta-label">Budget</span>
+              <p style={{ fontSize: '14px', color: '#334155', fontWeight: '600' }}>
+                {job.budget ? `₹${parseFloat(job.budget).toLocaleString()}` : 'Negotiable'}
+              </p>
             </div>
-
             <div className="freelancer-meta-section">
-              <span className="meta-label">History</span>
-              <p style={{fontSize: '14px', color: '#334155', fontWeight: '500'}}>34 jobs posted</p>
-              <p style={{fontSize: '12px', color: '#64748b'}}>85% hire rate, 1 open job</p>
+              <span className="meta-label">Status</span>
+              <p style={{ 
+                fontSize: '14px', fontWeight: '600',
+                color: job.status === 'OPEN' ? '#065f46' : 
+                       job.status === 'IN_PROGRESS' ? '#92400e' : '#6b7280'
+              }}>
+                {job.status === 'OPEN' ? '🟢 Open' : 
+                 job.status === 'IN_PROGRESS' ? '🟡 In Progress' : '⚫ Completed'}
+              </p>
             </div>
-
-            <div className="freelancer-meta-section">
-              <span className="meta-label">Total Spent</span>
-              <p style={{fontSize: '14px', color: '#334155', fontWeight: '500'}}>$12k+ total spent</p>
-              <p style={{fontSize: '12px', color: '#64748b'}}>32 hires, 5 active</p>
-            </div>
-            
-            <div className="freelancer-meta-section" style={{marginBottom: '0'}}>
-              <p style={{fontSize: '12px', color: '#64748b'}}>Member since Nov 2022</p>
+            <div className="freelancer-meta-section" style={{ marginBottom: 0 }}>
+              <span className="meta-label">Posted</span>
+              <p style={{ fontSize: '14px', color: '#334155' }}>
+                {new Date(job.createdAt).toLocaleDateString()}
+              </p>
             </div>
           </div>
           
