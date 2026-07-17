@@ -25,21 +25,22 @@ const Footer = () => {
           <div className="footer-links-group">
             <h4 className="footer-heading">Platform</h4>
             <Link to="/explore" className="footer-link">Explore Services</Link>
+            <Link to="/jobs" className="footer-link">Find Jobs</Link>
             <Link to="/login" className="footer-link">Log In</Link>
             <Link to="/register" className="footer-link">Sign Up</Link>
           </div>
           
           <div className="footer-links-group">
             <h4 className="footer-heading">Company</h4>
-            <a href="#" className="footer-link">About Us</a>
-            <a href="#" className="footer-link">Careers</a>
-            <a href="#" className="footer-link">Contact Support</a>
+            <Link to="/company#about" className="footer-link">About Us</Link>
+            <Link to="/company#careers" className="footer-link">Careers</Link>
+            <Link to="/company#support" className="footer-link">Contact Support</Link>
           </div>
           
           <div className="footer-links-group">
             <h4 className="footer-heading">Legal</h4>
-            <a href="#" className="footer-link">Privacy Policy</a>
-            <a href="#" className="footer-link">Terms of Service</a>
+            <Link to="/legal#privacy" className="footer-link">Privacy Policy</Link>
+            <Link to="/legal#terms" className="footer-link">Terms of Service</Link>
           </div>
         </div>
         

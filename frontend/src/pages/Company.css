@@ -1,0 +1,194 @@
+/* Company.css */
+
+.company-page {
+  background: var(--color-background);
+  min-height: calc(100vh - 80px);
+  color: var(--color-text);
+  overflow-x: hidden;
+}
+
+/* ── Hero Section ── */
+.company-hero {
+  text-align: center;
+  padding: 100px 20px;
+  background: linear-gradient(135deg, rgba(79, 70, 229, 0.05) 0%, rgba(139, 92, 246, 0.05) 100%);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.company-hero-title {
+  font-size: 3.5rem;
+  font-weight: 900;
+  letter-spacing: -0.03em;
+  margin-bottom: var(--space-4);
+  background: linear-gradient(to right, var(--color-primary), #c026d3);
+  -webkit-background-clip: text;
+  color: transparent;
+}
+
+.company-hero-subtitle {
+  font-size: 1.25rem;
+  color: var(--color-text-muted);
+  max-width: 600px;
+  margin: 0 auto;
+  line-height: 1.6;
+}
+
+/* ── Common Section Styles ── */
+.company-section {
+  padding: 100px 20px;
+  border-bottom: 1px solid var(--color-border);
+  scroll-margin-top: 80px; /* Offset for sticky navbar when jumping to hash */
+}
+
+.company-section:last-child {
+  border-bottom: none;
+}
+
+.company-section.alt-bg {
+  background: var(--color-surface);
+}
+
+.company-container {
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+.section-tag {
+  display: inline-block;
+  font-size: var(--font-size-sm);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--color-primary);
+  margin-bottom: var(--space-4);
+}
+
+.section-heading {
+  font-size: 2.5rem;
+  font-weight: 800;
+  margin-bottom: var(--space-6);
+  letter-spacing: -0.02em;
+}
+
+/* ── About Us ── */
+.about-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-12);
+  align-items: center;
+}
+
+.about-text p {
+  font-size: 1.1rem;
+  line-height: 1.8;
+  color: var(--color-text-muted);
+  margin-bottom: var(--space-4);
+}
+
+.about-image {
+  width: 100%;
+  border-radius: var(--radius-2xl);
+  box-shadow: var(--shadow-xl);
+  transform: rotate(2deg);
+  transition: transform 0.3s ease;
+}
+
+.about-image:hover {
+  transform: rotate(0deg);
+}
+
+/* ── Careers ── */
+.careers-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: var(--space-6);
+  margin-top: var(--space-12);
+}
+
+.career-card {
+  background: var(--color-background);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-xl);
+  padding: var(--space-6);
+  transition: all var(--transition-normal);
+}
+
+.career-card:hover {
+  transform: translateY(-5px);
+  box-shadow: var(--shadow-md);
+  border-color: var(--color-primary);
+}
+
+.career-card-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  margin-bottom: var(--space-2);
+}
+
+.career-card-dept {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+  margin-bottom: var(--space-6);
+}
+
+.career-card-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+/* ── Contact Support ── */
+.contact-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-12);
+}
+
+.contact-info-cards {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.contact-info-card {
+  background: var(--color-background);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-6);
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+}
+
+.contact-icon {
+  width: 48px;
+  height: 48px;
+  background: rgba(79, 70, 229, 0.1);
+  color: var(--color-primary);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.contact-form {
+  background: var(--color-background);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-xl);
+  padding: var(--space-8);
+  box-shadow: var(--shadow-md);
+}
+
+.contact-form .form-group {
+  margin-bottom: var(--space-4);
+}
+
+@media (max-width: 768px) {
+  .about-grid, .contact-grid {
+    grid-template-columns: 1fr;
+  }
+  .company-hero-title {
+    font-size: 2.5rem;
+  }
+}

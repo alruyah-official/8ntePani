@@ -217,7 +217,7 @@ function Home() {
         <div className="container">
           <p className="trusted-by-title">Trusted By</p>
           <div className="trusted-by-logos" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '4rem' }}>
-            <img src="/connectemea.png" alt="Connect EMEA" className="trusted-by-logo" style={{ height: '45px', width: 'auto', maxHeight: 'none' }} />
+            <img src="/connectemea.png" alt="Connect EMEA" className="trusted-by-logo" style={{ height: '120px', width: 'auto', maxHeight: 'none' }} />
             <img src="/emea%20college.png" alt="EMEA College" className="trusted-by-logo" style={{ height: '65px', width: 'auto', maxHeight: 'none' }} />
           </div>
         </div>

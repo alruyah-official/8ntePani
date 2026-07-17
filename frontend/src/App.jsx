@@ -17,6 +17,8 @@ import Explore from './pages/Explore.jsx';
 import Jobs from './pages/Jobs.jsx';
 import JobDetail from './pages/JobDetail.jsx';
 import Notifications from './pages/Notifications.jsx';
+import Company from './pages/Company.jsx';
+import Legal from './pages/Legal.jsx';
 
 function App() {
   return (
@@ -26,6 +28,8 @@ function App() {
         {/* Each page manages its own layout (container/padding/full-width as needed) */}
         <Routes>
           <Route path="/" element={<Home />} />
+          <Route path="/company" element={<Company />} />
+          <Route path="/legal" element={<Legal />} />
           <Route path="/explore" element={<Explore />} />
           <Route path="/jobs" element={<Jobs />} />
           <Route path="/login" element={<Login />} />
