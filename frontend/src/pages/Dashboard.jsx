@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { createPortal } from 'react-dom';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import api from '../api/axios';
@@ -584,7 +585,7 @@ function MyServicesTab({ user }) {
       )}
 
       {/* Service Form Modal */}
-      {modalOpen && (
+      {modalOpen && createPortal(
         <div className="modal-overlay" onClick={closeModal}>
           <div className="modal service-modal" onClick={(e) => e.stopPropagation()}>
             <div className="modal-header">
@@ -598,7 +599,8 @@ function MyServicesTab({ user }) {
               onClose={closeModal}
             />
           </div>
-        </div>
+        </div>,
+        document.body
       )}
 
       {/* Delete Confirm Modal */}

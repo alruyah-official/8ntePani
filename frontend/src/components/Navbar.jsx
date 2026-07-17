@@ -1,11 +1,14 @@
 import './Navbar.css';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { useState } from 'react';
+import PostJobModal from './PostJobModal';
 
 function Navbar() {
   const { user, isAuthenticated, logout } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
+  const [showPostJobModal, setShowPostJobModal] = useState(false);
 
   if (location.pathname === '/login' || location.pathname === '/register') {
     return null;
@@ -31,6 +34,7 @@ function Navbar() {
     : '?';
 
   return (
+    <>
     <nav className="navbar">
       <div className="navbar-container">
         {/* Brand & Main Links */}
@@ -45,12 +49,13 @@ function Navbar() {
         {/* Center Search Bar */}
         <div className="navbar-search-wrapper">
           <form className="navbar-search" onSubmit={handleSearch}>
-            <svg className="navbar-search-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <circle cx="11" cy="11" r="8"></circle>
-              <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-            </svg>
+            <div className="navbar-search-3d-icon">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="11" cy="11" r="8"></circle>
+                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+              </svg>
+            </div>
             <input type="text" name="search" placeholder="What service are you looking for...!" className="navbar-search-input" />
-            <div className="navbar-search-shortcut">⌘K</div>
           </form>
         </div>
 
@@ -100,6 +105,15 @@ function Navbar() {
                     </svg>
                     Dashboard
                   </Link>
+                  {user?.role === 'CLIENT' && (
+                    <button className="navbar-dropdown-item" onClick={() => setShowPostJobModal(true)}>
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <line x1="12" y1="5" x2="12" y2="19"></line>
+                        <line x1="5" y1="12" x2="19" y2="12"></line>
+                      </svg>
+                      Post a Job
+                    </button>
+                  )}
                   <button className="navbar-dropdown-item navbar-dropdown-logout" onClick={handleLogout}>
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                       <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
@@ -120,6 +134,10 @@ function Navbar() {
         </div>
       </div>
     </nav>
+    {showPostJobModal && (
+      <PostJobModal onClose={() => setShowPostJobModal(false)} />
+    )}
+    </>
   );
 }
 

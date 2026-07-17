@@ -1,9 +1,11 @@
 /* ─── ConfirmModal Component ──────────────────────────────────────────────── */
 
+import { createPortal } from 'react-dom';
+
 function ConfirmModal({ isOpen, title, message, confirmLabel = 'Confirm', cancelLabel = 'Cancel', onConfirm, onCancel, danger = false, loading = false }) {
   if (!isOpen) return null;
 
-  return (
+  return createPortal(
     <div className="modal-overlay" onClick={onCancel}>
       <div className="modal" onClick={e => e.stopPropagation()}>
         <div className="modal-header">
@@ -24,7 +26,8 @@ function ConfirmModal({ isOpen, title, message, confirmLabel = 'Confirm', cancel
           </button>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }
 
