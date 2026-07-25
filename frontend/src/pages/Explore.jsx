@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import api from '../api/axios';
 import ServiceCard from '../components/ServiceCard';
-import './Explore.css';
+import '../styles/pages/Explore.css';
 
 // Reusing the skeleton from Home for consistency, or defining a simple one here
 function ServiceSkeleton() {

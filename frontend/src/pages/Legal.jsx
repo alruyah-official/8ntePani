@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
-import './Legal.css';
+import '../styles/pages/Legal.css';
 
 export default function Legal() {
   const { hash } = useLocation();

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import api from '../api/axios';
 import { useNavigate } from 'react-router-dom';
-import './PostJobModal.css';
+import '../styles/components/PostJobModal.css';
 
 function PostJobModal({ onClose }) {
   const [categories, setCategories] = useState([]);

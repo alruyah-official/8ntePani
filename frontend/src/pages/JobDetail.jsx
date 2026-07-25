@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import api from '../api/axios';
 import { useAuth } from '../context/AuthContext';
-import './JobDetail.css';
+import '../styles/pages/JobDetail.css';
 
 /* ─────────────────────────── helpers ─────────────────────────── */
 function getInitials(name = '') {

@@ -4,6 +4,7 @@ import AuthProvider from './context/AuthContext.jsx';
 import Navbar from './components/Navbar.jsx';
 import ProtectedRoute from './components/ProtectedRoute.jsx';
 import Footer from './components/Footer.jsx';
+import './styles/App.css';
 
 import Home from './pages/Home.jsx';
 import Login from './pages/Login.jsx';

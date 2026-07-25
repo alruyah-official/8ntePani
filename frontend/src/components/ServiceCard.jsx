@@ -1,4 +1,4 @@
-import './ServiceCard.css';
+import '../styles/components/ServiceCard.css';
 import { Link } from 'react-router-dom';
 
 function ServiceCard({ service }) {

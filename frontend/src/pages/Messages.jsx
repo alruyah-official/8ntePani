@@ -1,4 +1,4 @@
-import './Messages.css';
+import '../styles/pages/Messages.css';
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import api from '../api/axios';

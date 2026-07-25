@@ -3,8 +3,8 @@ import { useParams, useNavigate, Link } from 'react-router-dom';
 import api from '../api/axios';
 import { useAuth } from '../context/AuthContext';
 import StarRating from '../components/StarRating';
-import '../components/StarRating.css';
-import './ServiceDetail.css';
+import '../styles/components/StarRating.css';
+import '../styles/pages/ServiceDetail.css';
 
 /* ─────────────────────────── helpers ─────────────────────────── */
 function getInitials(name = '') {

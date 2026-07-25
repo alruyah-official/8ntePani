@@ -1,4 +1,4 @@
-import './Home.css';
+import '../styles/pages/Home.css';
 import { useState, useEffect, useCallback } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';

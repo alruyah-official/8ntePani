@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import './Notifications.css';
+import '../styles/pages/Notifications.css';
 
 // Mock Data
 const MOCK_NOTIFICATIONS = [

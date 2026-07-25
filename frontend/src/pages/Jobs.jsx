@@ -3,7 +3,7 @@ import { useSearchParams } from 'react-router-dom';
 import api from '../api/axios';
 import { useAuth } from '../context/AuthContext';
 import JobCard from '../components/JobCard';
-import './Jobs.css';
+import '../styles/pages/Jobs.css';
 
 function JobSkeleton() {
   return (

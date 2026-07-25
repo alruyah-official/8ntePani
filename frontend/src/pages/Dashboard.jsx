@@ -4,7 +4,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import api from '../api/axios';
 import ConfirmModal from '../components/ConfirmModal';
-import './Dashboard.css';
+import '../styles/pages/Dashboard.css';
 
 /* ─── Helpers ─────────────────────────────────────────────────────────────── */
 function getInitials(name = '') {

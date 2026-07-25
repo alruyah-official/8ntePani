@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
-import './Company.css';
+import '../styles/pages/Company.css';
 
 export default function Company() {
   const { hash } = useLocation();
