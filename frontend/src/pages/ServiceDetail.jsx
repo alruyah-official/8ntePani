@@ -472,7 +472,7 @@ export default function ServiceDetail() {
                       setShowOrderModal(true);
                     }}
                   >
-                    💼 Hire Freelancer
+                    Hire Freelancer
                   </button>
                   <button
                     className={`btn btn-primary btn-full btn-lg upwork-cta-btn${contactLoading ? ' btn-loading' : ''}`}
@@ -671,7 +671,7 @@ export default function ServiceDetail() {
                     onClick={handlePlaceOrder}
                     disabled={orderLoading}
                   >
-                    {orderLoading ? 'Placing Order...' : '💼 Confirm Order'}
+                    {orderLoading ? 'Placing Order...' : 'Confirm Order'}
                   </button>
                   <button
                     className="btn"
