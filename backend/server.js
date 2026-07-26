@@ -8,6 +8,8 @@ import serviceRoutes from './src/routes/service.routes.js';
 import reviewRoutes from './src/routes/review.routes.js';
 import jobRoutes from './src/routes/job.routes.js';
 import conversationRoutes from './src/routes/conversation.routes.js';
+import notificationRoutes from './src/routes/notification.routes.js';
+import orderRoutes from './src/routes/order.routes.js';
 import { globalErrorHandler } from './src/middlewares/error.middleware.js';
 import uploadRoutes from './src/routes/upload.routes.js';
 
@@ -64,6 +66,12 @@ app.use('/api/reviews', reviewRoutes);
 
 // Conversations & Messaging: CLIENT starts threads, both parties reply
 app.use('/api/conversations', conversationRoutes);
+
+// Notifications: fetch list, unread count, mark single/all as read
+app.use('/api/notifications', notificationRoutes);
+
+// Orders: lifecycle management (create, accept, reject, deliver, complete, cancel)
+app.use('/api/orders', orderRoutes);
 
 // Image Uploads: Cloudinary integration
 app.use('/api/upload', uploadRoutes);

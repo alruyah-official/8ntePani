@@ -115,5 +115,15 @@ export const getProfileByUserId = async (userId) => {
     throw error;
   }
 
-  return profile;
+  const completedOrdersCount = await prisma.order.count({
+    where: {
+      freelancerId: userId,
+      status: 'COMPLETED',
+    },
+  });
+
+  return {
+    ...profile,
+    completedOrdersCount,
+  };
 };
