@@ -1,7 +1,8 @@
 import '../styles/components/Navbar.css';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import api from '../api/axios';
 import PostJobModal from './PostJobModal';
 
 function Navbar() {
@@ -9,6 +10,53 @@ function Navbar() {
   const navigate = useNavigate();
   const location = useLocation();
   const [showPostJobModal, setShowPostJobModal] = useState(false);
+
+  const [unreadCount, setUnreadCount] = useState(0);
+  const [notifications, setNotifications] = useState([]);
+  const [showNotifDropdown, setShowNotifDropdown] = useState(false);
+  const [notifLoading, setNotifLoading] = useState(false);
+
+  useEffect(() => {
+    if (!isAuthenticated) return;
+    const fetchUnreadCount = async () => {
+      try {
+        const res = await api.get('/api/notifications/unread-count');
+        setUnreadCount(res.data.data.count);
+      } catch (err) {}
+    };
+    fetchUnreadCount();
+    const interval = setInterval(fetchUnreadCount, 30000);
+    return () => clearInterval(interval);
+  }, [isAuthenticated]);
+
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (!e.target.closest('.notif-wrapper')) {
+        setShowNotifDropdown(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  const fetchNotifications = async () => {
+    setNotifLoading(true);
+    try {
+      const res = await api.get('/api/notifications');
+      setNotifications(res.data.data.notifications || []);
+    } catch (err) {}
+    finally { setNotifLoading(false); }
+  };
+
+  const handleMarkAllRead = async () => {
+    try {
+      await api.patch('/api/notifications/read-all');
+      setUnreadCount(0);
+      setNotifications(prev => 
+        prev.map(n => ({ ...n, isRead: true }))
+      );
+    } catch (err) {}
+  };
 
   if (location.pathname === '/login' || location.pathname === '/register') {
     return null;
@@ -69,12 +117,153 @@ function Navbar() {
                 </svg>
               </Link>
 
-              <Link to="/notifications" className="navbar-icon-btn" title="Notifications">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
-                  <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
-                </svg>
-              </Link>
+              <div className="notif-wrapper" style={{ position: 'relative' }}>
+                <button
+                  className="navbar-icon-btn"
+                  title="Notifications"
+                  style={{ position: 'relative', background: 'none', border: 'none', cursor: 'pointer' }}
+                  onClick={() => {
+                    setShowNotifDropdown(prev => !prev);
+                    if (!showNotifDropdown) fetchNotifications();
+                  }}
+                >
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+                    <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+                  </svg>
+                  {unreadCount > 0 && (
+                    <span style={{
+                      position: 'absolute', top: '-4px', right: '-4px',
+                      background: '#ef4444', color: 'white',
+                      borderRadius: '50%', width: '18px', height: '18px',
+                      fontSize: '0.7rem', fontWeight: '700',
+                      display: 'flex', alignItems: 'center',
+                      justifyContent: 'center', lineHeight: 1
+                    }}>
+                      {unreadCount > 9 ? '9+' : unreadCount}
+                    </span>
+                  )}
+                </button>
+
+                {showNotifDropdown && (
+                  <div style={{
+                    position: 'absolute', right: 0, top: '110%',
+                    width: '360px', background: 'white',
+                    borderRadius: '12px', boxShadow: '0 8px 30px rgba(0,0,0,0.15)',
+                    zIndex: 1000, overflow: 'hidden',
+                    border: '1px solid #e2e8f0'
+                  }}>
+                    <div style={{
+                      display: 'flex', justifyContent: 'space-between',
+                      alignItems: 'center', padding: '1rem 1.25rem',
+                      borderBottom: '1px solid #e2e8f0'
+                    }}>
+                      <h3 style={{ fontWeight: '700', fontSize: '0.95rem' }}>
+                        Notifications
+                      </h3>
+                      {unreadCount > 0 && (
+                        <button
+                          onClick={handleMarkAllRead}
+                          style={{
+                            background: 'none', border: 'none',
+                            color: '#4f46e5', fontSize: '0.8rem',
+                            cursor: 'pointer', fontWeight: '600'
+                          }}
+                        >
+                          Mark all as read
+                        </button>
+                      )}
+                    </div>
+
+                    <div style={{ maxHeight: '380px', overflowY: 'auto' }}>
+                      {notifLoading ? (
+                        <p style={{ textAlign: 'center', padding: '2rem', color: '#6b7280' }}>
+                          Loading...
+                        </p>
+                      ) : notifications.length === 0 ? (
+                        <div style={{ textAlign: 'center', padding: '2rem' }}>
+                          <p style={{ fontSize: '1.5rem' }}>🔔</p>
+                          <p style={{ color: '#6b7280', fontSize: '0.9rem' }}>
+                            No notifications yet
+                          </p>
+                        </div>
+                      ) : (
+                        notifications.slice(0, 10).map(notif => (
+                          <div
+                            key={notif.id}
+                            onClick={async () => {
+                              if (!notif.isRead) {
+                                try {
+                                  await api.patch(`/api/notifications/${notif.id}/read`);
+                                  setUnreadCount(prev => Math.max(0, prev - 1));
+                                  setNotifications(prev =>
+                                    prev.map(n => n.id === notif.id 
+                                      ? { ...n, isRead: true } : n)
+                                  );
+                                } catch (err) {}
+                              }
+                              if (notif.relatedId) {
+                                navigate(`/orders/${notif.relatedId}`);
+                                setShowNotifDropdown(false);
+                              }
+                            }}
+                            style={{
+                              padding: '0.875rem 1.25rem',
+                              borderBottom: '1px solid #f1f5f9',
+                              cursor: 'pointer',
+                              background: notif.isRead ? 'white' : '#f0f4ff',
+                              transition: 'background 0.15s'
+                            }}
+                          >
+                            <div style={{
+                              display: 'flex', alignItems: 'flex-start',
+                              gap: '0.75rem'
+                            }}>
+                              <span style={{ fontSize: '1.25rem', lineHeight: 1.2 }}>
+                                {notif.type === 'NEW_ORDER' ? '📦' :
+                                 notif.type === 'ORDER_ACCEPTED' ? '✅' :
+                                 notif.type === 'ORDER_REJECTED' ? '❌' :
+                                 notif.type === 'ORDER_DELIVERED' ? '🎁' :
+                                 notif.type === 'ORDER_COMPLETED' ? '🏆' :
+                                 notif.type === 'ORDER_CANCELLED' ? '🚫' :
+                                 notif.type === 'NEW_MESSAGE' ? '💬' : '🔔'}
+                              </span>
+                              <div style={{ flex: 1 }}>
+                                <p style={{
+                                  fontWeight: notif.isRead ? '500' : '700',
+                                  fontSize: '0.875rem', color: '#1e293b',
+                                  marginBottom: '0.2rem'
+                                }}>
+                                  {notif.title}
+                                </p>
+                                <p style={{
+                                  fontSize: '0.8rem', color: '#64748b',
+                                  lineHeight: 1.4
+                                }}>
+                                  {notif.message}
+                                </p>
+                                <p style={{
+                                  fontSize: '0.75rem', color: '#94a3b8',
+                                  marginTop: '0.25rem'
+                                }}>
+                                  {new Date(notif.createdAt).toLocaleDateString()}
+                                </p>
+                              </div>
+                              {!notif.isRead && (
+                                <div style={{
+                                  width: '8px', height: '8px',
+                                  borderRadius: '50%', background: '#4f46e5',
+                                  flexShrink: 0, marginTop: '4px'
+                                }} />
+                              )}
+                            </div>
+                          </div>
+                        ))
+                      )}
+                    </div>
+                  </div>
+                )}
+              </div>
 
               <div className="navbar-user-menu">
                 <button className="navbar-user-btn" aria-label="User menu">
