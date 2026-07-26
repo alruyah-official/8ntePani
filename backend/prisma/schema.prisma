@@ -28,6 +28,25 @@ enum JobStatus {
   COMPLETED
 }
 
+enum OrderStatus {
+  PENDING
+  ACTIVE
+  DELIVERED
+  COMPLETED
+  CANCELLED
+  REJECTED
+}
+
+enum NotificationType {
+  NEW_ORDER
+  ORDER_ACCEPTED
+  ORDER_REJECTED
+  ORDER_DELIVERED
+  ORDER_COMPLETED
+  ORDER_CANCELLED
+  NEW_MESSAGE
+}
+
 // ─── Models ───────────────────────────────────────────────────────────────────
 
 // Represents every person on the platform — either a CLIENT hiring work
@@ -43,13 +62,16 @@ model User {
   updatedAt DateTime @updatedAt
 
   // Relations
-  freelancerProfile          FreelancerProfile?
-  services                   Service[]
-  reviewsGiven               Review[]             @relation("ClientReviews")
-  conversationsAsClient      Conversation[]       @relation("ClientConversations")
-  conversationsAsFreelancer  Conversation[]       @relation("FreelancerConversations")
-  messagesSent               Message[]            @relation("SenderMessages")
-  jobsPosted                 Job[]                @relation("ClientJobs")
+  freelancerProfile         FreelancerProfile?
+  services                  Service[]
+  reviewsGiven              Review[]             @relation("ClientReviews")
+  conversationsAsClient     Conversation[]       @relation("ClientConversations")
+  conversationsAsFreelancer Conversation[]       @relation("FreelancerConversations")
+  messagesSent              Message[]            @relation("SenderMessages")
+  jobsPosted                Job[]                @relation("ClientJobs")
+  ordersAsClient            Order[]              @relation("ClientOrders")
+  ordersAsFreelancer        Order[]              @relation("FreelancerOrders")
+  notifications             Notification[]       @relation("UserNotifications")
 }
 
 // Stores additional details that only apply to FREELANCER accounts, such as
@@ -98,6 +120,7 @@ model Service {
   freelancer User      @relation(fields: [freelancerId], references: [id])
   category   Category  @relation(fields: [categoryId], references: [id])
   reviews    Review[]
+  orders     Order[]
 }
 
 // A star rating (1–5) and optional comment left by a CLIENT on a specific
@@ -159,4 +182,36 @@ model Job {
   // Relations
   client   User     @relation("ClientJobs", fields: [clientId],   references: [id])
   category Category @relation(fields: [categoryId], references: [id])
+}
+
+model Order {
+  id           String      @id @default(cuid())
+  clientId     String
+  freelancerId String
+  serviceId    String
+  status       OrderStatus @default(PENDING)
+  requirements String
+  deliveryNote String?
+  price        Decimal
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+
+  // Relations
+  client     User    @relation("ClientOrders", fields: [clientId], references: [id])
+  freelancer User    @relation("FreelancerOrders", fields: [freelancerId], references: [id])
+  service    Service @relation(fields: [serviceId], references: [id])
+}
+
+model Notification {
+  id        String           @id @default(cuid())
+  userId    String
+  type      NotificationType
+  title     String
+  message   String
+  isRead    Boolean          @default(false)
+  relatedId String?
+  createdAt DateTime         @default(now())
+
+  // Relations
+  user User @relation("UserNotifications", fields: [userId], references: [id])
 }
