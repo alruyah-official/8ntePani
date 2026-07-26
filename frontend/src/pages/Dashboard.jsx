@@ -862,6 +862,8 @@ export default function Dashboard() {
   const navigate = useNavigate();
 
   const [activeTab, setActiveTab] = useState('overview'); // Default tab
+  const [orders, setOrders] = useState([]);
+  const [ordersLoading, setOrdersLoading] = useState(false);
 
   // Avatar states for sidebar and passing down to MyProfileTab
   const [localAvatar, setLocalAvatar] = useState(user?.avatar || null);
@@ -869,8 +871,18 @@ export default function Dashboard() {
   const [avatarError, setAvatarError] = useState('');
   const avatarInputRef = useRef(null);
 
+  const fetchOrders = async () => {
+    setOrdersLoading(true);
+    try {
+      const res = await api.get('/api/orders/my-orders');
+      setOrders(res.data.data.orders || []);
+    } catch (err) {}
+    finally { setOrdersLoading(false); }
+  };
+
   useEffect(() => {
     if (user && user.role !== 'FREELANCER') navigate('/', { replace: true });
+    else if (user) fetchOrders();
   }, [user, navigate]);
 
   useEffect(() => {
@@ -944,6 +956,14 @@ export default function Dashboard() {
           </button>
           
           <button 
+            className={`sidebar-link ${activeTab === 'orders' ? 'active' : ''}`}
+            onClick={() => setActiveTab('orders')}
+          >
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>
+            📦 Orders
+          </button>
+
+          <button 
             className={`sidebar-link ${activeTab === 'profile' ? 'active' : ''}`}
             onClick={() => setActiveTab('profile')}
           >
@@ -962,6 +982,87 @@ export default function Dashboard() {
       <main className="dashboard-main">
         {activeTab === 'overview' && <OverviewTab />}
         {activeTab === 'services' && <MyServicesTab user={user} />}
+        {activeTab === 'orders' && (
+          <div className="container" style={{ padding: '2rem 0' }}>
+            <div style={{
+              display: 'flex', justifyContent: 'space-between',
+              alignItems: 'center', marginBottom: '1.5rem'
+            }}>
+              <h2>Incoming Orders ({orders.length})</h2>
+              <button
+                className="btn btn-primary"
+                onClick={() => navigate('/orders')}
+              >
+                View All Orders
+              </button>
+            </div>
+
+            {ordersLoading ? (
+              <p style={{ color: '#6b7280' }}>Loading orders...</p>
+            ) : orders.length === 0 ? (
+              <div style={{ textAlign: 'center', padding: '3rem', color: '#6b7280' }}>
+                <p style={{ fontSize: '2rem' }}>📦</p>
+                <p>No orders yet</p>
+                <p style={{ fontSize: '0.875rem' }}>
+                  Orders will appear here when clients hire you
+                </p>
+              </div>
+            ) : (
+              orders.slice(0, 5).map(order => (
+                <div key={order.id} style={{
+                  background: 'white', borderRadius: '10px',
+                  padding: '1.25rem', marginBottom: '1rem',
+                  boxShadow: '0 1px 4px rgba(0,0,0,0.08)',
+                  display: 'flex', justifyContent: 'space-between',
+                  alignItems: 'center', gap: '1rem',
+                  borderLeft: `4px solid ${
+                    order.status === 'PENDING' ? '#f59e0b' :
+                    order.status === 'ACTIVE' ? '#3b82f6' :
+                    order.status === 'DELIVERED' ? '#8b5cf6' :
+                    order.status === 'COMPLETED' ? '#10b981' :
+                    '#ef4444'
+                  }`
+                }}>
+                  <div style={{ flex: 1 }}>
+                    <p style={{ fontWeight: '700', color: '#1e293b' }}>
+                      {order.service?.title}
+                    </p>
+                    <p style={{ fontSize: '0.85rem', color: '#6b7280' }}>
+                      From: {order.client?.name} • 
+                      ₹{parseFloat(order.price).toLocaleString()}
+                    </p>
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                    <span style={{
+                      padding: '0.3rem 0.75rem',
+                      borderRadius: '999px',
+                      fontSize: '0.75rem', fontWeight: '700',
+                      background: order.status === 'PENDING' ? '#fef3c7' :
+                        order.status === 'ACTIVE' ? '#dbeafe' :
+                        order.status === 'DELIVERED' ? '#ede9fe' :
+                        order.status === 'COMPLETED' ? '#d1fae5' :
+                        '#fee2e2',
+                      color: order.status === 'PENDING' ? '#92400e' :
+                        order.status === 'ACTIVE' ? '#1e40af' :
+                        order.status === 'DELIVERED' ? '#6d28d9' :
+                        order.status === 'COMPLETED' ? '#065f46' :
+                        '#991b1b'
+                    }}>
+                      {order.status}
+                    </span>
+                    <button
+                      className="btn"
+                      style={{ background: '#f3f4f6', fontSize: '0.875rem' }}
+                      onClick={() => navigate('/orders')}
+                    >
+                      View
+                    </button>
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+        )}
         {activeTab === 'profile' && (
           <MyProfileTab
             localAvatar={localAvatar}

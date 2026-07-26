@@ -248,6 +248,39 @@ export default function FreelancerProfile() {
                 </div>
               </div>
 
+              {profile.completedOrdersCount !== undefined && (
+                <div style={{
+                  display: 'flex', gap: '2rem',
+                  margin: '1.5rem 0',
+                  padding: '1rem 1.5rem',
+                  background: '#f8fafc',
+                  borderRadius: '10px'
+                }}>
+                  <div style={{ textAlign: 'center' }}>
+                    <p style={{
+                      fontSize: '1.75rem', fontWeight: '800',
+                      color: '#4f46e5', lineHeight: 1
+                    }}>
+                      {profile.completedOrdersCount}
+                    </p>
+                    <p style={{ fontSize: '0.8rem', color: '#6b7280', marginTop: '0.25rem' }}>
+                      Jobs Completed
+                    </p>
+                  </div>
+                  <div style={{ textAlign: 'center' }}>
+                    <p style={{
+                      fontSize: '1.75rem', fontWeight: '800',
+                      color: '#10b981', lineHeight: 1
+                    }}>
+                      {profile.services?.length || 0}
+                    </p>
+                    <p style={{ fontSize: '0.8rem', color: '#6b7280', marginTop: '0.25rem' }}>
+                      Services Listed
+                    </p>
+                  </div>
+                </div>
+              )}
+
               {/* Languages */}
               <div className="fp-sidebar-card">
                 <div className="fp-sidebar-card-body">

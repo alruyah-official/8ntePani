@@ -23,7 +23,15 @@ function formatDate(dateStr) {
 }
 
 /* ─── Client Overview Tab ─────────────────────────────────────────────────── */
-function ClientOverviewTab() {
+function ClientOverviewTab({ orders = [] }) {
+  const activeCount = orders.filter(
+    (o) => o.status === 'ACTIVE' || o.status === 'PENDING'
+  ).length;
+
+  const totalSpent = orders
+    .filter((o) => o.status === 'COMPLETED')
+    .reduce((sum, o) => sum + parseFloat(o.price || 0), 0);
+
   return (
     <div className="animate-fade-in">
       <div className="tab-header">
@@ -34,23 +42,23 @@ function ClientOverviewTab() {
       <div className="analytics-grid">
         <div className="stat-card green">
           <span className="stat-title">Active Conversations</span>
-          <span className="stat-value">2</span>
+          <span className="stat-value">{activeCount}</span>
           <div className="stat-change positive">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline><polyline points="17 6 23 6 23 12"></polyline></svg>
-            Requires your reply
+            Active & pending orders
           </div>
         </div>
         <div className="stat-card purple">
           <span className="stat-title">Services Purchased</span>
-          <span className="stat-value">4</span>
+          <span className="stat-value">{orders.length}</span>
           <div className="stat-change neutral">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
-            All completed successfully
+            Total orders placed
           </div>
         </div>
         <div className="stat-card orange">
           <span className="stat-title">Total Spent</span>
-          <span className="stat-value">$1,250</span>
+          <span className="stat-value">₹{totalSpent.toLocaleString()}</span>
           <div className="stat-change neutral">
             Lifetime spending
           </div>
@@ -60,33 +68,28 @@ function ClientOverviewTab() {
       <div className="activity-section">
         <h3 className="activity-title">Recent Activity</h3>
         <div className="activity-list">
-          <div className="activity-item">
-            <div className="activity-icon">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+          {orders.slice(0, 5).map((order) => (
+            <div key={order.id} className="activity-item">
+              <div className="activity-icon">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/>
+                </svg>
+              </div>
+              <div className="activity-content">
+                <p className="activity-text">
+                  Order for <b>{order.service?.title}</b> is <b>{order.status}</b>
+                </p>
+                <p className="activity-time">
+                  {new Date(order.createdAt).toLocaleDateString()}
+                </p>
+              </div>
             </div>
-            <div className="activity-content">
-              <p className="activity-text">You sent a message to <b>Shamil</b> regarding "React Development".</p>
-              <p className="activity-time">5 hours ago</p>
-            </div>
-          </div>
-          <div className="activity-item">
-            <div className="activity-icon">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"></circle><path d="M12 8v4l3 3"></path></svg>
-            </div>
-            <div className="activity-content">
-              <p className="activity-text">Service <b>"Logo Design"</b> was completed and delivered.</p>
-              <p className="activity-time">2 days ago</p>
-            </div>
-          </div>
-          <div className="activity-item">
-            <div className="activity-icon">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
-            </div>
-            <div className="activity-content">
-              <p className="activity-text">You left a 5-star review for <b>Unknown Freelancer</b>.</p>
-              <p className="activity-time">1 week ago</p>
-            </div>
-          </div>
+          ))}
+          {orders.length === 0 && (
+            <p style={{ color: '#6b7280', textAlign: 'center', padding: '1rem' }}>
+              No recent activity
+            </p>
+          )}
         </div>
       </div>
     </div>
@@ -172,11 +175,23 @@ const ClientDashboard = () => {
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+
+  const [orders, setOrders] = useState([]);
+  const [ordersLoading, setOrdersLoading] = useState(false);
   
   // Avatar upload
   const fileInputRef = useRef(null);
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
   const [avatarError, setAvatarError] = useState(null);
+
+  const fetchOrders = async () => {
+    setOrdersLoading(true);
+    try {
+      const res = await api.get('/api/orders/my-orders');
+      setOrders(res.data.data.orders || []);
+    } catch (err) {}
+    finally { setOrdersLoading(false); }
+  };
 
   useEffect(() => {
     if (!user || user.role !== 'CLIENT') return;
@@ -195,6 +210,7 @@ const ClientDashboard = () => {
     };
 
     fetchProfile();
+    fetchOrders();
   }, [user]);
 
   if (!user) return <Navigate to="/login" replace />;
@@ -222,11 +238,8 @@ const ClientDashboard = () => {
     try {
       const res = await api.post('/api/profile/avatar', formData);
       if (res.data.success) {
-        const updatedProfile = res.data.data.user; // Ensure correct nested path based on backend payload, typically user holds avatar
-        // Merge the updated avatar into current profile state
+        const updatedProfile = res.data.data.user;
         setProfile(prev => ({ ...prev, avatar: updatedProfile.avatar }));
-        
-        // Update context to sync navbar avatar
         login(updatedProfile, localStorage.getItem('token'));
       }
     } catch (err) {
@@ -302,7 +315,7 @@ const ClientDashboard = () => {
           </div>
         )}
 
-        {activeTab === 'overview' && <ClientOverviewTab />}
+        {activeTab === 'overview' && <ClientOverviewTab orders={orders} />}
         {activeTab === 'settings' && (
           <ClientSettingsTab 
             profile={profile}
