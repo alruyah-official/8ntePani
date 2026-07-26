@@ -18,6 +18,7 @@ import Explore from './pages/Explore.jsx';
 import Jobs from './pages/Jobs.jsx';
 import JobDetail from './pages/JobDetail.jsx';
 import Notifications from './pages/Notifications.jsx';
+import Orders from './pages/Orders.jsx';
 import Company from './pages/Company.jsx';
 import Legal from './pages/Legal.jsx';
 
@@ -66,6 +67,16 @@ function App() {
           <Route path="/notifications" element={
             <ProtectedRoute>
               <Notifications />
+            </ProtectedRoute>
+          } />
+          <Route path="/orders" element={
+            <ProtectedRoute>
+              <Orders />
+            </ProtectedRoute>
+          } />
+          <Route path="/orders/:orderId" element={
+            <ProtectedRoute>
+              <Orders />
             </ProtectedRoute>
           } />
         </Routes>
