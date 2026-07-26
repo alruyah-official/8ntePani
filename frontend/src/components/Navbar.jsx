@@ -1,5 +1,5 @@
 import '../styles/components/Navbar.css';
-import { Link, useNavigate, useLocation } from 'react-router-dom';
+import { Link, NavLink, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useState, useEffect } from 'react';
 import api from '../api/axios';
@@ -90,8 +90,8 @@ function Navbar() {
           <Link to="/" className="navbar-brand">
             <img src="/logo.png" alt="8ntePani Logo" className="navbar-logo" style={{ height: '140px', objectFit: 'contain', margin: '-50px 0 -50px -10px' }} />
           </Link>
-          <Link to="/explore" style={{ fontWeight: '600', color: 'var(--color-text)', textDecoration: 'none' }}>Explore Services</Link>
-          <Link to="/jobs" style={{ fontWeight: '600', color: 'var(--color-text)', textDecoration: 'none' }}>Find Jobs</Link>
+          <NavLink to="/explore" className="nav-main-link">Explore Services</NavLink>
+          <NavLink to="/jobs" className="nav-main-link">Find Jobs</NavLink>
         </div>
 
         {/* Center Search Bar */}

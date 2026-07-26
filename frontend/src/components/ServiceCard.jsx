@@ -2,13 +2,22 @@ import '../styles/components/ServiceCard.css';
 import { Link } from 'react-router-dom';
 
 function ServiceCard({ service }) {
-  const { id, title, description, price, freelancer } = service;
+  const { id, title, description, price, freelancer, createdAt } = service;
 
-  // Mocking data based on reference image
-  const isNew = true;
-  const postedTime = "7 hours ago";
-  const experienceLevel = "Intermediate";
-  const location = "Lagos, Nigeria"; // Fallback to reference location
+  // Calculate relative time
+  const postedDate = new Date(createdAt);
+  const diffTime = Math.abs(new Date() - postedDate);
+  const diffHours = Math.floor(diffTime / (1000 * 60 * 60));
+  const diffDays = Math.floor(diffHours / 24);
+  
+  const postedTime = diffDays > 0 ? `${diffDays} days ago` : diffHours > 0 ? `${diffHours} hours ago` : 'Just now';
+  const isNew = diffDays <= 7; // Show "New" tag if posted within the last 7 days
+
+  // Wire up experienceLevel to the backend data (when the backend developer includes it), fallback if empty
+  const experienceLevel = service.experienceLevel || "Intermediate";
+  
+  // Wire up location to the backend data (when the backend developer includes it), fallback if empty
+  const location = freelancer?.freelancerProfile?.location || freelancer?.profile?.location || "Location not set";
 
   const initials = freelancer?.name
     ? freelancer.name.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase()

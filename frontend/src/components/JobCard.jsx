@@ -7,12 +7,6 @@ function JobCard({ job }) {
   const { isAuthenticated } = useAuth();
   
   // Calculate relative time
-  const postedDate = new Date(createdAt);
-  const diffTime = Math.abs(new Date() - postedDate);
-  const diffHours = Math.floor(diffTime / (1000 * 60 * 60));
-  const diffDays = Math.floor(diffHours / 24);
-  const postedString = diffDays > 0 ? `${diffDays} days ago` : diffHours > 0 ? `${diffHours} hours ago` : 'Just now';
-
   const displayBudget = budget || price;
 
   const initials = client?.name
@@ -24,7 +18,6 @@ function JobCard({ job }) {
       <div className="job-card-header">
         <div>
           <h3 className="job-card-title">{title}</h3>
-          <span className="job-card-meta-text">Posted {postedString}</span>
         </div>
         {displayBudget && (
           <div className="job-card-price-badge">

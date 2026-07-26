@@ -276,6 +276,26 @@
   }
 }
 
+/* Main Navigation Links */
+.nav-main-link {
+  font-weight: 600;
+  color: var(--color-text);
+  text-decoration: none;
+  padding: var(--space-2) var(--space-4);
+  border-radius: var(--radius-full);
+  transition: all var(--transition-base);
+}
+
+.nav-main-link:hover {
+  background: var(--color-surface-2);
+  color: var(--color-primary);
+}
+
+.nav-main-link.active {
+  background: var(--color-primary-glow);
+  color: var(--color-primary);
+}
+
 @media (max-width: 640px) {
   .navbar-links { display: none; }
   .navbar-user-name { display: none; }
