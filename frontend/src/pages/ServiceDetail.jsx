@@ -198,6 +198,12 @@ export default function ServiceDetail() {
   const [contactLoading, setContactLoading] = useState(false);
   const [deletingReview, setDeletingReview] = useState(null);
 
+  const [showOrderModal, setShowOrderModal] = useState(false);
+  const [requirements, setRequirements] = useState('');
+  const [orderLoading, setOrderLoading] = useState(false);
+  const [orderError, setOrderError] = useState(null);
+  const [orderSuccess, setOrderSuccess] = useState(null);
+
   const fetchService = useCallback(async () => {
     setLoading(true);
     setError('');
@@ -223,6 +229,42 @@ export default function ServiceDetail() {
       console.error('Failed to start conversation:', err);
     } finally {
       setContactLoading(false);
+    }
+  };
+
+  const handlePlaceOrder = async () => {
+    if (!isAuthenticated) { navigate('/login'); return; }
+    if (user.role === 'FREELANCER') {
+      alert('Only clients can place orders.');
+      return;
+    }
+    if (!requirements.trim()) {
+      setOrderError('Please describe your requirements.');
+      return;
+    }
+    setOrderLoading(true);
+    setOrderError(null);
+    try {
+      const res = await api.post('/api/orders', {
+        serviceId: service.id,
+        requirements: requirements.trim()
+      });
+      setOrderSuccess(
+        'Order placed successfully! The freelancer has been notified and will respond shortly.'
+      );
+      setRequirements('');
+      setTimeout(() => {
+        setShowOrderModal(false);
+        setOrderSuccess(null);
+        navigate('/orders');
+      }, 3000);
+    } catch (err) {
+      setOrderError(
+        err.response?.data?.message || 
+        'Failed to place order. Please try again.'
+      );
+    } finally {
+      setOrderLoading(false);
     }
   };
 
@@ -414,6 +456,25 @@ export default function ServiceDetail() {
               canInteract ? (
                 <>
                   <button
+                    className="btn btn-primary btn-full"
+                    style={{
+                      marginBottom: '0.75rem',
+                      background: '#10b981',
+                      fontSize: '1rem',
+                      padding: '0.85rem'
+                    }}
+                    onClick={() => {
+                      if (!isAuthenticated) { navigate('/login'); return; }
+                      if (user.role === 'FREELANCER') {
+                        alert('Only clients can place orders.');
+                        return;
+                      }
+                      setShowOrderModal(true);
+                    }}
+                  >
+                    💼 Hire Freelancer
+                  </button>
+                  <button
                     className={`btn btn-primary btn-full btn-lg upwork-cta-btn${contactLoading ? ' btn-loading' : ''}`}
                     onClick={handleContact}
                     disabled={contactLoading}
@@ -495,6 +556,144 @@ export default function ServiceDetail() {
           
         </aside>
       </div>
+
+      {showOrderModal && (
+        <div style={{
+          position: 'fixed', top: 0, left: 0,
+          width: '100%', height: '100%',
+          background: 'rgba(0,0,0,0.5)',
+          display: 'flex', alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 1000, padding: '1rem'
+        }}>
+          <div style={{
+            background: 'white', borderRadius: '12px',
+            padding: '2rem', maxWidth: '560px',
+            width: '100%',
+            boxShadow: '0 20px 60px rgba(0,0,0,0.3)'
+          }}>
+            <div style={{
+              display: 'flex', justifyContent: 'space-between',
+              alignItems: 'center', marginBottom: '1.5rem'
+            }}>
+              <h2 style={{ fontSize: '1.3rem', fontWeight: '700' }}>
+                Place Your Order
+              </h2>
+              <button
+                onClick={() => {
+                  setShowOrderModal(false);
+                  setOrderError(null);
+                  setRequirements('');
+                }}
+                style={{
+                  background: 'none', border: 'none',
+                  fontSize: '1.5rem', cursor: 'pointer',
+                  color: '#6b7280', lineHeight: 1
+                }}
+              >
+                ×
+              </button>
+            </div>
+
+            <div style={{
+              background: '#f8fafc', borderRadius: '8px',
+              padding: '1rem', marginBottom: '1.5rem'
+            }}>
+              <p style={{ fontWeight: '600', color: '#1e293b' }}>
+                {service.title}
+              </p>
+              <p style={{ 
+                color: '#4f46e5', fontWeight: '700',
+                fontSize: '1.1rem', marginTop: '0.25rem'
+              }}>
+                ₹{parseFloat(service.price).toLocaleString()}
+              </p>
+              <p style={{ color: '#6b7280', fontSize: '0.85rem' }}>
+                Delivery in {service.deliveryDays} days
+              </p>
+            </div>
+
+            {orderSuccess ? (
+              <div style={{
+                background: '#d1fae5', border: '1px solid #10b981',
+                color: '#065f46', padding: '1rem',
+                borderRadius: '8px', textAlign: 'center',
+                fontWeight: '600'
+              }}>
+                ✅ {orderSuccess}
+              </div>
+            ) : (
+              <>
+                {orderError && (
+                  <div style={{
+                    background: '#fee2e2', border: '1px solid #ef4444',
+                    color: '#991b1b', padding: '0.75rem',
+                    borderRadius: '6px', marginBottom: '1rem',
+                    fontSize: '0.9rem'
+                  }}>
+                    {orderError}
+                  </div>
+                )}
+
+                <div className="form-group">
+                  <label style={{ fontWeight: '600', marginBottom: '0.5rem', display: 'block' }}>
+                    Describe Your Requirements *
+                  </label>
+                  <textarea
+                    rows={5}
+                    value={requirements}
+                    onChange={e => setRequirements(e.target.value)}
+                    placeholder="Describe exactly what you need. Include:
+- Your brand name and industry
+- Preferred colors or style
+- Examples or references
+- Any specific requirements"
+                    style={{
+                      width: '100%', padding: '0.75rem',
+                      border: '1px solid #e2e8f0',
+                      borderRadius: '8px', fontSize: '0.95rem',
+                      resize: 'vertical', fontFamily: 'inherit'
+                    }}
+                  />
+                </div>
+
+                <div style={{
+                  display: 'flex', gap: '0.75rem',
+                  marginTop: '1.25rem'
+                }}>
+                  <button
+                    className="btn btn-primary"
+                    style={{
+                      flex: 1, padding: '0.85rem',
+                      fontSize: '1rem', fontWeight: '600',
+                      background: orderLoading ? '#9ca3af' : '#10b981'
+                    }}
+                    onClick={handlePlaceOrder}
+                    disabled={orderLoading}
+                  >
+                    {orderLoading ? 'Placing Order...' : '💼 Confirm Order'}
+                  </button>
+                  <button
+                    className="btn"
+                    style={{
+                      padding: '0.85rem 1.25rem',
+                      background: '#f3f4f6', fontWeight: '600'
+                    }}
+                    onClick={() => {
+                      setShowOrderModal(false);
+                      setOrderError(null);
+                      setRequirements('');
+                    }}
+                    disabled={orderLoading}
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
