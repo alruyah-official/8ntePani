@@ -97,7 +97,7 @@ function ClientOverviewTab({ orders = [] }) {
 }
 
 /* ─── Client Settings Tab ─────────────────────────────────────────────────── */
-function ClientSettingsTab({ profile, uploadingAvatar, avatarError, fileInputRef, handleAvatarClick, handleFileChange }) {
+function ClientSettingsTab({ user, uploadingAvatar, avatarError, fileInputRef, handleAvatarClick, handleFileChange }) {
   return (
     <div className="animate-fade-in">
       <div className="tab-header">
@@ -124,11 +124,11 @@ function ClientSettingsTab({ profile, uploadingAvatar, avatarError, fileInputRef
               className={`avatar-upload-trigger ${uploadingAvatar ? 'uploading' : ''}`}
               onClick={handleAvatarClick}
             >
-              {profile?.avatar ? (
-                <img src={profile.avatar} alt="Avatar" className="profile-edit-avatar" />
+              {user?.avatar ? (
+                <img src={user.avatar} alt="Avatar" className="profile-edit-avatar" />
               ) : (
                 <div className="profile-edit-avatar sidebar-avatar-placeholder" style={{ width: '100%', height: '100%' }}>
-                  {getInitials(profile?.name)}
+                  {getInitials(user?.name)}
                 </div>
               )}
               <div className="avatar-overlay">
@@ -148,18 +148,18 @@ function ClientSettingsTab({ profile, uploadingAvatar, avatarError, fileInputRef
 
           <div className="form-group" style={{ marginTop: 'var(--space-6)' }}>
             <label className="form-label">Full Name</label>
-            <input type="text" className="form-input" value={profile?.name || ''} disabled />
+            <input type="text" className="form-input" value={user?.name || ''} disabled />
             <p className="form-hint">Name changes are currently disabled.</p>
           </div>
 
           <div className="form-group">
             <label className="form-label">Email Address</label>
-            <input type="text" className="form-input" value={profile?.email || ''} disabled />
+            <input type="text" className="form-input" value={user?.email || ''} disabled />
           </div>
           
           <div className="form-group">
             <label className="form-label">Member Since</label>
-            <input type="text" className="form-input" value={formatDate(profile?.createdAt)} disabled />
+            <input type="text" className="form-input" value={formatDate(user?.createdAt)} disabled />
           </div>
         </div>
       </div>
@@ -172,9 +172,7 @@ const ClientDashboard = () => {
   const { user, login } = useAuth();
   
   const [activeTab, setActiveTab] = useState('overview');
-  const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
 
   const [orders, setOrders] = useState([]);
   const [ordersLoading, setOrdersLoading] = useState(false);
@@ -190,26 +188,14 @@ const ClientDashboard = () => {
       const res = await api.get('/api/orders/my-orders');
       setOrders(res.data.data.orders || []);
     } catch (err) {}
-    finally { setOrdersLoading(false); }
+    finally {
+      setOrdersLoading(false);
+      setLoading(false);
+    }
   };
 
   useEffect(() => {
     if (!user || user.role !== 'CLIENT') return;
-
-    const fetchProfile = async () => {
-      try {
-        const res = await api.get('/api/profile/me');
-        if (res.data.success) {
-          setProfile(res.data.data);
-        }
-      } catch (err) {
-        setError(err.response?.data?.message || 'Failed to load profile.');
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchProfile();
     fetchOrders();
   }, [user]);
 
@@ -239,7 +225,6 @@ const ClientDashboard = () => {
       const res = await api.post('/api/profile/avatar', formData);
       if (res.data.success) {
         const updatedProfile = res.data.data.user;
-        setProfile(prev => ({ ...prev, avatar: updatedProfile.avatar }));
         login(updatedProfile, localStorage.getItem('token'));
       }
     } catch (err) {
@@ -259,8 +244,8 @@ const ClientDashboard = () => {
     );
   }
 
-  const initials = getInitials(profile?.name || user?.name);
-  const avatarSrc = profile?.avatar || user?.avatar;
+  const initials = getInitials(user?.name);
+  const avatarSrc = user?.avatar;
 
   return (
     <div className="dashboard-layout">
@@ -268,13 +253,13 @@ const ClientDashboard = () => {
       <aside className="dashboard-sidebar">
         <div className="sidebar-user-block">
           {avatarSrc ? (
-            <img src={avatarSrc} alt={profile?.name} className="sidebar-avatar" />
+            <img src={avatarSrc} alt={user?.name} className="sidebar-avatar" />
           ) : (
             <div className="sidebar-avatar-placeholder">{initials}</div>
           )}
           <div className="sidebar-user-info">
-            <span className="sidebar-user-name">{profile?.name || user.name}</span>
-            <span className="sidebar-user-role">{profile?.role || user.role}</span>
+            <span className="sidebar-user-name">{user?.name}</span>
+            <span className="sidebar-user-role">{user?.role}</span>
           </div>
         </div>
 
@@ -309,16 +294,10 @@ const ClientDashboard = () => {
 
       {/* ── Main Content ── */}
       <main className="dashboard-main">
-        {error && (
-          <div className="error-banner" style={{ marginBottom: 'var(--space-6)' }}>
-            <span>⚠</span> {error}
-          </div>
-        )}
-
         {activeTab === 'overview' && <ClientOverviewTab orders={orders} />}
         {activeTab === 'settings' && (
           <ClientSettingsTab 
-            profile={profile}
+            user={user}
             uploadingAvatar={uploadingAvatar}
             avatarError={avatarError}
             fileInputRef={fileInputRef}
