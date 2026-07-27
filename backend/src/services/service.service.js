@@ -120,7 +120,19 @@ export const getAllServices = async (filters = {}) => {
   return prisma.service.findMany({
     where,
     include: {
-      freelancer: { select: FREELANCER_USER_SELECT },
+      freelancer: {
+        select: {
+          ...FREELANCER_USER_SELECT,
+          freelancerProfile: {
+            select: {
+              location: true,
+              skills: true,
+              languages: true,
+              bio: true,
+            },
+          },
+        },
+      },
       category: { select: { id: true, name: true, slug: true } },
     },
     orderBy: { createdAt: 'desc' },
@@ -142,7 +154,14 @@ export const getServiceById = async (serviceId) => {
       freelancer: {
         select: {
           ...FREELANCER_USER_SELECT,
-          freelancerProfile: true,
+          freelancerProfile: {
+            select: {
+              location: true,
+              skills: true,
+              languages: true,
+              bio: true,
+            },
+          },
         },
       },
       category: true,
