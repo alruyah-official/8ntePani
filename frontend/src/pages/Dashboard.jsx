@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useRef, useCallback, useId } from 'react';
 import { createPortal } from 'react-dom';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
@@ -75,6 +75,269 @@ function TagInput({ tags, onAdd, onRemove, placeholder, label, inputId }) {
         </div>
       </div>
       <p className="form-hint">Press Enter or comma to add</p>
+    </div>
+  );
+}
+
+/* ─── Category Dropdown Component ────────────────────────────────────────── */
+function CategoryDropdown({ categories, value, onChange, required }) {
+  const [isOpen, setIsOpen] = useState(false);
+  const [activeIndex, setActiveIndex] = useState(-1);
+  const triggerRef = useRef(null);
+  const listRef = useRef(null);
+  const uid = useId();
+  const listId = `cat-list-${uid}`;
+
+  // Build flat option list for keyboard navigation
+  // Structure: [ {type:'placeholder'}, {type:'option', cat}, ..., {type:'add'} ]
+  const flatOptions = [
+    { type: 'placeholder', id: '', label: '— Select a category —' },
+    ...categories.map((cat) => ({ type: 'option', id: cat.id, label: cat.name })),
+    { type: 'add', id: '__other__', label: 'Add a new category…' },
+  ];
+
+  const selectedCat = categories.find((c) => c.id === value);
+  const triggerLabel = selectedCat
+    ? selectedCat.name
+    : value === '__other__'
+    ? 'Add a new category…'
+    : '— Select a category —';
+  const hasValue = !!selectedCat;
+
+  // Close on outside click / focus loss
+  useEffect(() => {
+    if (!isOpen) return;
+    const handlePointer = (e) => {
+      if (
+        !triggerRef.current?.contains(e.target) &&
+        !listRef.current?.contains(e.target)
+      ) {
+        setIsOpen(false);
+        setActiveIndex(-1);
+      }
+    };
+    document.addEventListener('pointerdown', handlePointer);
+    return () => document.removeEventListener('pointerdown', handlePointer);
+  }, [isOpen]);
+
+  // Scroll active item into view
+  useEffect(() => {
+    if (!isOpen || activeIndex < 0 || !listRef.current) return;
+    const items = listRef.current.querySelectorAll('[role="option"]');
+    items[activeIndex]?.scrollIntoView({ block: 'nearest' });
+  }, [activeIndex, isOpen]);
+
+  const openDropdown = () => {
+    setIsOpen(true);
+    // Pre-select active index from current value
+    const idx = flatOptions.findIndex((o) => o.id === (value || ''));
+    setActiveIndex(idx >= 0 ? idx : 0);
+  };
+
+  const closeDropdown = () => {
+    setIsOpen(false);
+    setActiveIndex(-1);
+    triggerRef.current?.focus();
+  };
+
+  const selectOption = (opt) => {
+    onChange({ target: { value: opt.id } });
+    setIsOpen(false);
+    setActiveIndex(-1);
+    triggerRef.current?.focus();
+  };
+
+  const handleTriggerKeyDown = (e) => {
+    switch (e.key) {
+      case 'Enter':
+      case ' ':
+      case 'ArrowDown':
+        e.preventDefault();
+        if (!isOpen) {
+          openDropdown();
+        } else if (e.key === 'ArrowDown') {
+          setActiveIndex((i) => Math.min(i + 1, flatOptions.length - 1));
+        }
+        break;
+      case 'ArrowUp':
+        e.preventDefault();
+        if (isOpen) setActiveIndex((i) => Math.max(i - 1, 0));
+        break;
+      case 'Escape':
+      case 'Tab':
+        if (isOpen) {
+          e.key === 'Escape' && e.preventDefault();
+          closeDropdown();
+        }
+        break;
+      default:
+        break;
+    }
+  };
+
+  const handleListKeyDown = (e) => {
+    switch (e.key) {
+      case 'ArrowDown':
+        e.preventDefault();
+        setActiveIndex((i) => Math.min(i + 1, flatOptions.length - 1));
+        break;
+      case 'ArrowUp':
+        e.preventDefault();
+        setActiveIndex((i) => Math.max(i - 1, 0));
+        break;
+      case 'Enter':
+        e.preventDefault();
+        if (activeIndex >= 0) selectOption(flatOptions[activeIndex]);
+        break;
+      case 'Escape':
+        e.preventDefault();
+        closeDropdown();
+        break;
+      case 'Tab':
+        closeDropdown();
+        break;
+      default:
+        break;
+    }
+  };
+
+  return (
+    <div className="cat-dropdown">
+      {/* Trigger */}
+      <button
+        ref={triggerRef}
+        type="button"
+        id={`cat-trigger-${uid}`}
+        className={`cat-dropdown__trigger${
+          isOpen ? ' cat-dropdown__trigger--open' : ''
+        }${hasValue ? ' cat-dropdown__trigger--has-value' : ''}`}
+        aria-haspopup="listbox"
+        aria-expanded={isOpen}
+        aria-controls={listId}
+        aria-required={required}
+        onClick={() => (isOpen ? closeDropdown() : openDropdown())}
+        onKeyDown={handleTriggerKeyDown}
+      >
+        <span className={`cat-dropdown__trigger-text${!hasValue && value !== '__other__' ? ' cat-dropdown__trigger-text--placeholder' : ''}`}>
+          {triggerLabel}
+        </span>
+        <svg
+          className="cat-dropdown__chevron"
+          width="16"
+          height="16"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2.5"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          aria-hidden="true"
+        >
+          <polyline points="6 9 12 15 18 9" />
+        </svg>
+      </button>
+
+      {/* Panel */}
+      {isOpen && (
+        <div
+          ref={listRef}
+          id={listId}
+          role="listbox"
+          aria-labelledby={`cat-trigger-${uid}`}
+          className="cat-dropdown__panel"
+          tabIndex={-1}
+          onKeyDown={handleListKeyDown}
+        >
+          {/* Section: placeholder */}
+          <div
+            role="option"
+            aria-selected={value === ''}
+            className={`cat-dropdown__option cat-dropdown__option--placeholder${
+              activeIndex === 0 ? ' cat-dropdown__option--active' : ''
+            }`}
+            onClick={() => selectOption(flatOptions[0])}
+            onMouseEnter={() => setActiveIndex(0)}
+            data-value=""
+          >
+            <span>— Select a category —</span>
+          </div>
+
+          {/* Section: Available Categories */}
+          {categories.length > 0 && (
+            <>
+              <div className="cat-dropdown__section-heading" aria-hidden="true">
+                <span>Available Categories</span>
+              </div>
+              {categories.map((cat, i) => {
+                const optIndex = i + 1; // offset by placeholder
+                return (
+                  <div
+                    key={cat.id}
+                    role="option"
+                    aria-selected={value === cat.id}
+                    className={`cat-dropdown__option${
+                      value === cat.id ? ' cat-dropdown__option--selected' : ''
+                    }${activeIndex === optIndex ? ' cat-dropdown__option--active' : ''}`}
+                    onClick={() => selectOption({ id: cat.id, label: cat.name })}
+                    onMouseEnter={() => setActiveIndex(optIndex)}
+                    data-value={cat.id}
+                  >
+                    {value === cat.id && (
+                      <svg
+                        className="cat-dropdown__check"
+                        width="14"
+                        height="14"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2.5"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        aria-hidden="true"
+                      >
+                        <polyline points="20 6 9 17 4 12" />
+                      </svg>
+                    )}
+                    <span className="cat-dropdown__option-label">{cat.name}</span>
+                  </div>
+                );
+              })}
+            </>
+          )}
+
+          {/* Section: Add new */}
+          <div className="cat-dropdown__section-heading cat-dropdown__section-heading--add" aria-hidden="true">
+            <span>Can't find yours?</span>
+          </div>
+          <div
+            role="option"
+            aria-selected={value === '__other__'}
+            className={`cat-dropdown__option cat-dropdown__option--add${
+              value === '__other__' ? ' cat-dropdown__option--selected' : ''
+            }${activeIndex === flatOptions.length - 1 ? ' cat-dropdown__option--active' : ''}`}
+            onClick={() => selectOption(flatOptions[flatOptions.length - 1])}
+            onMouseEnter={() => setActiveIndex(flatOptions.length - 1)}
+            data-value="__other__"
+          >
+            <svg
+              className="cat-dropdown__add-icon"
+              width="14"
+              height="14"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              aria-hidden="true"
+            >
+              <line x1="12" y1="5" x2="12" y2="19" />
+              <line x1="5" y1="12" x2="19" y2="12" />
+            </svg>
+            <span className="cat-dropdown__option-label">Add a new category…</span>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -324,27 +587,15 @@ function ServiceForm({ initialData, categories, onSuccess, onClose }) {
 
       <div className="form-row-2">
         <div className="form-group">
-          <label className="form-label" htmlFor="svc-category">
+          <label className="form-label">
             Category
           </label>
-          <select
-            id="svc-category"
-            name="categoryId"
-            className="form-select"
+          <CategoryDropdown
+            categories={allCategories}
             value={isCustomCategory ? '__other__' : form.categoryId}
             onChange={handleCategoryChange}
             required
-          >
-            <option value="">— Select a category —</option>
-            <optgroup label="Available Categories">
-              {allCategories.map((cat) => (
-                <option key={cat.id} value={cat.id}>{cat.name}</option>
-              ))}
-            </optgroup>
-            <optgroup label="Can't find yours?">
-              <option value="__other__">✦ Add a new category…</option>
-            </optgroup>
-          </select>
+          />
 
           {isCustomCategory && (
             <div className="custom-category-panel">

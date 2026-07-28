@@ -845,3 +845,294 @@
   gap: var(--space-2);
 }
 
+/* ═══════════════════════════════════════════════════════════════════════════
+   Category Dropdown — Custom Combobox
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* ── Root container (establishes stacking context) ── */
+.cat-dropdown {
+  position: relative;
+  width: 100%;
+}
+
+/* ── Trigger button ── */
+.cat-dropdown__trigger {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding: 0.875rem 1.125rem;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  font-family: inherit;
+  font-size: var(--font-size-base);
+  font-weight: 400;
+  color: var(--color-text);
+  text-align: left;
+  cursor: pointer;
+  transition:
+    border-color var(--transition-fast),
+    box-shadow var(--transition-fast),
+    background var(--transition-fast);
+  box-shadow: var(--shadow-inner);
+  outline: none;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Subtle shimmer underlay on hover */
+.cat-dropdown__trigger::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--color-surface-2);
+  opacity: 0;
+  transition: opacity var(--transition-fast);
+  pointer-events: none;
+  border-radius: inherit;
+}
+
+.cat-dropdown__trigger:hover::before {
+  opacity: 1;
+}
+
+.cat-dropdown__trigger:focus-visible {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 4px var(--color-primary-glow), var(--shadow-inner);
+}
+
+/* Open state */
+.cat-dropdown__trigger--open {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 4px var(--color-primary-glow), var(--shadow-inner);
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
+}
+
+/* Value selected — slightly emphasise text */
+.cat-dropdown__trigger--has-value .cat-dropdown__trigger-text {
+  font-weight: 500;
+  color: var(--color-text);
+}
+
+/* ── Trigger text ── */
+.cat-dropdown__trigger-text {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  position: relative;
+  z-index: 1;
+}
+
+.cat-dropdown__trigger-text--placeholder {
+  color: var(--color-text-faint);
+  font-weight: 400;
+}
+
+/* ── Animated chevron ── */
+.cat-dropdown__chevron {
+  flex-shrink: 0;
+  color: var(--color-text-muted);
+  transition: transform var(--transition-base), color var(--transition-fast);
+  position: relative;
+  z-index: 1;
+}
+
+.cat-dropdown__trigger--open .cat-dropdown__chevron {
+  transform: rotate(180deg);
+  color: var(--color-primary);
+}
+
+/* ── Floating panel ── */
+.cat-dropdown__panel {
+  position: absolute;
+  top: calc(100% - 1px); /* overlap trigger border */
+  left: 0;
+  right: 0;
+  z-index: 200;
+  background: var(--color-surface);
+  border: 1px solid var(--color-primary);
+  border-top: none;
+  border-bottom-left-radius: var(--radius-md);
+  border-bottom-right-radius: var(--radius-md);
+  box-shadow:
+    0 16px 40px -8px rgba(15, 23, 42, 0.14),
+    0 4px 12px -4px rgba(90, 79, 196, 0.1);
+  overflow: hidden;
+  max-height: 280px;
+  overflow-y: auto;
+  outline: none;
+  /* Entrance animation */
+  animation: catPanelIn 0.18s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes catPanelIn {
+  from {
+    opacity: 0;
+    transform: translateY(-6px) scaleY(0.97);
+    transform-origin: top;
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scaleY(1);
+    transform-origin: top;
+  }
+}
+
+/* Thin scrollbar for the panel */
+.cat-dropdown__panel::-webkit-scrollbar {
+  width: 4px;
+}
+.cat-dropdown__panel::-webkit-scrollbar-track {
+  background: transparent;
+}
+.cat-dropdown__panel::-webkit-scrollbar-thumb {
+  background: var(--color-border);
+  border-radius: var(--radius-full);
+}
+.cat-dropdown__panel::-webkit-scrollbar-thumb:hover {
+  background: var(--color-border-hover);
+}
+
+/* ── Section headings ── */
+.cat-dropdown__section-heading {
+  display: flex;
+  align-items: center;
+  padding: var(--space-2) var(--space-4);
+  gap: var(--space-3);
+}
+
+.cat-dropdown__section-heading span {
+  font-size: 0.6875rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: var(--color-text-faint);
+  white-space: nowrap;
+}
+
+/* Line decoration on either side of the heading text */
+.cat-dropdown__section-heading::before,
+.cat-dropdown__section-heading::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--color-border-light);
+}
+
+/* The "Can't find yours?" heading gets a slightly purple tint */
+.cat-dropdown__section-heading--add {
+  margin-top: var(--space-1);
+  border-top: 1px solid var(--color-border-light);
+  padding-top: var(--space-3);
+}
+
+.cat-dropdown__section-heading--add span {
+  color: var(--color-primary-light);
+}
+
+/* ── Option rows ── */
+.cat-dropdown__option {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: 0.5625rem var(--space-4);
+  font-size: var(--font-size-sm);
+  font-weight: 400;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  transition:
+    background var(--transition-fast),
+    color var(--transition-fast);
+  user-select: none;
+  outline: none;
+  position: relative;
+}
+
+/* Hover / keyboard-focus highlight */
+.cat-dropdown__option--active,
+.cat-dropdown__option:hover {
+  background: var(--color-surface-2);
+  color: var(--color-text);
+}
+
+/* Placeholder row — more faint */
+.cat-dropdown__option--placeholder {
+  color: var(--color-text-faint);
+  font-style: italic;
+  font-size: var(--font-size-xs);
+}
+
+.cat-dropdown__option--placeholder.cat-dropdown__option--active,
+.cat-dropdown__option--placeholder:hover {
+  background: var(--color-surface-2);
+  color: var(--color-text-faint);
+}
+
+/* Selected option — primary accent */
+.cat-dropdown__option--selected {
+  color: var(--color-primary-dark);
+  font-weight: 600;
+  background: var(--color-primary-glow);
+}
+
+.cat-dropdown__option--selected.cat-dropdown__option--active,
+.cat-dropdown__option--selected:hover {
+  background: rgba(90, 79, 196, 0.16);
+}
+
+/* Left accent bar on selected item */
+.cat-dropdown__option--selected::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  background: var(--color-primary);
+  border-radius: 0 2px 2px 0;
+}
+
+/* Option label — truncate long names */
+.cat-dropdown__option-label {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ── Check icon (selected indicator) ── */
+.cat-dropdown__check {
+  flex-shrink: 0;
+  color: var(--color-primary);
+  opacity: 0.9;
+}
+
+/* ── Add-new row ── */
+.cat-dropdown__option--add {
+  color: var(--color-primary);
+  font-weight: 600;
+  margin-bottom: var(--space-1);
+}
+
+.cat-dropdown__option--add.cat-dropdown__option--active,
+.cat-dropdown__option--add:hover {
+  background: var(--color-primary-glow);
+  color: var(--color-primary-dark);
+}
+
+.cat-dropdown__add-icon {
+  flex-shrink: 0;
+  color: var(--color-primary);
+  opacity: 0.8;
+}
+
+/* ── Responsive ── */
+@media (max-width: 600px) {
+  .cat-dropdown__panel {
+    max-height: 220px;
+  }
+}
