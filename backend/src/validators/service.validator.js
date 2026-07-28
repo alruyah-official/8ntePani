@@ -10,6 +10,7 @@ export const createServiceSchema = z.object({
   deliveryDays: z.number().int('Delivery days must be an integer').min(1, 'Delivery days must be at least 1').max(30, 'Delivery days cannot exceed 30'),
   categoryId: z.string().min(1, 'Category ID is required'),
   images: z.array(z.string()).optional(),
+  experienceLevel: z.enum(['BEGINNER', 'INTERMEDIATE', 'EXPERT']).optional(),
 });
 
 /**

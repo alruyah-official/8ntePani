@@ -30,7 +30,11 @@ export const createService = async (freelancerId, data) => {
   }
 
   return prisma.service.create({
-    data: { freelancerId, ...data },
+    data: {
+      freelancerId,
+      ...data,
+      experienceLevel: data.experienceLevel || 'INTERMEDIATE',
+    },
   });
 };
 

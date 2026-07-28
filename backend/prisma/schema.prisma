@@ -47,6 +47,12 @@ enum NotificationType {
   NEW_MESSAGE
 }
 
+enum ExperienceLevel {
+  BEGINNER
+  INTERMEDIATE
+  EXPERT
+}
+
 // ─── Models ───────────────────────────────────────────────────────────────────
 
 // Represents every person on the platform — either a CLIENT hiring work
@@ -105,16 +111,17 @@ model Category {
 // A gig or offering created by a FREELANCER. It belongs to one category and
 // holds pricing, delivery timeline, description, and optional image gallery.
 model Service {
-  id           String   @id @default(cuid())
-  freelancerId String
-  categoryId   String
-  title        String
-  description  String
-  price        Decimal
-  deliveryDays Int
-  images       String[]
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  id              String          @id @default(cuid())
+  freelancerId    String
+  categoryId      String
+  title           String
+  description     String
+  price           Decimal
+  deliveryDays    Int
+  images          String[]
+  experienceLevel ExperienceLevel @default(INTERMEDIATE)
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
 
   // Relations
   freelancer User      @relation(fields: [freelancerId], references: [id])
