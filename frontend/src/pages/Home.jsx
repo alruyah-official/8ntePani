@@ -168,7 +168,7 @@ function Home() {
                   <div className="mockup-stat-row">
                     <div className="mockup-stat-box">
                       <span className="mockup-stat-label">Total Earnings</span>
-                      <span className="mockup-stat-value">$12,450</span>
+                      <span className="mockup-stat-value">₹12,450</span>
                     </div>
                     <div className="mockup-stat-box">
                       <span className="mockup-stat-label">Active Orders</span>
@@ -192,7 +192,7 @@ function Home() {
                   <div className="skeleton" style={{ width: '80%', height: '10px', marginBottom: '8px' }}></div>
                   <div className="skeleton" style={{ width: '60%', height: '10px' }}></div>
                   <div className="mockup-service-footer">
-                    <span className="mockup-service-price">$450</span>
+                    <span className="mockup-service-price">₹450</span>
                     <div className="mockup-stars">★★★★★</div>
                   </div>
                 </div>

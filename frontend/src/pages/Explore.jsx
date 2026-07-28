@@ -164,7 +164,7 @@ function Explore() {
               <h3 className="explore-sidebar-title">Budget</h3>
               <div className="explore-price-filter-vertical">
                 <div className="price-input-wrapper">
-                  <span className="price-symbol">$</span>
+                  <span className="price-symbol">₹</span>
                   <input
                     type="number"
                     className="explore-price-input"
@@ -175,7 +175,7 @@ function Explore() {
                 </div>
                 <span className="explore-price-sep">to</span>
                 <div className="price-input-wrapper">
-                  <span className="price-symbol">$</span>
+                  <span className="price-symbol">₹</span>
                   <input
                     type="number"
                     className="explore-price-input"
