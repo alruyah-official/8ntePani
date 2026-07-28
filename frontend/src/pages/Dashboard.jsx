@@ -89,6 +89,7 @@ function ServiceForm({ initialData, categories, onSuccess, onClose }) {
     price: initialData?.price || '',
     deliveryDays: initialData?.deliveryDays || '',
     categoryId: initialData?.categoryId || '',
+    experienceLevel: initialData?.experienceLevel || 'INTERMEDIATE',
   });
 
   const [images, setImages] = useState(initialData?.images || []);
@@ -99,8 +100,64 @@ function ServiceForm({ initialData, categories, onSuccess, onClose }) {
   const [draggingOver, setDraggingOver] = useState(false);
   const fileInputRef = useRef(null);
 
+  const [isCustomCategory, setIsCustomCategory] = useState(false);
+  const [customCategoryName, setCustomCategoryName] = useState('');
+  const [customCategoryLoading, setCustomCategoryLoading] = useState(false);
+  const [customCategoryError, setCustomCategoryError] = useState('');
+  const [allCategories, setAllCategories] = useState(categories);
+
+  useEffect(() => {
+    setAllCategories(categories);
+  }, [categories]);
+
   const handleChange = (e) => {
     setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
+  };
+
+  const handleCategoryChange = (e) => {
+    const val = e.target.value;
+    if (val === '__other__') {
+      setIsCustomCategory(true);
+      setForm(prev => ({ ...prev, categoryId: '' }));
+    } else {
+      setIsCustomCategory(false);
+      setCustomCategoryName('');
+      setCustomCategoryError('');
+      setForm(prev => ({ ...prev, categoryId: val }));
+    }
+  };
+
+  const handleCreateCategory = async () => {
+    if (!customCategoryName.trim()) {
+      setCustomCategoryError('Please enter a category name.');
+      return;
+    }
+    const slug = customCategoryName
+      .trim()
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-|-$/g, '');
+
+    setCustomCategoryLoading(true);
+    setCustomCategoryError('');
+    try {
+      const res = await api.post('/api/categories', {
+        name: customCategoryName.trim(),
+        slug,
+      });
+      const newCat = res.data.data.category;
+      setAllCategories(prev => [...prev, newCat]);
+      setForm(prev => ({ ...prev, categoryId: newCat.id }));
+      setIsCustomCategory(false);
+      setCustomCategoryName('');
+    } catch (err) {
+      setCustomCategoryError(
+        err?.response?.data?.message || 
+        'Failed to create category. It may already exist.'
+      );
+    } finally {
+      setCustomCategoryLoading(false);
+    }
   };
 
   const uploadImages = useCallback(async (files) => {
@@ -179,6 +236,7 @@ function ServiceForm({ initialData, categories, onSuccess, onClose }) {
         deliveryDays: days,
         categoryId: form.categoryId,
         images,
+        experienceLevel: form.experienceLevel,
       };
 
       if (isEdit) {
@@ -264,21 +322,156 @@ function ServiceForm({ initialData, categories, onSuccess, onClose }) {
         </div>
       </div>
 
-      <div className="form-group">
-        <label className="form-label" htmlFor="svc-category">Category</label>
-        <select
-          id="svc-category"
-          name="categoryId"
-          className="form-select"
-          value={form.categoryId}
-          onChange={handleChange}
-          required
-        >
-          <option value="">Select a category</option>
-          {categories.map((cat) => (
-            <option key={cat.id} value={cat.id}>{cat.name}</option>
-          ))}
-        </select>
+      <div className="form-row-2">
+        <div className="form-group">
+          <label className="form-label" htmlFor="svc-category">
+            Category
+          </label>
+          <div style={{ position: 'relative' }}>
+            <select
+              id="svc-category"
+              name="categoryId"
+              className="form-select"
+              value={isCustomCategory ? '__other__' : form.categoryId}
+              onChange={handleCategoryChange}
+              required
+              style={{
+                appearance: 'none',
+                WebkitAppearance: 'none',
+                backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E")`,
+                backgroundRepeat: 'no-repeat',
+                backgroundPosition: 'right 12px center',
+                paddingRight: '2.5rem',
+                cursor: 'pointer',
+              }}
+            >
+              <option value="">— Select a category —</option>
+              <optgroup label="Available Categories">
+                {allCategories.map((cat) => (
+                  <option key={cat.id} value={cat.id}>
+                    {cat.name}
+                  </option>
+                ))}
+              </optgroup>
+              <optgroup label="Can't find yours?">
+                <option value="__other__">
+                  Add a new category...
+                </option>
+              </optgroup>
+            </select>
+          </div>
+
+          {isCustomCategory && (
+            <div style={{
+              marginTop: '0.75rem',
+              padding: '1rem',
+              background: '#f0f4ff',
+              borderRadius: '8px',
+              border: '1px solid #c7d2fe'
+            }}>
+              <p style={{
+                fontSize: '0.8rem', fontWeight: '600',
+                color: '#4338ca', marginBottom: '0.5rem'
+              }}>
+                Create a new category
+              </p>
+              <div style={{ display: 'flex', gap: '0.5rem' }}>
+                <input
+                  type="text"
+                  className="form-input"
+                  placeholder="e.g. 3D Modeling"
+                  value={customCategoryName}
+                  onChange={e => {
+                    setCustomCategoryName(e.target.value);
+                    setCustomCategoryError('');
+                  }}
+                  style={{ flex: 1, margin: 0 }}
+                  onKeyDown={e => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault();
+                      handleCreateCategory();
+                    }
+                  }}
+                />
+                <button
+                  type="button"
+                  className="btn btn-primary"
+                  onClick={handleCreateCategory}
+                  disabled={customCategoryLoading}
+                  style={{ whiteSpace: 'nowrap', padding: '0 1rem' }}
+                >
+                  {customCategoryLoading ? '...' : 'Add'}
+                </button>
+                <button
+                  type="button"
+                  className="btn"
+                  onClick={() => {
+                    setIsCustomCategory(false);
+                    setCustomCategoryName('');
+                    setCustomCategoryError('');
+                  }}
+                  style={{ background: '#e2e8f0', padding: '0 0.75rem' }}
+                >
+                  ✕
+                </button>
+              </div>
+              {customCategoryError && (
+                <p style={{
+                  color: '#ef4444', fontSize: '0.8rem',
+                  marginTop: '0.4rem', fontWeight: '500'
+                }}>
+                  ⚠ {customCategoryError}
+                </p>
+              )}
+              <p style={{
+                fontSize: '0.75rem', color: '#6366f1',
+                marginTop: '0.4rem'
+              }}>
+                This will be added to the platform and 
+                available for all freelancers.
+              </p>
+            </div>
+          )}
+        </div>
+
+        <div className="form-group">
+          <label className="form-label" htmlFor="svc-experience">
+            Experience Level
+          </label>
+          <div style={{ position: 'relative' }}>
+            <select
+              id="svc-experience"
+              name="experienceLevel"
+              className="form-select"
+              value={form.experienceLevel}
+              onChange={handleChange}
+              style={{
+                appearance: 'none',
+                WebkitAppearance: 'none',
+                backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E")`,
+                backgroundRepeat: 'no-repeat',
+                backgroundPosition: 'right 12px center',
+                paddingRight: '2.5rem',
+                cursor: 'pointer',
+              }}
+            >
+              <option value="BEGINNER">Beginner</option>
+              <option value="INTERMEDIATE">Intermediate</option>
+              <option value="EXPERT">Expert</option>
+            </select>
+          </div>
+          <p style={{
+            fontSize: '0.75rem', color: '#94a3b8',
+            marginTop: '0.375rem'
+          }}>
+            {form.experienceLevel === 'BEGINNER' && 
+              'New to this skill, building experience'}
+            {form.experienceLevel === 'INTERMEDIATE' && 
+              'Comfortable with most tasks in this area'}
+            {form.experienceLevel === 'EXPERT' && 
+              'Deep expertise and proven track record'}
+          </p>
+        </div>
       </div>
 
       <div className="form-group">
