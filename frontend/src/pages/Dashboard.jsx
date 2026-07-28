@@ -327,55 +327,29 @@ function ServiceForm({ initialData, categories, onSuccess, onClose }) {
           <label className="form-label" htmlFor="svc-category">
             Category
           </label>
-          <div style={{ position: 'relative' }}>
-            <select
-              id="svc-category"
-              name="categoryId"
-              className="form-select"
-              value={isCustomCategory ? '__other__' : form.categoryId}
-              onChange={handleCategoryChange}
-              required
-              style={{
-                appearance: 'none',
-                WebkitAppearance: 'none',
-                backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E")`,
-                backgroundRepeat: 'no-repeat',
-                backgroundPosition: 'right 12px center',
-                paddingRight: '2.5rem',
-                cursor: 'pointer',
-              }}
-            >
-              <option value="">— Select a category —</option>
-              <optgroup label="Available Categories">
-                {allCategories.map((cat) => (
-                  <option key={cat.id} value={cat.id}>
-                    {cat.name}
-                  </option>
-                ))}
-              </optgroup>
-              <optgroup label="Can't find yours?">
-                <option value="__other__">
-                  Add a new category...
-                </option>
-              </optgroup>
-            </select>
-          </div>
+          <select
+            id="svc-category"
+            name="categoryId"
+            className="form-select"
+            value={isCustomCategory ? '__other__' : form.categoryId}
+            onChange={handleCategoryChange}
+            required
+          >
+            <option value="">— Select a category —</option>
+            <optgroup label="Available Categories">
+              {allCategories.map((cat) => (
+                <option key={cat.id} value={cat.id}>{cat.name}</option>
+              ))}
+            </optgroup>
+            <optgroup label="Can't find yours?">
+              <option value="__other__">✦ Add a new category…</option>
+            </optgroup>
+          </select>
 
           {isCustomCategory && (
-            <div style={{
-              marginTop: '0.75rem',
-              padding: '1rem',
-              background: '#f0f4ff',
-              borderRadius: '8px',
-              border: '1px solid #c7d2fe'
-            }}>
-              <p style={{
-                fontSize: '0.8rem', fontWeight: '600',
-                color: '#4338ca', marginBottom: '0.5rem'
-              }}>
-                Create a new category
-              </p>
-              <div style={{ display: 'flex', gap: '0.5rem' }}>
+            <div className="custom-category-panel">
+              <p className="custom-category-heading">Create a new category</p>
+              <div className="custom-category-row">
                 <input
                   type="text"
                   className="form-input"
@@ -385,94 +359,78 @@ function ServiceForm({ initialData, categories, onSuccess, onClose }) {
                     setCustomCategoryName(e.target.value);
                     setCustomCategoryError('');
                   }}
-                  style={{ flex: 1, margin: 0 }}
                   onKeyDown={e => {
-                    if (e.key === 'Enter') {
-                      e.preventDefault();
-                      handleCreateCategory();
-                    }
+                    if (e.key === 'Enter') { e.preventDefault(); handleCreateCategory(); }
                   }}
                 />
                 <button
                   type="button"
-                  className="btn btn-primary"
+                  className="btn btn-primary btn-sm"
                   onClick={handleCreateCategory}
                   disabled={customCategoryLoading}
-                  style={{ whiteSpace: 'nowrap', padding: '0 1rem' }}
+                  style={{ whiteSpace: 'nowrap' }}
                 >
-                  {customCategoryLoading ? '...' : 'Add'}
+                  {customCategoryLoading ? '…' : 'Add'}
                 </button>
                 <button
                   type="button"
-                  className="btn"
+                  className="btn btn-secondary btn-sm"
                   onClick={() => {
                     setIsCustomCategory(false);
                     setCustomCategoryName('');
                     setCustomCategoryError('');
                   }}
-                  style={{ background: '#e2e8f0', padding: '0 0.75rem' }}
+                  aria-label="Cancel"
                 >
                   ✕
                 </button>
               </div>
               {customCategoryError && (
-                <p style={{
-                  color: '#ef4444', fontSize: '0.8rem',
-                  marginTop: '0.4rem', fontWeight: '500'
-                }}>
+                <p className="form-error" style={{ marginTop: 'var(--space-2)' }}>
                   ⚠ {customCategoryError}
                 </p>
               )}
-              <p style={{
-                fontSize: '0.75rem', color: '#6366f1',
-                marginTop: '0.4rem'
-              }}>
-                This will be added to the platform and 
-                available for all freelancers.
+              <p className="custom-category-hint">
+                Available to all freelancers once created.
               </p>
             </div>
           )}
         </div>
 
         <div className="form-group">
-          <label className="form-label" htmlFor="svc-experience">
+          <label className="form-label" id="svc-experience-label">
             Experience Level
           </label>
-          <div style={{ position: 'relative' }}>
-            <select
-              id="svc-experience"
-              name="experienceLevel"
-              className="form-select"
-              value={form.experienceLevel}
-              onChange={handleChange}
-              style={{
-                appearance: 'none',
-                WebkitAppearance: 'none',
-                backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E")`,
-                backgroundRepeat: 'no-repeat',
-                backgroundPosition: 'right 12px center',
-                paddingRight: '2.5rem',
-                cursor: 'pointer',
-              }}
-            >
-              <option value="BEGINNER">Beginner</option>
-              <option value="INTERMEDIATE">Intermediate</option>
-              <option value="EXPERT">Expert</option>
-            </select>
+          <div
+            className="experience-level-group"
+            role="group"
+            aria-labelledby="svc-experience-label"
+          >
+            {[
+              { value: 'BEGINNER',     label: 'Beginner',     icon: '🌱' },
+              { value: 'INTERMEDIATE', label: 'Intermediate', icon: '⚡' },
+              { value: 'EXPERT',       label: 'Expert',       icon: '🏆' },
+            ].map(({ value, label, icon }) => (
+              <button
+                key={value}
+                type="button"
+                className={`experience-level-option${form.experienceLevel === value ? ' experience-level-option--active' : ''} experience-level-option--${value.toLowerCase()}`}
+                onClick={() => setForm(prev => ({ ...prev, experienceLevel: value }))}
+                aria-pressed={form.experienceLevel === value}
+              >
+                <span className="experience-level-icon">{icon}</span>
+                <span className="experience-level-label">{label}</span>
+              </button>
+            ))}
           </div>
-          <p style={{
-            fontSize: '0.75rem', color: '#94a3b8',
-            marginTop: '0.375rem'
-          }}>
-            {form.experienceLevel === 'BEGINNER' && 
-              'New to this skill, building experience'}
-            {form.experienceLevel === 'INTERMEDIATE' && 
-              'Comfortable with most tasks in this area'}
-            {form.experienceLevel === 'EXPERT' && 
-              'Deep expertise and proven track record'}
+          <p className="experience-level-hint">
+            {form.experienceLevel === 'BEGINNER'     && 'New to this skill, building experience'}
+            {form.experienceLevel === 'INTERMEDIATE' && 'Comfortable with most tasks in this area'}
+            {form.experienceLevel === 'EXPERT'       && 'Deep expertise and proven track record'}
           </p>
         </div>
       </div>
+
 
       <div className="form-group">
         <label className="form-label">Images (up to 5)</label>
