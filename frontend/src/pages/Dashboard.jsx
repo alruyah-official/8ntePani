@@ -758,71 +758,243 @@ function ServiceForm({ initialData, categories, onSuccess, onClose }) {
 }
 
 /* ─── Overview Tab (Mock Analytics) ───────────────────────────────────────── */
-function OverviewTab() {
+function OverviewTab({ user, orders, ordersLoading }) {
+  const [services, setServices] = useState([]);
+  const [servicesLoading, setServicesLoading] = useState(true);
+
+  useEffect(() => {
+    if (!user?.id) return;
+    const fetchServices = async () => {
+      try {
+        const res = await api.get(`/api/services/freelancer/${user.id}`);
+        setServices(res.data.data.services || []);
+      } catch (err) {}
+      finally { setServicesLoading(false); }
+    };
+    fetchServices();
+  }, [user?.id]);
+
+  const completedOrders = orders.filter(o => o.status === 'COMPLETED');
+  const pendingOrders = orders.filter(o => o.status === 'PENDING');
+  const activeOrders = orders.filter(o => o.status === 'ACTIVE');
+  const totalEarnings = completedOrders.reduce(
+    (sum, o) => sum + parseFloat(o.price || 0), 0
+  );
+
   return (
     <div className="animate-fade-in">
       <div className="tab-header">
         <h2 className="tab-title">Overview</h2>
-        <p className="tab-subtitle">Here's what's happening with your profile today.</p>
+        <p className="tab-subtitle">
+          Here's what's happening with your freelancing activity.
+        </p>
       </div>
 
       <div className="analytics-grid">
+        
         <div className="stat-card green">
           <span className="stat-title">Active Services</span>
-          <span className="stat-value">3</span>
+          <span className="stat-value">
+            {servicesLoading ? '—' : services.length}
+          </span>
           <div className="stat-change neutral">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="5" y1="12" x2="19" y2="12"></line></svg>
-            No change this week
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+              <polyline points="14 2 14 8 20 8"/>
+            </svg>
+            {services.length === 0 
+              ? 'No services listed yet' 
+              : `${services.length} service${services.length > 1 ? 's' : ''} listed`}
           </div>
         </div>
+
         <div className="stat-card purple">
-          <span className="stat-title">Profile Views</span>
-          <span className="stat-value">1,248</span>
+          <span className="stat-title">Completed Orders</span>
+          <span className="stat-value">
+            {ordersLoading ? '—' : completedOrders.length}
+          </span>
           <div className="stat-change positive">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline><polyline points="17 6 23 6 23 12"></polyline></svg>
-            +12% this week
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+              <polyline points="22 4 12 14.01 9 11.01"/>
+            </svg>
+            {completedOrders.length === 0 
+              ? 'No completed orders yet' 
+              : `${completedOrders.length} job${completedOrders.length > 1 ? 's' : ''} completed`}
           </div>
         </div>
+
         <div className="stat-card orange">
-          <span className="stat-title">Response Rate</span>
-          <span className="stat-value">98%</span>
-          <div className="stat-change positive">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
-            Excellent
+          <span className="stat-title">Total Earnings</span>
+          <span className="stat-value">
+            {ordersLoading ? '—' : `₹${totalEarnings.toLocaleString()}`}
+          </span>
+          <div className="stat-change neutral">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <line x1="12" y1="1" x2="12" y2="23"/>
+              <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+            </svg>
+            From {completedOrders.length} completed order{completedOrders.length !== 1 ? 's' : ''}
           </div>
         </div>
+
+        <div className="stat-card" style={{ '--accent': '#3b82f6' }}>
+          <div style={{
+            position: 'absolute', top: 0, left: 0,
+            width: '4px', height: '100%',
+            background: '#3b82f6', borderRadius: '4px 0 0 4px'
+          }} />
+          <span className="stat-title">Pending Orders</span>
+          <span className="stat-value">
+            {ordersLoading ? '—' : pendingOrders.length}
+          </span>
+          <div className="stat-change" style={{ 
+            color: pendingOrders.length > 0 ? '#f59e0b' : '#64748b' 
+          }}>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <circle cx="12" cy="12" r="10"/>
+              <polyline points="12 6 12 12 16 14"/>
+            </svg>
+            {pendingOrders.length > 0 
+              ? `${pendingOrders.length} awaiting your response` 
+              : 'No pending orders'}
+          </div>
+        </div>
+
       </div>
+
+      {activeOrders.length > 0 && (
+        <div style={{
+          background: '#eff6ff',
+          border: '1px solid #bfdbfe',
+          borderRadius: '12px',
+          padding: '1rem 1.25rem',
+          marginBottom: '1.5rem',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '0.75rem'
+        }}>
+          <span style={{ fontSize: '1.25rem' }}>⚡</span>
+          <div>
+            <p style={{ fontWeight: '700', color: '#1e40af', fontSize: '0.95rem' }}>
+              {activeOrders.length} order{activeOrders.length > 1 ? 's' : ''} in progress
+            </p>
+            <p style={{ fontSize: '0.8rem', color: '#3b82f6' }}>
+              You have active work to complete and deliver
+            </p>
+          </div>
+        </div>
+      )}
 
       <div className="activity-section">
         <h3 className="activity-title">Recent Activity</h3>
         <div className="activity-list">
-          <div className="activity-item">
-            <div className="activity-icon">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+          {ordersLoading ? (
+            <p style={{ color: '#94a3b8', fontSize: '0.9rem' }}>
+              Loading activity...
+            </p>
+          ) : orders.length === 0 ? (
+            <div style={{ textAlign: 'center', padding: '2rem', color: '#94a3b8' }}>
+              <p style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>📭</p>
+              <p style={{ fontWeight: '600' }}>No activity yet</p>
+              <p style={{ fontSize: '0.85rem', marginTop: '0.25rem' }}>
+                Your orders and activity will appear here
+              </p>
             </div>
-            <div className="activity-content">
-              <p className="activity-text"><b>Sarah Connor</b> sent you a message.</p>
-              <p className="activity-time">2 hours ago</p>
-            </div>
-          </div>
-          <div className="activity-item">
-            <div className="activity-icon">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
-            </div>
-            <div className="activity-content">
-              <p className="activity-text">Your proposal for <b>Fullstack React App</b> was viewed by the client.</p>
-              <p className="activity-time">1 day ago</p>
-            </div>
-          </div>
-          <div className="activity-item">
-            <div className="activity-icon">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
-            </div>
-            <div className="activity-content">
-              <p className="activity-text">You successfully created a new service <b>"Logo Design"</b>.</p>
-              <p className="activity-time">3 days ago</p>
-            </div>
-          </div>
+          ) : (
+            orders.slice(0, 5).map(order => {
+              const iconMap = {
+                PENDING: {
+                  icon: (
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/>
+                      <line x1="3" y1="6" x2="21" y2="6"/>
+                    </svg>
+                  ),
+                  color: '#fef3c7',
+                  text: `New order from ${order.client?.name} for "${order.service?.title}"`
+                },
+                ACTIVE: {
+                  icon: (
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <circle cx="12" cy="12" r="10"/>
+                      <polyline points="12 6 12 12 16 14"/>
+                    </svg>
+                  ),
+                  color: '#dbeafe',
+                  text: `Order accepted — "${order.service?.title}" is in progress`
+                },
+                DELIVERED: {
+                  icon: (
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/>
+                      <polyline points="17 8 12 3 7 8"/>
+                      <line x1="12" y1="3" x2="12" y2="15"/>
+                    </svg>
+                  ),
+                  color: '#ede9fe',
+                  text: `You delivered "${order.service?.title}" — waiting for approval`
+                },
+                COMPLETED: {
+                  icon: (
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <path d="M22 11.08V12a10 10 0 11-5.93-9.14"/>
+                      <polyline points="22 4 12 14.01 9 11.01"/>
+                    </svg>
+                  ),
+                  color: '#d1fae5',
+                  text: `"${order.service?.title}" completed — ₹${parseFloat(order.price).toLocaleString()} earned`
+                },
+                REJECTED: {
+                  icon: (
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <circle cx="12" cy="12" r="10"/>
+                      <line x1="15" y1="9" x2="9" y2="15"/>
+                      <line x1="9" y1="9" x2="15" y2="15"/>
+                    </svg>
+                  ),
+                  color: '#fee2e2',
+                  text: `You rejected an order for "${order.service?.title}"`
+                },
+                CANCELLED: {
+                  icon: (
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <circle cx="12" cy="12" r="10"/>
+                      <line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/>
+                    </svg>
+                  ),
+                  color: '#f1f5f9',
+                  text: `Order cancelled for "${order.service?.title}"`
+                },
+              };
+
+              const config = iconMap[order.status] || iconMap.PENDING;
+
+              return (
+                <div key={order.id} className="activity-item">
+                  <div
+                    className="activity-icon"
+                    style={{ background: config.color }}
+                  >
+                    {config.icon}
+                  </div>
+                  <div className="activity-content">
+                    <p className="activity-text">
+                      {config.text}
+                    </p>
+                    <p className="activity-time">
+                      {new Date(order.updatedAt || order.createdAt)
+                        .toLocaleDateString('en-US', {
+                          month: 'short',
+                          day: 'numeric',
+                          year: 'numeric'
+                        })}
+                    </p>
+                  </div>
+                </div>
+              );
+            })
+          )}
         </div>
       </div>
     </div>
@@ -1382,7 +1554,13 @@ export default function Dashboard() {
 
       {/* ── Main Content ── */}
       <main className="dashboard-main">
-        {activeTab === 'overview' && <OverviewTab />}
+        {activeTab === 'overview' && (
+          <OverviewTab 
+            user={user} 
+            orders={orders} 
+            ordersLoading={ordersLoading} 
+          />
+        )}
         {activeTab === 'services' && <MyServicesTab user={user} />}
         {activeTab === 'orders' && (
           <div className="container" style={{ padding: '2rem 0' }}>
