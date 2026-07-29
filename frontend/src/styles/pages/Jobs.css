@@ -284,3 +284,128 @@
     position: static;
   }
 }
+
+/* ─── Additional Mobile Responsive Rules ─────────────────────────────────── */
+
+/* ── 768px: Tablet portrait ── */
+@media (max-width: 768px) {
+  /* Hero */
+  .jobs-header {
+    margin-bottom: var(--space-8);
+  }
+
+  .jobs-title {
+    font-size: var(--font-size-3xl);
+  }
+
+  .jobs-subtitle {
+    font-size: var(--font-size-base);
+  }
+
+  /* Search full-width */
+  .jobs-search-wrapper {
+    max-width: 100%;
+  }
+
+  /* Sidebar category list → horizontal scroll */
+  .jobs-category-list {
+    flex-direction: row;
+    overflow-x: auto;
+    gap: var(--space-2);
+    padding-bottom: var(--space-2);
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+
+  .jobs-category-list::-webkit-scrollbar {
+    display: none;
+  }
+
+  .jobs-category-item {
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+
+  /* Grid header stacks on mobile */
+  .jobs-grid-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-3);
+  }
+
+  /* Jobs grid: single column */
+  .jobs-grid {
+    grid-template-columns: 1fr;
+  }
+
+  /* Sidebar padding tighter */
+  .jobs-sidebar {
+    padding: var(--space-4);
+    border-radius: var(--radius-lg);
+  }
+}
+
+/* ── 640px: Large mobile ── */
+@media (max-width: 640px) {
+  /* Hero font */
+  .jobs-title {
+    font-size: var(--font-size-2xl);
+  }
+
+  .jobs-page {
+    padding: var(--space-6) 0 var(--space-16);
+  }
+
+  /* Job card padding tighter */
+  .premium-job-card {
+    padding: var(--space-4);
+    gap: var(--space-3);
+  }
+
+  /* Job card header: price badge wraps */
+  .job-card-header {
+    flex-wrap: wrap;
+  }
+
+  /* Job card footer stacks */
+  .job-card-footer {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-3);
+  }
+
+  /* Post job button full width */
+  .jobs-grid-header > *:last-child {
+    width: 100%;
+  }
+}
+
+/* ── 480px: Small mobile ── */
+@media (max-width: 480px) {
+  .jobs-title {
+    font-size: var(--font-size-xl);
+  }
+
+  .jobs-subtitle {
+    font-size: var(--font-size-sm);
+  }
+
+  .jobs-header {
+    margin-bottom: var(--space-6);
+    padding: 0 var(--space-3);
+  }
+
+  .jobs-page {
+    padding: var(--space-4) 0 var(--space-12);
+  }
+
+  /* Sidebar section spacing */
+  .jobs-sidebar-section {
+    margin-bottom: var(--space-5);
+  }
+
+  /* Search bar */
+  .jobs-search-group {
+    padding: var(--space-2) var(--space-4) var(--space-2) var(--space-4);
+  }
+}

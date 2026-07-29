@@ -1136,3 +1136,141 @@
     max-height: 220px;
   }
 }
+
+/* ─── Additional Mobile Responsive Rules ─────────────────────────────────── */
+
+/* ── 640px: Large mobile ── */
+@media (max-width: 640px) {
+  /* Sidebar nav: horizontal scrollable strip */
+  .dashboard-sidebar {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .sidebar-nav {
+    overflow-x: auto;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .sidebar-nav::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* Stat cards: 2 columns on large mobile */
+  .analytics-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--space-4);
+    margin-bottom: var(--space-6);
+  }
+
+  /* Stat value font size reduced */
+  .stat-value {
+    font-size: 2rem;
+  }
+
+  /* Services grid: single column */
+  .services-grid {
+    grid-template-columns: 1fr;
+  }
+
+  /* Profile cards max-width full */
+  .profile-cards-container {
+    max-width: 100%;
+  }
+
+  /* Avatar edit section: stacks vertically */
+  .avatar-edit-section {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-4);
+  }
+
+  /* Tab header */
+  .tab-title {
+    font-size: var(--font-size-2xl);
+  }
+
+  /* Activity item padding */
+  .activity-item {
+    gap: var(--space-3);
+  }
+
+  .activity-icon {
+    width: 32px;
+    height: 32px;
+  }
+
+  /* Sidebar user block adjusted */
+  .sidebar-user-block {
+    padding: 0 var(--space-4) var(--space-4);
+  }
+}
+
+/* ── 480px: Small mobile ── */
+@media (max-width: 480px) {
+  /* Dashboard main padding */
+  .dashboard-main {
+    padding: var(--space-3);
+  }
+
+  /* Stat cards: single column on very small screens */
+  .analytics-grid {
+    grid-template-columns: 1fr;
+    gap: var(--space-3);
+  }
+
+  /* Stat value */
+  .stat-value {
+    font-size: 1.75rem;
+  }
+
+  /* Stat card padding */
+  .stat-card {
+    padding: var(--space-4);
+  }
+
+  /* Tab title font */
+  .tab-title {
+    font-size: var(--font-size-xl);
+  }
+
+  /* Tab subtitle */
+  .tab-subtitle {
+    font-size: var(--font-size-sm);
+  }
+
+  /* Activity section */
+  .activity-section {
+    padding: var(--space-4);
+  }
+
+  /* Profile card */
+  .profile-card {
+    padding: var(--space-4);
+    border-radius: var(--radius-lg);
+  }
+
+  /* Service modal: full width with small margin */
+  .service-modal {
+    max-width: calc(100vw - var(--space-8));
+    border-radius: var(--radius-lg);
+    margin: var(--space-4);
+  }
+
+  /* Experience level group: stacks vertically on very small screens */
+  .experience-level-group {
+    flex-direction: column;
+  }
+
+  /* Sidebar link text truncate on small */
+  .sidebar-link {
+    font-size: var(--font-size-xs);
+    padding: var(--space-2) var(--space-3);
+  }
+
+  /* Tab header spacing */
+  .tab-header {
+    margin-bottom: var(--space-5);
+  }
+}

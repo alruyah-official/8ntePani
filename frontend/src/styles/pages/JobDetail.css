@@ -260,3 +260,120 @@
     grid-template-columns: 1fr;
   }
 }
+
+/* ─── Additional Mobile Responsive Rules ─────────────────────────────────── */
+
+/* ── 768px: Tablet portrait ── */
+@media (max-width: 768px) {
+  /* Page padding */
+  .job-detail-page {
+    padding: var(--space-5) 0 var(--space-16);
+  }
+
+  /* Job title font */
+  .job-title {
+    font-size: var(--font-size-2xl);
+  }
+
+  /* Detail header padding */
+  .job-detail-header {
+    padding: var(--space-5) var(--space-5) var(--space-4);
+  }
+
+  /* Detail section padding */
+  .job-detail-section {
+    padding: var(--space-5);
+  }
+
+  /* Highlights grid: 2 columns on tablet */
+  .job-highlights-grid {
+    grid-template-columns: repeat(2, 1fr);
+    padding: var(--space-4);
+  }
+
+  /* Action buttons in sidebar full width */
+  .job-sidebar-card > a,
+  .job-sidebar-card > button {
+    width: 100%;
+    display: block;
+  }
+
+  /* Sidebar card padding */
+  .job-sidebar-card {
+    padding: var(--space-4);
+    border-radius: var(--radius-xl);
+  }
+}
+
+/* ── 640px: Large mobile ── */
+@media (max-width: 640px) {
+  /* Job title smaller */
+  .job-title {
+    font-size: var(--font-size-xl);
+    letter-spacing: -0.01em;
+  }
+
+  /* Job detail header */
+  .job-detail-header {
+    padding: var(--space-4);
+  }
+
+  /* Job detail section */
+  .job-detail-section {
+    padding: var(--space-4);
+  }
+
+  /* Meta badges: wrap */
+  .job-meta-badges {
+    gap: var(--space-2);
+  }
+
+  .job-meta-badge {
+    font-size: var(--font-size-xs);
+    padding: 4px 10px;
+  }
+
+  /* Budget info stacks */
+  .job-client-stat {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-1);
+  }
+
+  /* Client header stacks */
+  .job-client-header {
+    flex-wrap: wrap;
+    margin-bottom: var(--space-4);
+  }
+}
+
+/* ── 480px: Small mobile ── */
+@media (max-width: 480px) {
+  .job-title {
+    font-size: var(--font-size-lg);
+  }
+
+  .job-detail-page {
+    padding: var(--space-4) 0 var(--space-10);
+  }
+
+  /* Breadcrumbs hidden on very small */
+  .job-breadcrumbs {
+    font-size: var(--font-size-xs);
+  }
+
+  .job-description-text {
+    font-size: var(--font-size-sm);
+  }
+
+  /* Highlights grid single column */
+  .job-highlights-grid {
+    grid-template-columns: 1fr;
+    gap: var(--space-3);
+    padding: var(--space-3);
+  }
+
+  .job-highlight-value {
+    font-size: var(--font-size-base);
+  }
+}

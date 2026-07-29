@@ -756,3 +756,150 @@
   line-height: 1.3;
 }
 
+/* ─── Additional Mobile Responsive Rules ─────────────────────────────────── */
+
+/* ── 768px: Tablet portrait ── */
+@media (max-width: 768px) {
+  /* Hero */
+  .hero {
+    padding: var(--space-12) 0 var(--space-8);
+  }
+
+  .hero-title {
+    font-size: var(--font-size-4xl);
+  }
+
+  .hero-subtitle {
+    font-size: var(--font-size-base);
+    max-width: 100%;
+  }
+
+  /* Hide the right-side mockup visual on tablet portrait to give content room */
+  .hero-visual {
+    display: none;
+  }
+
+  /* Hero container already goes single-column at 1024px via existing rule */
+
+  /* Search bar */
+  .marketplace-search-wrapper {
+    max-width: 100%;
+    padding: 0 var(--space-4);
+  }
+
+  .search-input-group {
+    height: 56px;
+    padding: 0 var(--space-4);
+  }
+
+  .search-input {
+    font-size: var(--font-size-base);
+  }
+
+  /* Marketplace section */
+  .home-marketplace {
+    padding: var(--space-6) 0 var(--space-16);
+  }
+
+  .marketplace-header h2 {
+    font-size: var(--font-size-3xl);
+  }
+
+  .marketplace-header {
+    margin-bottom: var(--space-8);
+  }
+
+  /* Filter bar */
+  .filter-bar {
+    padding: var(--space-4);
+    border-radius: var(--radius-lg);
+    margin-bottom: var(--space-8);
+  }
+
+  /* Category grid */
+  .category-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* ── 640px: Large mobile ── */
+@media (max-width: 640px) {
+  /* Hero */
+  .hero {
+    padding: var(--space-10) 0 var(--space-6);
+  }
+
+  .hero-badge-wrapper {
+    margin-bottom: var(--space-4);
+  }
+
+  /* Search input full-width on mobile */
+  .search-input-group {
+    height: 52px;
+    border-radius: var(--radius-lg);
+    padding: 0 var(--space-4);
+  }
+
+  /* Category card adjustments */
+  .category-card {
+    height: 120px;
+    padding: var(--space-4);
+  }
+
+  /* Trusted by logos */
+  .trusted-by-logos {
+    gap: var(--space-4);
+  }
+}
+
+/* ── 480px: Small mobile ── */
+@media (max-width: 480px) {
+  /* Hero font sizes */
+  .hero-title {
+    font-size: var(--font-size-3xl);
+  }
+
+  .hero-subtitle {
+    font-size: var(--font-size-sm);
+  }
+
+  .hero-cta-primary {
+    padding: var(--space-3) var(--space-6);
+    font-size: var(--font-size-base);
+  }
+
+  /* Marketplace heading */
+  .home-marketplace {
+    padding: var(--space-4) 0 var(--space-12);
+  }
+
+  .marketplace-header h2 {
+    font-size: var(--font-size-2xl);
+  }
+
+  /* Category grid single column on very small screens */
+  .category-grid {
+    grid-template-columns: 1fr;
+  }
+
+  /* Category card */
+  .category-card {
+    height: auto;
+    padding: var(--space-4);
+  }
+
+  /* Filter bar stacked */
+  .filter-bar {
+    padding: var(--space-3);
+    gap: var(--space-3);
+  }
+
+  .price-filter {
+    flex-wrap: wrap;
+  }
+
+  .price-input {
+    width: 60px;
+  }
+}
+

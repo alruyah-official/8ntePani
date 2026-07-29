@@ -400,3 +400,115 @@
     border-right: none;
   }
 }
+
+/* ─── Additional Mobile Responsive Rules ─────────────────────────────────── */
+
+/* ── 768px: Mobile — show either sidebar list OR chat, not both ── */
+@media (max-width: 768px) {
+  /* Back button to return to conversation list */
+  .thread-back-btn {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    background: none;
+    border: none;
+    color: var(--color-primary);
+    font-weight: 600;
+    font-size: var(--font-size-sm);
+    cursor: pointer;
+    padding: var(--space-2) var(--space-3);
+    border-radius: var(--radius-md);
+    flex-shrink: 0;
+  }
+
+  /* Thread header adjusted for back button */
+  .thread-header {
+    padding: var(--space-3) var(--space-4);
+  }
+
+  /* Message bubbles wider on mobile */
+  .message-content-wrapper {
+    max-width: 85%;
+  }
+
+  /* Input bar padding */
+  .thread-input-bar {
+    padding: var(--space-3) var(--space-4);
+    gap: var(--space-2);
+  }
+
+  .thread-messages {
+    padding: var(--space-4);
+    gap: var(--space-3);
+  }
+
+  /* Sidebar title smaller */
+  .messages-sidebar-title {
+    font-size: var(--font-size-base);
+  }
+}
+
+/* ── 640px: Large mobile ── */
+@media (max-width: 640px) {
+  /* Message bubble max-width wider */
+  .message-content-wrapper {
+    max-width: 90%;
+  }
+
+  /* Input textarea font size */
+  .thread-input {
+    font-size: var(--font-size-sm);
+    min-height: 44px;
+  }
+
+  /* Send button */
+  .thread-send-btn {
+    width: 44px;
+    height: 44px;
+  }
+
+  /* Convo item padding */
+  .convo-item {
+    padding: var(--space-2) var(--space-3);
+  }
+
+  /* Thread header name truncate */
+  .thread-header-name {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 200px;
+  }
+
+  /* Sidebar header padding */
+  .messages-sidebar-header {
+    padding: var(--space-3) var(--space-4);
+  }
+}
+
+/* ── 480px: Small mobile ── */
+@media (max-width: 480px) {
+  /* Avatar in convo items */
+  .convo-item .avatar,
+  .convo-item [class*="avatar"] {
+    width: 36px;
+    height: 36px;
+    font-size: var(--font-size-sm);
+  }
+
+  /* Message bubble padding */
+  .message-bubble {
+    padding: var(--space-2) var(--space-3);
+    font-size: var(--font-size-xs);
+  }
+
+  /* Thread messages padding */
+  .thread-messages {
+    padding: var(--space-3);
+  }
+
+  /* Input bar */
+  .thread-input-bar {
+    padding: var(--space-2) var(--space-3);
+  }
+}

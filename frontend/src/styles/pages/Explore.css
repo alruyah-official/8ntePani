@@ -269,3 +269,114 @@
     grid-template-columns: 1fr;
   }
 }
+
+/* ─── Additional Mobile Responsive Rules ─────────────────────────────────── */
+
+/* ── 768px: Sidebar becomes a horizontal scrollable filter bar ── */
+@media (max-width: 768px) {
+  .explore-page {
+    padding: var(--space-8) 0 var(--space-16);
+  }
+
+  .explore-header {
+    margin-bottom: var(--space-8);
+  }
+
+  .explore-title {
+    font-size: var(--font-size-3xl);
+  }
+
+  .explore-subtitle {
+    font-size: var(--font-size-base);
+  }
+
+  /* Search bar full width */
+  .explore-search-wrapper {
+    max-width: 100%;
+  }
+
+  .explore-search-group {
+    height: 56px;
+    padding: 0 var(--space-4);
+  }
+
+  .explore-search-input {
+    font-size: var(--font-size-base);
+  }
+
+  /* On mobile, sidebar category list becomes horizontal scroll */
+  .explore-category-list {
+    flex-direction: row;
+    overflow-x: auto;
+    padding-bottom: var(--space-2);
+    gap: var(--space-2);
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+
+  .explore-category-list::-webkit-scrollbar {
+    display: none;
+  }
+
+  .explore-category-item {
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+
+  /* Stack sidebar sections side by side if space allows */
+  .explore-sidebar {
+    gap: var(--space-5);
+    padding: var(--space-4);
+    border-radius: var(--radius-lg);
+  }
+
+  .explore-results-header {
+    margin-bottom: var(--space-4);
+  }
+}
+
+/* ── 640px: Large mobile ── */
+@media (max-width: 640px) {
+  .explore-title {
+    font-size: var(--font-size-2xl);
+  }
+
+  .explore-page {
+    padding: var(--space-6) 0 var(--space-12);
+  }
+
+  /* Price filter stacks vertically */
+  .explore-price-filter-vertical {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .explore-price-sep {
+    text-align: center;
+  }
+
+  .price-input-wrapper {
+    flex: none;
+    width: 100%;
+  }
+}
+
+/* ── 480px: Small mobile ── */
+@media (max-width: 480px) {
+  .explore-title {
+    font-size: var(--font-size-xl);
+  }
+
+  .explore-subtitle {
+    font-size: var(--font-size-sm);
+  }
+
+  .explore-search-group {
+    height: 48px;
+    border-radius: var(--radius-lg);
+  }
+
+  .explore-page {
+    padding: var(--space-4) 0 var(--space-10);
+  }
+}

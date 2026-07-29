@@ -157,3 +157,64 @@
     grid-template-columns: 1fr;
   }
 }
+
+/* ─── Additional Mobile Responsive Rules ─────────────────────────────────── */
+
+/* ── 640px: Large mobile ── */
+@media (max-width: 640px) {
+  /* Auth card: reduce padding */
+  .auth-card {
+    padding: var(--space-8) var(--space-6);
+    border-radius: var(--radius-xl);
+    max-width: 100%;
+  }
+
+  /* Auth page: tighter padding */
+  .auth-page {
+    padding: var(--space-6) var(--space-4);
+    align-items: flex-start;
+  }
+
+  /* Logo smaller */
+  .auth-logo-text {
+    font-size: var(--font-size-xl);
+  }
+
+  /* Title */
+  .auth-title {
+    font-size: var(--font-size-xl);
+  }
+
+  /* Footer */
+  .auth-footer {
+    margin-top: var(--space-6);
+  }
+}
+
+/* ── 480px: Small mobile ── (reinforced from existing rule above) */
+@media (max-width: 480px) {
+  .auth-card {
+    padding: var(--space-6) var(--space-4);
+    border-radius: var(--radius-lg);
+  }
+
+  .auth-page {
+    padding: var(--space-4) var(--space-3);
+  }
+
+  .auth-title {
+    font-size: var(--font-size-lg);
+  }
+
+  .auth-logo-text {
+    font-size: var(--font-size-lg);
+  }
+
+  .auth-header {
+    margin-bottom: var(--space-5);
+  }
+
+  .auth-logo {
+    margin-bottom: var(--space-5);
+  }
+}

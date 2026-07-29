@@ -563,3 +563,122 @@
   color: #15803d;
   flex-shrink: 0;
 }
+
+/* ─── Additional Mobile Responsive Rules ─────────────────────────────────── */
+
+/* ── 768px: Tablet portrait ── */
+@media (max-width: 768px) {
+  /* Page top padding */
+  .sd-upwork-page {
+    padding-top: calc(var(--navbar-height) + var(--space-6));
+    padding-bottom: var(--space-12);
+  }
+
+  /* Title font size */
+  .sd-upwork-title {
+    font-size: var(--font-size-2xl);
+  }
+
+  /* Section headers */
+  .sd-upwork-heading {
+    font-size: var(--font-size-lg);
+  }
+
+  /* Gallery thumbs smaller on tablet */
+  .sd-gallery-thumb {
+    width: 70px;
+    height: 52px;
+  }
+
+  /* Action button full width */
+  .upwork-cta-btn {
+    width: 100%;
+  }
+}
+
+/* ── 640px: Large mobile ── */
+@media (max-width: 640px) {
+  .sd-upwork-page {
+    padding-top: calc(var(--navbar-height) + var(--space-4));
+    padding-bottom: var(--space-8);
+  }
+
+  .sd-upwork-title {
+    font-size: var(--font-size-xl);
+  }
+
+  /* Sidebar goes below main content (existing 992px rule makes it order:-1 → move to bottom on mobile) */
+  .sd-upwork-sidebar {
+    order: 1; /* moves sidebar below main on small mobile */
+    position: static;
+  }
+
+  /* Review form full width */
+  .sd-review-form {
+    padding: var(--space-4);
+    border-radius: var(--radius-md);
+  }
+
+  /* Attachment card full width */
+  .sd-attachment-card {
+    max-width: 100%;
+  }
+
+  /* Box padding tighter */
+  .sd-upwork-box {
+    padding: var(--space-4);
+    border-radius: var(--radius-md);
+  }
+
+  /* Details grid: reduce gap */
+  .sd-upwork-details-grid {
+    gap: var(--space-3);
+    padding: var(--space-4) 0;
+  }
+
+  /* Gallery thumbs smaller on mobile */
+  .sd-gallery-thumb {
+    width: 60px;
+    height: 44px;
+  }
+
+  .sd-gallery-thumbs {
+    padding: var(--space-3);
+    gap: var(--space-2);
+  }
+}
+
+/* ── 480px: Small mobile ── */
+@media (max-width: 480px) {
+  .sd-upwork-title {
+    font-size: var(--font-size-lg);
+    line-height: 1.3;
+  }
+
+  .sd-upwork-badges {
+    gap: var(--space-2);
+  }
+
+  .sd-upwork-divider {
+    margin: var(--space-6) 0;
+  }
+
+  .sd-upwork-section {
+    margin-bottom: var(--space-6);
+  }
+
+  /* Freelancer box identity stacks on very small screens */
+  .freelancer-box-identity {
+    flex-wrap: wrap;
+  }
+
+  /* Review header stacks */
+  .sd-review-header {
+    flex-wrap: wrap;
+  }
+
+  .sd-review-stars {
+    margin-left: 0;
+    margin-top: var(--space-2);
+  }
+}

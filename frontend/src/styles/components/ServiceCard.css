@@ -178,3 +178,95 @@
 .service-card-cta:hover {
   background-color: #166534;
 }
+
+/* ─── Mobile Responsive Rules ─────────────────────────────────────────────── */
+
+/* ── 768px: Tablet portrait ── */
+@media (max-width: 768px) {
+  /* Card padding tighter */
+  .service-card {
+    padding: var(--space-5);
+  }
+
+  /* Avatar slightly smaller */
+  .service-card-avatar,
+  .service-card-avatar-placeholder {
+    width: 48px;
+    height: 48px;
+  }
+
+  /* Card title smaller */
+  .service-card-title {
+    font-size: var(--font-size-lg);
+  }
+
+  .service-card-freelancer-name {
+    font-size: var(--font-size-lg);
+  }
+}
+
+/* ── 640px: Large mobile ── */
+@media (max-width: 640px) {
+  /* Card padding tighter */
+  .service-card {
+    padding: var(--space-4);
+  }
+
+  /* Details grid: single column */
+  .service-card-details {
+    grid-template-columns: 1fr;
+    gap: var(--space-3);
+    margin-bottom: var(--space-4);
+  }
+
+  /* CTA button full width */
+  .service-card-cta {
+    width: 100%;
+    padding: var(--space-3) var(--space-4);
+    text-align: center;
+  }
+
+  /* Freelancer block compact */
+  .service-card-freelancer-block {
+    gap: var(--space-3);
+    margin-bottom: var(--space-4);
+  }
+
+  /* Badges row */
+  .service-card-badges {
+    margin-bottom: var(--space-4);
+    gap: var(--space-2);
+  }
+}
+
+/* ── 480px: Small mobile ── */
+@media (max-width: 480px) {
+  .service-card {
+    padding: var(--space-3);
+    border-radius: var(--radius-xl);
+  }
+
+  .service-card-title {
+    font-size: var(--font-size-base);
+  }
+
+  .service-card-avatar,
+  .service-card-avatar-placeholder {
+    width: 40px;
+    height: 40px;
+    font-size: var(--font-size-base);
+  }
+
+  .service-card-freelancer-name {
+    font-size: var(--font-size-base);
+  }
+
+  .detail-value {
+    font-size: var(--font-size-sm);
+  }
+
+  .service-card-description {
+    font-size: var(--font-size-xs);
+    margin-bottom: var(--space-4);
+  }
+}
