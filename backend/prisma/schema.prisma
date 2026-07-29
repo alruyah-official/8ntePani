@@ -61,9 +61,11 @@ model User {
   id        String   @id @default(cuid())
   name      String
   email     String   @unique
-  password  String
+  password  String?
   role      Role
   avatar    String?
+  isEmailVerified Boolean  @default(false)
+  googleId        String?  @unique
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -79,6 +81,17 @@ model User {
   ordersAsFreelancer        Order[]              @relation("FreelancerOrders")
   notifications             Notification[]       @relation("UserNotifications")
 }
+
+model OTP {
+  id        String   @id @default(cuid())
+  email     String
+  otp       String
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  @@index([email])
+}
+
 
 // Stores additional details that only apply to FREELANCER accounts, such as
 // their bio, skills, location, and spoken languages. One-to-one with User.
