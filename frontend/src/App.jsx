@@ -9,6 +9,8 @@ import './styles/App.css';
 import Home from './pages/Home.jsx';
 import Login from './pages/Login.jsx';
 import Register from './pages/Register.jsx';
+import VerifyOtp from './pages/VerifyOtp.jsx';
+import GoogleCallback from './pages/GoogleCallback.jsx';
 import ServiceDetail from './pages/ServiceDetail.jsx';
 import FreelancerProfile from './pages/FreelancerProfile.jsx';
 import Dashboard from './pages/Dashboard.jsx';
@@ -36,6 +38,8 @@ function App() {
           <Route path="/jobs" element={<Jobs />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
+          <Route path="/verify-otp" element={<VerifyOtp />} />
+          <Route path="/auth/google/callback" element={<GoogleCallback />} />
           <Route path="/services/:serviceId" element={<ServiceDetail />} />
           <Route path="/jobs/:jobId" element={
             <ProtectedRoute>

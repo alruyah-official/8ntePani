@@ -130,6 +130,123 @@
   color: var(--color-text-muted);
 }
 
+/* ─── Google OAuth & Divider ────────────────────────────────────────────── */
+.auth-divider {
+  display: flex;
+  align-items: center;
+  margin: var(--space-6) 0;
+  color: var(--color-text-muted);
+  font-size: var(--font-size-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.auth-divider::before,
+.auth-divider::after {
+  content: '';
+  flex: 1;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.auth-divider span {
+  padding: 0 var(--space-4);
+}
+
+.btn-google {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-3);
+  width: 100%;
+  padding: 0.75rem 1rem;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  color: var(--color-text);
+  font-weight: 600;
+  font-size: var(--font-size-sm);
+  cursor: pointer;
+  transition: all var(--transition-base);
+  box-shadow: var(--shadow-sm);
+  text-decoration: none;
+}
+
+.btn-google:hover {
+  background: var(--color-bg);
+  border-color: var(--color-border-hover);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md);
+}
+
+/* ─── OTP Verification Input Grid ────────────────────────────────────────── */
+.otp-container {
+  display: flex;
+  gap: var(--space-2);
+  justify-content: center;
+  margin: var(--space-6) 0;
+}
+
+.otp-box {
+  width: 48px;
+  height: 56px;
+  font-size: 1.5rem;
+  font-weight: 700;
+  text-align: center;
+  border: 2px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+  color: var(--color-primary-dark);
+  transition: all var(--transition-fast);
+  font-family: monospace;
+}
+
+.otp-box:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px var(--color-primary-glow);
+  transform: scale(1.04);
+}
+
+.otp-box.filled {
+  border-color: var(--color-primary);
+  background: #f0f4ff;
+}
+
+.otp-timer-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: var(--space-6);
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+}
+
+.otp-resend-btn {
+  background: none;
+  border: none;
+  color: var(--color-primary);
+  font-weight: 700;
+  cursor: pointer;
+  padding: 0;
+  font-size: var(--font-size-sm);
+}
+
+.otp-resend-btn:disabled {
+  color: var(--color-text-muted);
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  20%, 60% { transform: translateX(-6px); }
+  40%, 80% { transform: translateX(6px); }
+}
+
+.otp-shake {
+  animation: shake 0.4s ease-in-out;
+}
+
 /* Footer */
 .auth-footer {
   text-align: center;
@@ -156,65 +273,38 @@
   .auth-role-picker {
     grid-template-columns: 1fr;
   }
+
+  .otp-box {
+    width: 40px;
+    height: 48px;
+    font-size: 1.25rem;
+  }
 }
 
 /* ─── Additional Mobile Responsive Rules ─────────────────────────────────── */
 
 /* ── 640px: Large mobile ── */
 @media (max-width: 640px) {
-  /* Auth card: reduce padding */
   .auth-card {
     padding: var(--space-8) var(--space-6);
     border-radius: var(--radius-xl);
     max-width: 100%;
   }
 
-  /* Auth page: tighter padding */
   .auth-page {
     padding: var(--space-6) var(--space-4);
     align-items: flex-start;
   }
 
-  /* Logo smaller */
   .auth-logo-text {
     font-size: var(--font-size-xl);
   }
 
-  /* Title */
   .auth-title {
     font-size: var(--font-size-xl);
   }
 
-  /* Footer */
   .auth-footer {
     margin-top: var(--space-6);
-  }
-}
-
-/* ── 480px: Small mobile ── (reinforced from existing rule above) */
-@media (max-width: 480px) {
-  .auth-card {
-    padding: var(--space-6) var(--space-4);
-    border-radius: var(--radius-lg);
-  }
-
-  .auth-page {
-    padding: var(--space-4) var(--space-3);
-  }
-
-  .auth-title {
-    font-size: var(--font-size-lg);
-  }
-
-  .auth-logo-text {
-    font-size: var(--font-size-lg);
-  }
-
-  .auth-header {
-    margin-bottom: var(--space-5);
-  }
-
-  .auth-logo {
-    margin-bottom: var(--space-5);
   }
 }

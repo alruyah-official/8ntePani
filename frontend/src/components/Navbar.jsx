@@ -58,7 +58,7 @@ function Navbar() {
     } catch (err) {}
   };
 
-  if (location.pathname === '/login' || location.pathname === '/register') {
+  if (['/login', '/register', '/verify-otp', '/auth/google/callback'].includes(location.pathname)) {
     return null;
   }
 

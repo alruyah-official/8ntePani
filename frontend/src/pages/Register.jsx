@@ -5,7 +5,7 @@ import api from '../api/axios.js';
 import { useAuth } from '../context/AuthContext.jsx';
 
 const Register = () => {
-  const { isAuthenticated, login } = useAuth();
+  const { isAuthenticated } = useAuth();
   const navigate = useNavigate();
 
   const [formData, setFormData] = useState({ name: '', email: '', password: '', role: 'CLIENT' });
@@ -25,20 +25,14 @@ const Register = () => {
     setLoading(true);
     setError(null);
     try {
-      const res = await api.post('/api/auth/register', formData);
+      // Step 1: Send OTP to user's email
+      const res = await api.post('/api/auth/send-otp', { email: formData.email });
       if (res.data.success) {
-        // Auto-login: backend only returns user on register, not token.
-        // We need to log in separately.
-        const loginRes = await api.post('/api/auth/login', {
-          email: formData.email,
-          password: formData.password,
-        });
-        const { user, token } = loginRes.data.data;
-        login(user, token);
-        navigate(user.role === 'FREELANCER' ? '/dashboard' : '/');
+        // Automatically redirect to OTP verification screen with form data in state
+        navigate('/verify-otp', { state: { ...formData } });
       }
     } catch (err) {
-      setError(err.response?.data?.message || 'Failed to register. Please try again.');
+      setError(err.response?.data?.message || 'Failed to send verification code. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -152,7 +146,7 @@ const Register = () => {
             style={{ marginTop: 'var(--space-2)' }}
             disabled={loading}
           >
-            {loading ? '' : 'Create account'}
+            {loading ? 'Sending code...' : 'Continue to Verification'}
           </button>
         </form>
 
