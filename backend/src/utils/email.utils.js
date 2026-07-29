@@ -1,6 +1,55 @@
-import resend from '../config/resend.js';
+import { sendEmail } from "../services/email.service.js";
 
-const EMAIL_FROM = process.env.EMAIL_FROM || 'onboarding@resend.dev';
+/**
+ * Sends an OTP verification email to the user.
+ * Fails silently by returning null — never throws.
+ *
+ * @param {string} email
+ * @param {string} otp
+ * @param {string} [name]
+ */
+export const sendOTPEmail = async (email, otp, name) => {
+  try {
+    const greeting = `Hello${name ? ", " + name : ""}!`;
+
+    const htmlContent = `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; color: #333; line-height: 1.6;">
+        <h2 style="color: #4F46E5;">Verify your 8ntePani account</h2>
+        <p>${greeting}</p>
+        <p>Your verification code is:</p>
+        <div style="font-size: 2.5rem; font-weight: 800; letter-spacing: 0.5rem; background: #f0f4ff; padding: 1rem 2rem; border-radius: 12px; color: #4338ca; text-align: center; margin: 1.5rem 0;">
+          ${otp}
+        </div>
+        <p>This code expires in 10 minutes.</p>
+        <p>If you did not request this code please ignore this email.</p>
+        <hr style="border: none; border-top: 1px solid #E5E7EB; margin: 20px 0;" />
+        <p style="font-size: 0.875rem; color: #6B7280;">8ntePani Team</p>
+      </div>
+    `;
+
+    const result = await sendEmail({
+      to: email,
+      subject: "Verify your 8ntePani account",
+      html: htmlContent,
+    });
+
+    return result;
+    const info = await sendEmail({
+      from: process.env.EMAIL_FROM,
+      to,
+      subject,
+      html,
+      text,
+    });
+
+    console.log("Email Info:", info);
+
+    return info;
+  } catch (error) {
+    console.error("Failed to send OTP email:", error);
+    return null;
+  }
+};
 
 /**
  * Sends a new order notification email to the freelancer.
@@ -11,7 +60,8 @@ const EMAIL_FROM = process.env.EMAIL_FROM || 'onboarding@resend.dev';
  */
 export const sendNewOrderEmail = async (freelancerEmail, data) => {
   try {
-    const { freelancerName, clientName, serviceTitle, requirements, price } = data;
+    const { freelancerName, clientName, serviceTitle, requirements, price } =
+      data;
 
     const htmlContent = `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; color: #333; line-height: 1.6;">
@@ -29,16 +79,15 @@ export const sendNewOrderEmail = async (freelancerEmail, data) => {
       </div>
     `;
 
-    const result = await resend.emails.send({
-      from: EMAIL_FROM,
+    const result = await sendEmail({
       to: freelancerEmail,
-      subject: 'New Order Received — 8ntePani',
+      subject: "New Order Received — 8ntePani",
       html: htmlContent,
     });
 
     return result;
   } catch (error) {
-    console.error('Failed to send new order email:', error.message);
+    console.error("Failed to send new order email:", error);
     return null;
   }
 };
@@ -55,23 +104,26 @@ export const sendOrderStatusEmail = async (email, data) => {
     const { recipientName, status, serviceTitle } = data;
 
     const subjects = {
-      ACTIVE: 'Your Order Has Been Accepted',
-      REJECTED: 'Your Order Was Rejected',
-      DELIVERED: 'Your Order Has Been Delivered',
-      COMPLETED: 'Order Completed Successfully',
-      CANCELLED: 'Order Has Been Cancelled',
+      ACTIVE: "Your Order Has Been Accepted",
+      REJECTED: "Your Order Was Rejected",
+      DELIVERED: "Your Order Has Been Delivered",
+      COMPLETED: "Order Completed Successfully",
+      CANCELLED: "Order Has Been Cancelled",
     };
 
     const nextSteps = {
-      ACTIVE: 'Your freelancer has accepted and will begin work shortly',
-      REJECTED: 'The freelancer has rejected your order. You can hire another freelancer for this service.',
-      DELIVERED: 'Please review the delivery and approve completion in your dashboard',
-      COMPLETED: 'Thank you for using 8ntePani',
-      CANCELLED: 'Your order has been cancelled',
+      ACTIVE: "Your freelancer has accepted and will begin work shortly",
+      REJECTED:
+        "The freelancer has rejected your order. You can hire another freelancer for this service.",
+      DELIVERED:
+        "Please review the delivery and approve completion in your dashboard",
+      COMPLETED: "Thank you for using 8ntePani",
+      CANCELLED: "Your order has been cancelled",
     };
 
     const subject = subjects[status] || `Order Status Updated: ${status}`;
-    const nextStepMessage = nextSteps[status] || 'Check your dashboard for details.';
+    const nextStepMessage =
+      nextSteps[status] || "Check your dashboard for details.";
 
     const htmlContent = `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; color: #333; line-height: 1.6;">
@@ -87,8 +139,7 @@ export const sendOrderStatusEmail = async (email, data) => {
       </div>
     `;
 
-    const result = await resend.emails.send({
-      from: EMAIL_FROM,
+    const result = await sendEmail({
       to: email,
       subject,
       html: htmlContent,
@@ -96,7 +147,7 @@ export const sendOrderStatusEmail = async (email, data) => {
 
     return result;
   } catch (error) {
-    console.error(`Failed to send order status email for ${status}:`, error.message);
+    console.error(`Failed to send order status email for ${status}:`, error);
     return null;
   }
 };

@@ -12,6 +12,7 @@ import notificationRoutes from './src/routes/notification.routes.js';
 import orderRoutes from './src/routes/order.routes.js';
 import { globalErrorHandler } from './src/middlewares/error.middleware.js';
 import uploadRoutes from './src/routes/upload.routes.js';
+import passport from './src/config/passport.js';
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -43,6 +44,9 @@ app.use(cors({
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
   allowedHeaders: ['Content-Type', 'Authorization'],
 }));
+
+// Initialize Passport for authentication
+app.use(passport.initialize());
 
 // ─── Routes ───────────────────────────────────────────────────────────────────
 
